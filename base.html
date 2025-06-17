@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <title>ERP JSP - Elétrica & Solar</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+
+<head>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+
+    <meta charset="UTF-8">
+    <title>ERP JSP - Elétrica & Solar</title>
+
+    <!-- Torna o layout responsivo no celular -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Visual ao instalar como PWA -->
+    <meta name="theme-color" content="#0d6efd" />
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Ícone para celular (opcional, posso gerar pra você) -->
+    <link rel="icon" href="/static/icon.png">
+
+    <!-- Bootstrap 4.5 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- Estilo personalizado -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark justify-content-between">
+        <a class="navbar-brand" href="/">ERP JSP</a>
+        <a class="btn btn-outline-light" href="/cadastro">Novo Cliente</a>
+    </nav>
+
+    <div class="container my-4">
+        {% block content %}{% endblock %}
+    </div>
+    <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/static/service-worker.js')
+      .then(reg => console.log("✅ Service Worker registrado"))
+      .catch(err => console.error("Erro ao registrar Service Worker:", err));
+  }
+</script>
+
+</body>
+</html>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/static/service-worker.js')
+      .then(reg => console.log("✅ Service Worker registrado"))
+      .catch(err => console.error("Erro ao registrar Service Worker:", err));
+  }
+</script>
