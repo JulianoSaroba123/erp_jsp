@@ -9,22 +9,26 @@
 <body>
 
   <!-- Menu fixo no topo -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-    <a class="navbar-brand fw-bold" href="/">ERP JSP</a>
-    <div class="collapse navbar-collapse">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Clientes</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link {% if '/produtos' in request.path %}active{% endif %}" href="/produtos">Produtos</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link text-warning" href="/logout">Sair</a>
-        </li>
-      </ul>
-    </div>
-  </nav>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+  <a class="navbar-brand fw-bold" href="/">ERP JSP</a>
+  <div class="collapse navbar-collapse">
+    <ul class="navbar-nav ms-auto">
+      <li class="nav-item">
+        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Clientes</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if '/produtos' in request.path %}active{% endif %}" href="/produtos">Produtos</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {% if '/servicos' in request.path %}active{% endif %}" href="/servicos">Serviços</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-warning" href="/logout">Sair</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
 
   <!-- Conteúdo principal -->
   <div class="container mt-4">
