@@ -1,8 +1,7 @@
 # models/servico_model.py
 
-from flask_sqlalchemy import SQLAlchemy
+from models import db
 
-db = SQLAlchemy()
 
 class Servico(db.Model):
     id = db.Column(db.Integer, primary_key=True)
