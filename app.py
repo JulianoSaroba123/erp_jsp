@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, send_file
+from flask import Flask, render_template, request, redirect, send_file, session, url_for
 from models.cliente_model import db, Cliente
 import pandas as pd
 from fpdf import FPDF
@@ -7,11 +7,36 @@ from datetime import datetime
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = 'chave-secreta-jsp'  # Necessário para sessões
 
 db.init_app(app)
 
 with app.app_context():
     db.create_all()
+
+# Middleware de proteção
+@app.before_request
+def proteger_rotas():
+    rotas_livres = ['login']
+    if 'usuario' not in session and request.endpoint not in rotas_livres:
+        return redirect(url_for('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        usuario = request.form['usuario']
+        senha = request.form['senha']
+        if usuario == 'admin' and senha == '123':
+            session['usuario'] = usuario
+            return redirect('/')
+        else:
+            return render_template('login.html', erro='Usuário ou senha inválidos')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('usuario', None)
+    return redirect('/login')
 
 @app.route('/')
 def index():
