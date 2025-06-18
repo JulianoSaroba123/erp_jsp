@@ -119,6 +119,51 @@ def excluir_produto(id):
     db.session.delete(produto)
     db.session.commit()
     return redirect('/produtos')
+import pandas as pd
+from fpdf import FPDF
+from datetime import datetime
+
+@app.route('/produtos/exportar_excel')
+def exportar_produtos_excel():
+    produtos = Produto.query.all()
+    dados = [{
+        'Nome': p.nome,
+        'Código de Barras': p.codigo_barras,
+        'Fornecedor': p.fornecedor,
+        'Unidade': p.unidade,
+        'Valor Venda': p.valor_venda,
+        'Valor Compra': p.valor_compra,
+        'Estoque': p.estoque,
+        'Lucro (%)': p.lucro,
+        'Classificação': p.classificacao,
+        'Fabricante': p.fabricante,
+        'Situação': p.situacao
+    } for p in produtos]
+
+    df = pd.DataFrame(dados)
+    nome_arquivo = f"produtos_JSP_{datetime.now().strftime('%Y-%m-%d')}.xlsx"
+    df.to_excel(nome_arquivo, index=False)
+
+    return send_file(nome_arquivo, as_attachment=True)
+
+@app.route('/produtos/exportar_pdf')
+def exportar_produtos_pdf():
+    produtos = Produto.query.all()
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt="Lista de Produtos - ERP JSP", ln=True, align='C')
+    pdf.ln(5)
+
+    for p in produtos:
+        texto = f"{p.nome} | {p.codigo_barras or ''} | R$ {p.valor_venda:.2f} | Estoque: {p.estoque}"
+        pdf.multi_cell(0, 10, texto)
+        pdf.ln(1)
+
+    nome_arquivo = f"produtos_JSP_{datetime.now().strftime('%Y-%m-%d')}.pdf"
+    pdf.output(nome_arquivo)
+    return send_file(nome_arquivo, as_attachment=True)
 
 
 @app.route('/exportar_excel')
