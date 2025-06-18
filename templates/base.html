@@ -1,53 +1,30 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-  <title>ERP JSP - Elétrica & Solar</title>
-<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
-
 <head>
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ERP JSP - Elétrica & Solar</title>
-
-    <!-- Torna o layout responsivo no celular -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Visual ao instalar como PWA -->
-    <meta name="theme-color" content="#0d6efd" />
-    <link rel="manifest" href="/manifest.json">
-
-    <!-- Ícone para celular (opcional, posso gerar pra você) -->
-    <link rel="icon" href="/static/icon.png">
-
-    <!-- Bootstrap 4.5 -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-    <!-- Estilo personalizado -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="icon" href="/static/192x192.png">
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-dark justify-content-between">
-        <a class="navbar-brand" href="/">ERP JSP</a>
-        <a class="btn btn-outline-light" href="/cadastro">Novo Cliente</a>
+    <nav class="navbar navbar-dark bg-dark px-3 mb-3 d-flex justify-content-between">
+        <span class="navbar-brand">ERP JSP</span>
+        {% if session.get('usuario') %}
+            <a href="/logout" class="btn btn-outline-light btn-sm">Sair</a>
+        {% endif %}
     </nav>
 
-    <div class="container my-4">
-        {% block content %}{% endblock %}
+    <div class="container mb-5">
+        {% block conteudo %}{% endblock %}
     </div>
-    <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/static/service-worker.js')
-      .then(reg => console.log("✅ Service Worker registrado"))
-      .catch(err => console.error("Erro ao registrar Service Worker:", err));
-  }
-</script>
 
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/service-worker.js')
+        }
+    </script>
 </body>
 </html>
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/static/service-worker.js')
-      .then(reg => console.log("✅ Service Worker registrado"))
-      .catch(err => console.error("Erro ao registrar Service Worker:", err));
-  }
-</script>
+
