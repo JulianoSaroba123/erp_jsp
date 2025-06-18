@@ -1,0 +1,42 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h4>{{ 'Editar' if servico else 'Cadastrar' }} Serviço</h4>
+  <form method="POST">
+    <div class="row">
+      <div class="form-group col-md-3">
+        <label>Código</label>
+        <input type="text" name="codigo" class="form-control" value="{{ servico.codigo if servico else '' }}" required>
+      </div>
+      <div class="form-group col-md-6">
+        <label>Nome do Serviço</label>
+        <input type="text" name="nome" class="form-control" value="{{ servico.nome if servico else '' }}" required>
+      </div>
+      <div class="form-group col-md-3">
+        <label>Valor</label>
+        <input type="number" name="valor" class="form-control" step="0.01" value="{{ servico.valor if servico else '' }}" required>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group col-md-6">
+        <label>Unidade</label>
+        <input type="text" name="unidade" class="form-control" value="{{ servico.unidade if servico else '' }}">
+      </div>
+      <div class="form-group col-md-6">
+        <label>Situação</label>
+        <select name="situacao" class="form-control">
+          <option value="Ativo" {% if servico and servico.situacao == 'Ativo' %}selected{% endif %}>Ativo</option>
+          <option value="Inativo" {% if servico and servico.situacao == 'Inativo' %}selected{% endif %}>Inativo</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Descrição</label>
+      <textarea name="descricao" class="form-control">{{ servico.descricao if servico else '' }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-success mt-3">Salvar</button>
+    <a href="/servicos" class="btn btn-secondary mt-3">Voltar</a>
+  </form>
+</div>
+{% endblock %}
