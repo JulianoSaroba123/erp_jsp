@@ -1,1 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-5">
+  <h3>Lista de Produtos</h3>
+  <a href="/produto/novo" class="btn btn-primary mb-3">Novo Produto</a>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>Código</th>
+          <th>Nome</th>
+          <th>Preço</th>
+          <th>Unidade</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in produtos %}
+        <tr>
+          <td>{{ p.codigo }}</td>
+          <td>{{ p.nome }}</td>
+          <td>R$ {{ "%.2f"|format(p.preco) }}</td>
+          <td>{{ p.unidade }}</td>
+          <td>
+            <a href="/produto/editar/{{ p.id }}" class="btn btn-warning btn-sm">Editar</a>
+            <a href="/produto/excluir/{{ p.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Confirmar exclusão?')">Excluir</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
 
