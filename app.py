@@ -177,6 +177,38 @@ def exportar_produtos_pdf():
     nome_arquivo = f"produtos_JSP_{datetime.now().strftime('%Y-%m-%d')}.pdf"
     pdf.output(nome_arquivo)
     return send_file(nome_arquivo, as_attachment=True)
+@app.route('/servicos')
+def listar_servicos():
+    servicos = Servico.query.all()
+    return render_template('lista_servicos.html', servicos=servicos)
+
+@app.route('/servico/novo', methods=['GET', 'POST'])
+@app.route('/servico/editar/<int:id>', methods=['GET', 'POST'])
+def cadastrar_servico(id=None):
+    servico = Servico.query.get(id) if id else None
+
+    if request.method == 'POST':
+        data = request.form.to_dict()
+        data['valor'] = float(data.get('valor', 0.0))
+
+        if servico:
+            for key, value in data.items():
+                setattr(servico, key, value)
+        else:
+            servico = Servico(**data)
+            db.session.add(servico)
+
+        db.session.commit()
+        return redirect('/servicos')
+
+    return render_template('cadastro_servico.html', servico=servico)
+
+@app.route('/servico/excluir/<int:id>')
+def excluir_servico(id):
+    servico = Servico.query.get_or_404(id)
+    db.session.delete(servico)
+    db.session.commit()
+    return redirect('/servicos')
 
 
 @app.route('/exportar_excel')
