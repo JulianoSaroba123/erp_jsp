@@ -92,6 +92,8 @@ def listar_produtos():
     produtos = Produto.query.all()
     return render_template('lista_produtos.html', produtos=produtos)
 
+from datetime import datetime  # certifique-se de ter essa importação no topo
+
 @app.route('/produto/novo', methods=['GET', 'POST'])
 @app.route('/produto/editar/<int:id>', methods=['GET', 'POST'])
 def cadastrar_produto(id=None):
@@ -99,10 +101,16 @@ def cadastrar_produto(id=None):
 
     if request.method == 'POST':
         data = request.form.to_dict()
-        data['valor_venda'] = float(data['valor_venda'])
-        data['valor_compra'] = float(data['valor_compra'])
-        data['estoque'] = int(data['estoque'])
-        data['lucro'] = float(data['lucro'])
+
+        try:
+            # Conversões seguras dos campos numéricos e de data
+            data['valor_venda'] = float(data.get('valor_venda', 0))
+            data['valor_compra'] = float(data.get('valor_compra', 0))
+            data['estoque'] = int(data.get('estoque', 0))
+            data['lucro'] = float(data.get('lucro', 0))
+            data['data'] = datetime.strptime(data.get('data', ''), "%Y-%m-%d").date()
+        except (ValueError, TypeError) as e:
+            return f"Erro ao converter valores numéricos ou data: {e}"
 
         if produto:
             for key, value in data.items():
@@ -110,10 +118,12 @@ def cadastrar_produto(id=None):
         else:
             produto = Produto(**data)
             db.session.add(produto)
+
         db.session.commit()
         return redirect('/produtos')
 
     return render_template('cadastro_produto.html', produto=produto)
+
 
 @app.route('/produto/excluir/<int:id>')
 def excluir_produto(id):
