@@ -3,6 +3,8 @@ from models.cliente_model import db, Cliente
 import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
+from models.produto_model import Produto
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -83,6 +85,41 @@ def excluir(id):
     db.session.delete(cliente)
     db.session.commit()
     return redirect('/')
+@app.route('/produtos')
+def listar_produtos():
+    produtos = Produto.query.all()
+    return render_template('lista_produtos.html', produtos=produtos)
+
+@app.route('/produto/novo', methods=['GET', 'POST'])
+@app.route('/produto/editar/<int:id>', methods=['GET', 'POST'])
+def cadastrar_produto(id=None):
+    produto = Produto.query.get(id) if id else None
+
+    if request.method == 'POST':
+        data = request.form.to_dict()
+        data['valor_venda'] = float(data['valor_venda'])
+        data['valor_compra'] = float(data['valor_compra'])
+        data['estoque'] = int(data['estoque'])
+        data['lucro'] = float(data['lucro'])
+
+        if produto:
+            for key, value in data.items():
+                setattr(produto, key, value)
+        else:
+            produto = Produto(**data)
+            db.session.add(produto)
+        db.session.commit()
+        return redirect('/produtos')
+
+    return render_template('cadastro_produto.html', produto=produto)
+
+@app.route('/produto/excluir/<int:id>')
+def excluir_produto(id):
+    produto = Produto.query.get_or_404(id)
+    db.session.delete(produto)
+    db.session.commit()
+    return redirect('/produtos')
+
 
 @app.route('/exportar_excel')
 def exportar_excel():
