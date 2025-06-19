@@ -4,45 +4,52 @@
   <div class="card p-4 shadow-sm">
     <h2 class="mb-4">{{ 'Editar Serviço' if servico else 'Novo Serviço' }}</h2>
     <form method="POST">
-      <div class="form-group mb-3">
-        <label for="codigo">Código</label>
-        <input type="text" class="form-control" id="codigo" name="codigo" required value="{{ servico.codigo if servico else '' }}">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="codigo">Código</label>
+          <input type="text" class="form-control" id="codigo" name="codigo" value="{{ servico.codigo if servico else '' }}" required>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label for="nome">Nome do Serviço</label>
+          <input type="text" class="form-control" id="nome" name="nome" value="{{ servico.nome if servico else '' }}" required>
+        </div>
       </div>
 
-      <div class="form-group mb-3">
-        <label for="nome">Nome do Serviço</label>
-        <input type="text" class="form-control" id="nome" name="nome" required value="{{ servico.nome if servico else '' }}">
-      </div>
-
-      <div class="form-group mb-3">
+      <div class="mb-3">
         <label for="descricao">Descrição</label>
-        <textarea class="form-control" id="descricao" name="descricao" rows="4">{{ servico.descricao if servico else '' }}</textarea>
+        <textarea class="form-control" id="descricao" name="descricao" rows="3">{{ servico.descricao if servico else '' }}</textarea>
       </div>
 
-      <div class="form-group mb-3">
-        <label for="valor">Valor</label>
-        <input type="number" step="0.01" class="form-control" id="valor" name="valor" required value="{{ servico.valor if servico else '' }}">
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label for="valor">Valor</label>
+          <input type="number" step="0.01" class="form-control" id="valor" name="valor" value="{{ servico.valor if servico else '' }}">
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <label for="unidade">Unidade</label>
+          <input type="text" class="form-control" id="unidade" name="unidade" value="{{ servico.unidade if servico else '' }}">
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <label for="situacao">Situação</label>
+          <select class="form-select" id="situacao" name="situacao">
+            <option value="Ativo" {% if servico and servico.situacao == 'Ativo' %}selected{% endif %}>Ativo</option>
+            <option value="Inativo" {% if servico and servico.situacao == 'Inativo' %}selected{% endif %}>Inativo</option>
+          </select>
+        </div>
       </div>
 
-      <div class="form-group mb-3">
-        <label for="unidade">Unidade</label>
-        <input type="text" class="form-control" id="unidade" name="unidade" value="{{ servico.unidade if servico else '' }}">
+      <div class="d-flex justify-content-between">
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a href="/servicos" class="btn btn-secondary">Voltar</a>
       </div>
-
-      <div class="form-group mb-4">
-        <label for="situacao">Situação</label>
-        <select class="form-control" id="situacao" name="situacao">
-          <option value="Ativo" {% if servico and servico.situacao == 'Ativo' %}selected{% endif %}>Ativo</option>
-          <option value="Inativo" {% if servico and servico.situacao == 'Inativo' %}selected{% endif %}>Inativo</option>
-        </select>
-      </div>
-
-      <button type="submit" class="btn btn-primary">Salvar</button>
-      <a href="/servicos" class="btn btn-secondary">Voltar</a>
     </form>
   </div>
 </div>
 {% endblock %}
+
 
 
 
