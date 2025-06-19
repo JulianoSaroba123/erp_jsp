@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% block conteudo %}
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3>Serviços Cadastrados</h3>
-    <a href="/servico/novo" class="btn btn-primary">Novo Serviço</a>
+  <div class="container mt-4">
+    <h3>TESTE - Página de serviços carregou</h3>
+    <p>Quantidade de serviços: {{ servicos|length }}</p>
   </div>
+{% endblock %}
 
   <div class="table-responsive">
     <table class="table table-bordered table-hover align-middle">
