@@ -206,11 +206,8 @@ def cadastrar_servico(id=None):
     return render_template('cadastro_servico.html', servico=servico)
 
 @app.route('/servico/excluir/<int:id>')
-def excluir_servico(id):
-    servico = Servico.query.get_or_404(id)
-    db.session.delete(servico)
-    db.session.commit()
-    return redirect('/servicos')
+
+    # ROTAS DE FORNECEDOR ------------------------
 
 @app.route('/fornecedores')
 def listar_fornecedores():
@@ -221,9 +218,9 @@ def listar_fornecedores():
 @app.route('/fornecedor/editar/<int:id>', methods=['GET', 'POST'])
 def cadastrar_fornecedor(id=None):
     fornecedor = Fornecedor.query.get(id) if id else None
-
     if request.method == 'POST':
         data = request.form.to_dict()
+        # Aqui não precisa tratar máscara pois só exibe, salva formatado mesmo!
         if fornecedor:
             for key, value in data.items():
                 setattr(fornecedor, key, value)
