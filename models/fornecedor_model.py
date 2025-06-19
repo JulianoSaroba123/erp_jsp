@@ -1,7 +1,7 @@
 
 from models import db
 
-class Fornecedor(db.Model:
+class Fornecedor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
     cnpj = db.Column(db.String(18), nullable=False)       # Com formatação XX.XXX.XXX/0001-XX
