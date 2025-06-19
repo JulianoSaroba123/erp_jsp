@@ -177,6 +177,7 @@ def exportar_produtos_pdf():
     nome_arquivo = f"produtos_JSP_{datetime.now().strftime('%Y-%m-%d')}.pdf"
     pdf.output(nome_arquivo)
     return send_file(nome_arquivo, as_attachment=True)
+    
 @app.route('/servicos')
 def listar_servicos():
     servicos = Servico.query.all()
