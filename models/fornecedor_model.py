@@ -1,4 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
+
 from models import db
 
 class Fornecedor(db.Model:
