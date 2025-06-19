@@ -9,25 +9,24 @@
 <body>
 
   <!-- Menu fixo no topo -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-  <a class="navbar-brand fw-bold" href="/">ERP JSP</a>
-  <div class="collapse navbar-collapse">
-    <ul class="navbar-nav ms-auto">
-      <li class="nav-item">
-        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Clientes</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link {% if '/produtos' in request.path %}active{% endif %}" href="/produtos">Produtos</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link {% if '/servicos' in request.path %}active{% endif %}" href="/servicos">Serviços</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-warning" href="/logout">Sair</a>
-      </li>
-    </ul>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">ERP JSP</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">Clientes</a></li>
+        <li class="nav-item"><a class="nav-link {% if 'produtos' in request.path %}active{% endif %}" href="/produtos">Produtos</a></li>
+        <li class="nav-item"><a class="nav-link {% if 'servicos' in request.path %}active{% endif %}" href="/servicos">Serviços</a></li>
+        <li class="nav-item"><a class="nav-link text-warning" href="/logout">Sair</a></li>
+      </ul>
+    </div>
   </div>
 </nav>
+
 
 
   <!-- Conteúdo principal -->
