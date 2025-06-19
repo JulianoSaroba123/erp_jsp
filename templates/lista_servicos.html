@@ -1,43 +1,43 @@
 {% extends 'base.html' %}
 {% block conteudo %}
-<div class="container mt-5">
-  <div class="card p-4 shadow-sm">
-    <h3 class="mb-4">{{ 'Editar Serviço' if servico else 'Novo Serviço' }}</h3>
-    <form method="POST">
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label for="codigo" class="form-label">Código</label>
-          <input type="text" class="form-control" id="codigo" name="codigo" required value="{{ servico.codigo if servico else '' }}">
-        </div>
-        <div class="col-md-6 mb-3">
-          <label for="nome" class="form-label">Nome</label>
-          <input type="text" class="form-control" id="nome" name="nome" required value="{{ servico.nome if servico else '' }}">
-        </div>
-      </div>
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Serviços Cadastrados</h3>
+    <a href="/servico/novo" class="btn btn-primary">Novo Serviço</a>
+  </div>
 
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label for="valor" class="form-label">Valor</label>
-          <input type="number" step="0.01" class="form-control" id="valor" name="valor" required value="{{ servico.valor if servico else '' }}">
-        </div>
-        <div class="col-md-3 mb-3">
-          <label for="unidade" class="form-label">Unidade</label>
-          <input type="text" class="form-control" id="unidade" name="unidade" required value="{{ servico.unidade if servico else '' }}">
-        </div>
-        <div class="col-md-3 mb-3">
-          <label for="situacao" class="form-label">Situação</label>
-          <select id="situacao" name="situacao" class="form-select">
-            <option value="Ativo" {% if servico and servico.situacao == 'Ativo' %}selected{% endif %}>Ativo</option>
-            <option value="Inativo" {% if servico and servico.situacao == 'Inativo' %}selected{% endif %}>Inativo</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="d-flex justify-content-between">
-        <a href="/servicos" class="btn btn-secondary">Voltar</a>
-        <button type="submit" class="btn btn-success">Salvar</button>
-      </div>
-    </form>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th scope="col">Código</th>
+          <th scope="col">Nome</th>
+          <th scope="col">Valor</th>
+          <th scope="col">Unidade</th>
+          <th scope="col">Situação</th>
+          <th scope="col" class="text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in servicos %}
+        <tr>
+          <td>{{ s.codigo }}</td>
+          <td>{{ s.nome }}</td>
+          <td>R$ {{ "%.2f"|format(s.valor) }}</td>
+          <td>{{ s.unidade }}</td>
+          <td>{{ s.situacao }}</td>
+          <td class="text-center">
+            <a href="/servico/editar/{{ s.id }}" class="btn btn-warning btn-sm">Editar</a>
+            <a href="/servico/excluir/{{ s.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Deseja excluir este serviço?')">Excluir</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center">Nenhum serviço cadastrado.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 {% endblock %}
