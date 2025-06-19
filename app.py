@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, send_file, session, url_for
+8from flask import Flask, render_template, request, redirect, send_file, session, url_for
 from models import db
 import pandas as pd
 from fpdf import FPDF
@@ -212,7 +212,34 @@ def excluir_servico(id):
     db.session.commit()
     return redirect('/servicos')
 
+@app.route('/fornecedores')
+def listar_fornecedores():
+    fornecedores = Fornecedor.query.all()
+    return render_template('lista_fornecedores.html', fornecedores=fornecedores)
 
+@app.route('/fornecedor/novo', methods=['GET', 'POST'])
+@app.route('/fornecedor/editar/<int:id>', methods=['GET', 'POST'])
+def cadastrar_fornecedor(id=None):
+    fornecedor = Fornecedor.query.get(id) if id else None
+
+    if request.method == 'POST':
+        data = request.form.to_dict()
+        if fornecedor:
+            for key, value in data.items():
+                setattr(fornecedor, key, value)
+        else:
+            fornecedor = Fornecedor(**data)
+            db.session.add(fornecedor)
+        db.session.commit()
+        return redirect('/fornecedores')
+    return render_template('cadastro_fornecedor.html', fornecedor=fornecedor)
+
+@app.route('/fornecedor/excluir/<int:id>')
+def excluir_fornecedor(id):
+    fornecedor = Fornecedor.query.get_or_404(id)
+    db.session.delete(fornecedor)
+    db.session.commit()
+    return redirect('/fornecedores')
 @app.route('/exportar_excel')
 def exportar_excel():
     clientes = Cliente.query.all()
