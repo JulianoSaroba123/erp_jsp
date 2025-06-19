@@ -240,6 +240,7 @@ def excluir_fornecedor(id):
     db.session.delete(fornecedor)
     db.session.commit()
     return redirect('/fornecedores')
+    
 @app.route('/exportar_excel')
 def exportar_excel():
     clientes = Cliente.query.all()
