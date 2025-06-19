@@ -6,6 +6,10 @@
     <form method="POST" id="formFornecedor">
       <div class="row">
         <div class="col-md-6 mb-3">
+          <div class="col-md-3 mb-3">
+  <label for="codigo" class="form-label">Código</label>
+  <input type="text" class="form-control" id="codigo" name="codigo" maxlength="20" required value="{{ fornecedor.codigo if fornecedor else '' }}">
+          </div>
           <label for="nome" class="form-label">Nome</label>
           <input type="text" class="form-control" id="nome" name="nome" required value="{{ fornecedor.nome if fornecedor else '' }}">
         </div>
