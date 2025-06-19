@@ -7,7 +7,7 @@ from models.cliente_model import Cliente
 from models.produto_model import Produto
 from models.produto_model import Produto
 from models.servico_model import Servico
-
+from models.fornecedor_model import Fornecedor
 
 
 app = Flask(__name__)
