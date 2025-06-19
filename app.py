@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request, redirect, send_file, session, url_for
 from models import db
-from models.cliente_model import Cliente
-from models.produto_model import Produto
 import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
+from models.cliente_model import Cliente
+from models.produto_model import Produto
 from models.produto_model import Produto
 from models.servico_model import Servico
 
