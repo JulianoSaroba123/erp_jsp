@@ -9,6 +9,7 @@ from models.produto_model import Produto
 from models.servico_model import Servico
 
 
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
