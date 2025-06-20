@@ -1,1 +1,209 @@
+{% extends 'base.html' %}
+{% block conteudo %}
+<div class="container mt-5">
+  <div class="card p-4 shadow-sm">
+    <h3 class="mb-4">{{ 'Editar Ordem de Serviço' if os else 'Nova Ordem de Serviço' }}</h3>
+    <form method="POST" id="formOS">
+      <!-- 1. Dados do Cliente -->
+      <h5>1. Dados do Cliente</h5>
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label">Nome/Razão Social</label>
+          <input type="text" name="nome_cliente" class="form-control" required value="{{ os.nome_cliente if os else '' }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">CNPJ/CPF</label>
+          <input type="text" name="documento_cliente" class="form-control" value="{{ os.documento_cliente if os else '' }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Telefone/WhatsApp</label>
+          <input type="text" name="telefone_cliente" class="form-control" value="{{ os.telefone_cliente if os else '' }}">
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">E-mail</label>
+        <input type="email" name="email_cliente" class="form-control" value="{{ os.email_cliente if os else '' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Endereço do Serviço</label>
+        <input type="text" name="endereco_servico" class="form-control" value="{{ os.endereco_servico if os else '' }}">
+      </div>
+      <hr>
 
+      <!-- 2. Detalhes da Ordem de Serviço -->
+      <h5>2. Detalhes da Ordem de Serviço</h5>
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <label class="form-label">Nº da OS</label>
+          <input type="text" name="numero_os" class="form-control" required value="{{ os.numero_os if os else '' }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Data de Emissão</label>
+          <input type="date" name="data_emissao" class="form-control" required value="{{ os.data_emissao if os else '' }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Previsão de Conclusão</label>
+          <input type="date" name="previsao_conclusao" class="form-control" value="{{ os.previsao_conclusao if os else '' }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Tipo de Serviço</label>
+          <select name="tipo_servico" class="form-select" required>
+            <option value="">Selecione</option>
+            <option value="Manutenção" {% if os and os.tipo_servico == "Manutenção" %}selected{% endif %}>Manutenção</option>
+            <option value="Instalação" {% if os and os.tipo_servico == "Instalação" %}selected{% endif %}>Instalação</option>
+            <option value="Laudo" {% if os and os.tipo_servico == "Laudo" %}selected{% endif %}>Laudo</option>
+            <option value="Outros" {% if os and os.tipo_servico == "Outros" %}selected{% endif %}>Outros</option>
+          </select>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Descrição Detalhada do Serviço</label>
+        <textarea name="descricao_servico" class="form-control" rows="3">{{ os.descricao_servico if os else '' }}</textarea>
+      </div>
+      <hr>
+
+      <!-- 3. Produtos/Peças Utilizadas -->
+      <h5>3. Produtos/Peças Utilizadas</h5>
+      <div id="produtos-lista">
+        <!-- Itens serão adicionados via JS aqui -->
+      </div>
+      <button type="button" class="btn btn-outline-primary mb-3" onclick="addProduto()">Adicionar Produto/Peça</button>
+      <!-- Campo oculto para armazenar o JSON dos produtos -->
+      <input type="hidden" id="produtos_json" name="produtos_json">
+
+      <hr>
+      <!-- 4. Horas Trabalhadas -->
+      <h5>4. Horas Trabalhadas</h5>
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <label class="form-label">Técnico Responsável</label>
+          <input type="text" name="tecnico_responsavel" class="form-control" value="{{ os.tecnico_responsavel if os else '' }}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Hora de Início</label>
+          <input type="time" name="hora_inicio" class="form-control" value="{{ os.hora_inicio if os else '' }}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Hora de Término</label>
+          <input type="time" name="hora_termino" class="form-control" value="{{ os.hora_termino if os else '' }}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Total de Horas</label>
+          <input type="text" name="total_horas" class="form-control" value="{{ os.total_horas if os else '' }}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Atividade Realizada</label>
+          <input type="text" name="atividade_realizada" class="form-control" value="{{ os.atividade_realizada if os else '' }}">
+        </div>
+      </div>
+      <hr>
+
+      <!-- 5. Deslocamento -->
+      <h5>5. Deslocamento</h5>
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <label class="form-label">KM Inicial</label>
+          <input type="number" step="0.1" name="km_inicial" class="form-control" value="{{ os.km_inicial if os else '' }}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">KM Final</label>
+          <input type="number" step="0.1" name="km_final" class="form-control" value="{{ os.km_final if os else '' }}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Total KM Percorrido</label>
+          <input type="number" step="0.1" name="total_km" class="form-control" value="{{ os.total_km if os else '' }}">
+        </div>
+      </div>
+      <hr>
+
+      <!-- 6. Valores -->
+      <h5>6. Valores</h5>
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <label class="form-label">Valor dos Serviços</label>
+          <input type="number" step="0.01" name="valor_servicos" class="form-control" value="{{ os.valor_servicos if os else '' }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Valor dos Produtos</label>
+          <input type="number" step="0.01" name="valor_produtos" class="form-control" value="{{ os.valor_produtos if os else '' }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Valor do Deslocamento</label>
+          <input type="number" step="0.01" name="valor_deslocamento" class="form-control" value="{{ os.valor_deslocamento if os else '' }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Total Geral</label>
+          <input type="number" step="0.01" name="total_geral" class="form-control" value="{{ os.total_geral if os else '' }}">
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Condições de Pagamento</label>
+        <input type="text" name="condicoes_pagamento" class="form-control" value="{{ os.condicoes_pagamento if os else '' }}">
+      </div>
+      <hr>
+
+      <!-- 7. Observações/Recados -->
+      <h5>7. Observações/Recados</h5>
+      <div class="mb-3">
+        <textarea name="observacoes" class="form-control" rows="2">{{ os.observacoes if os else '' }}</textarea>
+      </div>
+
+      <!-- 8. Assinaturas (placeholder para futuro) -->
+      <hr>
+      <h5>8. Assinaturas</h5>
+      <p class="text-muted">Assinatura digital (em breve)</p>
+
+      <div class="d-flex justify-content-between">
+        <a href="/ordens_servico" class="btn btn-secondary">Voltar</a>
+        <button type="submit" class="btn btn-success" onclick="return salvarProdutosJson();">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Função para adicionar/remover produtos dinamicamente e salvar como JSON
+let produtos = [];
+
+function addProduto(produto = {}) {
+  const idx = produtos.length;
+  produtos.push({
+    nome: produto.nome || "",
+    quantidade: produto.quantidade || "",
+    valor_unitario: produto.valor_unitario || "",
+    valor_total: produto.valor_total || ""
+  });
+  renderProdutos();
+}
+
+function removeProduto(idx) {
+  produtos.splice(idx, 1);
+  renderProdutos();
+}
+
+function renderProdutos() {
+  let html = produtos.map((p, i) => `
+    <div class="row align-items-end mb-2" data-idx="${i}">
+      <div class="col-md-4"><input class="form-control" placeholder="Produto/Peça" value="${p.nome}" onchange="produtos[${i}].nome = this.value"></div>
+      <div class="col-md-2"><input type="number" min="1" class="form-control" placeholder="Quantidade" value="${p.quantidade}" onchange="produtos[${i}].quantidade = this.value"></div>
+      <div class="col-md-2"><input type="number" step="0.01" class="form-control" placeholder="Valor Unitário" value="${p.valor_unitario}" onchange="produtos[${i}].valor_unitario = this.value"></div>
+      <div class="col-md-2"><input type="number" step="0.01" class="form-control" placeholder="Valor Total" value="${p.valor_total}" onchange="produtos[${i}].valor_total = this.value"></div>
+      <div class="col-md-2"><button type="button" class="btn btn-danger" onclick="removeProduto(${i})">Remover</button></div>
+    </div>
+  `).join('');
+  document.getElementById('produtos-lista').innerHTML = html;
+}
+
+// Função para salvar os produtos em JSON antes do submit
+function salvarProdutosJson() {
+  document.getElementById('produtos_json').value = JSON.stringify(produtos);
+  return true;
+}
+
+// Se for edição, carregue os produtos do banco
+{% if os and os.produtos %}
+  produtos = JSON.parse('{{ os.produtos | safe }}');
+  renderProdutos();
+{% endif %}
+</script>
+{% endblock %}
