@@ -9,6 +9,7 @@ from models.os_model import OrdemServico
 import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
+from flask import jsonify
 
 # Função para gerar códigos automáticos com prefixo (ex: CLT00001)
 def gerar_codigo(model, prefixo, inicio=1):
@@ -268,6 +269,35 @@ def excluir_ordem_servico(id):
     db.session.delete(os)
     db.session.commit()
     return redirect('/ordens_servico')
+    # --- AUTOCOMPLETE CLIENTE ---
+@app.route('/buscar_clientes')
+def buscar_clientes():
+    termo = request.args.get('q', '')
+    clientes = Cliente.query.filter(Cliente.nome.ilike(f'%{termo}%')).all()
+    return jsonify([
+        {
+            "id": c.id,
+            "nome": c.nome,
+            "cpf_cnpj": c.cpf_cnpj,
+            "telefone": c.telefone,
+            "email": c.email,
+            "endereco": c.endereco
+        } for c in clientes
+    ])
+
+# --- AUTOCOMPLETE PRODUTO ---
+@app.route('/buscar_produtos')
+def buscar_produtos():
+    termo = request.args.get('q', '')
+    produtos = Produto.query.filter(Produto.nome.ilike(f'%{termo}%')).all()
+    return jsonify([
+        {
+            "id": p.id,
+            "nome": p.nome,
+            "valor_venda": p.valor_venda
+        } for p in produtos
+    ])
+    
 
 # --- EXPORTAÇÕES CLIENTE/PRODUTO/OS ---
 @app.route('/exportar_excel')
