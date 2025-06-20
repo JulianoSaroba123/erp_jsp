@@ -65,8 +65,10 @@ def index():
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
     if request.method == 'POST':
+        # Gera o código automaticamente
+        codigo = gerar_codigo(Cliente, prefixo='JSP', inicio=100)
         cliente = Cliente(
-            codigo=request.form['codigo'],
+            codigo=codigo,  # Aqui usa o código gerado
             nome=request.form['nome'],
             cpf_cnpj=request.form['cpf_cnpj'],
             telefone=request.form['telefone'],
