@@ -11,11 +11,15 @@ from models.os_model import OrdemServico
 
 import json
 
-def gerar_codigo(model, prefixo='JSP', inicio=100):
+def gerar_codigo(model, prefixo='JSP', inicio=1):
+    """
+    Gera um código sequencial automático para qualquer cadastro.
+    Exemplo: CLT00001, PRD00001, etc.
+    """
     ultimo = model.query.order_by(model.id.desc()).first()
     if ultimo and ultimo.codigo and ultimo.codigo.startswith(prefixo):
         try:
-            num = int(''.join(filter(str.isdigit, ultimo.codigo)))
+            num = int(ultimo.codigo.replace(prefixo, ''))
         except:
             num = inicio
         novo_num = num + 1
