@@ -8,7 +8,8 @@ from models.produto_model import Produto
 from models.produto_model import Produto
 from models.servico_model import Servico
 from models.fornecedor_model import Fornecedor
-
+from models.os_model import OrdemServico
+import json
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
