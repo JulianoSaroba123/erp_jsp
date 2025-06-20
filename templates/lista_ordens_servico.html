@@ -1,1 +1,59 @@
-
+{% extends 'base.html' %}
+{% block conteudo %}
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Ordens de Serviço</h3>
+    <a href="/ordem_servico/novo" class="btn btn-primary">Nova Ordem de Serviço</a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Nº OS</th>
+          <th>Cliente</th>
+          <th>Tipo</th>
+          <th>Emissão</th>
+          <th>Previsão</th>
+          <th>Status</th>
+          <th class="text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for os in ordens %}
+        <tr>
+          <td>{{ os.numero_os }}</td>
+          <td>{{ os.nome_cliente }}</td>
+          <td>{{ os.tipo_servico }}</td>
+          <td>
+            {% if os.data_emissao %}{{ os.data_emissao.strftime('%d/%m/%Y') }}{% endif %}
+          </td>
+          <td>
+            {% if os.previsao_conclusao %}{{ os.previsao_conclusao.strftime('%d/%m/%Y') }}{% endif %}
+          </td>
+          <td>
+            {% if os.total_geral %}
+              {% if os.total_geral > 0 %}
+                <span class="badge bg-success">Concluída</span>
+              {% else %}
+                <span class="badge bg-warning text-dark">Em Andamento</span>
+              {% endif %}
+            {% else %}
+              <span class="badge bg-secondary">Não informado</span>
+            {% endif %}
+          </td>
+          <td class="text-center">
+            <a href="/ordem_servico/editar/{{ os.id }}" class="btn btn-warning btn-sm">Editar</a>
+            <a href="/ordem_servico/excluir/{{ os.id }}" class="btn btn-danger btn-sm"
+               onclick="return confirm('Deseja excluir esta OS?')">Excluir</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="text-center">Nenhuma ordem de serviço cadastrada.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
