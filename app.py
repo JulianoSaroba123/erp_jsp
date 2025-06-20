@@ -111,6 +111,45 @@ def listar_produtos():
 @app.route('/produto/novo', methods=['GET', 'POST'])
 @app.route('/produto/editar/<int:id>', methods=['GET', 'POST'])
 def cadastrar_produto(id=None):
+    from datetime import datetime
+
+@app.route('/produto/novo', methods=['GET', 'POST'])
+@app.route('/produto/editar/<int:id>', methods=['GET', 'POST'])
+def cadastrar_produto(id=None):
+    produto = Produto.query.get(id) if id else None
+    fornecedores = Fornecedor.query.all()  # Pega fornecedores para o select
+
+    if request.method == 'POST':
+        data = request.form.to_dict()
+        # Conversão correta da data
+        data_str = data.get('data', '')
+        if data_str:
+            try:
+                data['data'] = datetime.strptime(data_str, "%Y-%m-%d").date()
+            except Exception:
+                return "Data em formato inválido. Use o formato AAAA-MM-DD."
+        else:
+            data['data'] = None
+
+        data['valor_venda'] = float(data.get('valor_venda', 0))
+        data['valor_compra'] = float(data.get('valor_compra', 0))
+        data['estoque'] = int(data.get('estoque', 0))
+        data['lucro'] = float(data.get('lucro', 0))
+
+        if produto:
+            for key, value in data.items():
+                setattr(produto, key, value)
+        else:
+            # Geração de código automático
+            data['codigo'] = gerar_codigo(Produto, prefixo='PRD')
+            produto = Produto(**data)
+            db.session.add(produto)
+
+        db.session.commit()
+        return redirect('/produtos')
+
+    return render_template('cadastro_produto.html', produto=produto, fornecedores=fornecedores)
+
     produto = Produto.query.get(id) if id else None
     if request.method == 'POST':
         if not produto:
