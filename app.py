@@ -112,10 +112,6 @@ def listar_produtos():
 @app.route('/produto/editar/<int:id>', methods=['GET', 'POST'])
 def cadastrar_produto(id=None):
     from datetime import datetime
-
-@app.route('/produto/novo', methods=['GET', 'POST'])
-@app.route('/produto/editar/<int:id>', methods=['GET', 'POST'])
-def cadastrar_produto(id=None):
     produto = Produto.query.get(id) if id else None
     fornecedores = Fornecedor.query.all()  # Pega fornecedores para o select
 
