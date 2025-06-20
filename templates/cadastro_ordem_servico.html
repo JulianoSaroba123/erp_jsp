@@ -1,30 +1,263 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="card p-4 mt-4">
-    <h3>{{ 'Editar' if os else 'Nova' }} Ordem de Serviço</h3>
-    <form method="POST">
+{% extends 'base.html' %}
+{% block conteudo %}
+<div class="container mt-4">
+  <div class="card shadow-sm p-4">
+    <h3 class="mb-4">Nova Ordem de Serviço</h3>
+    <form method="POST" id="formOS">
+
+      <!-- 1. Dados do Cliente -->
+      <h5>Dados do Cliente</h5>
+      <div class="row align-items-end">
+        <div class="col-md-6 mb-2">
+          <label>Cliente</label>
+          <div class="col-md-6 mb-2">
+  <label>Cliente</label>
+  <input type="text" name="cliente_nome" id="cliente_nome" class="form-control" autocomplete="off" required>
+  <div id="cliente-lista" class="autocomplete-list"></div>
+  <a href="/cadastro" target="_blank" class="btn btn-outline-primary mt-2">Novo Cliente</a>
+          </div>
+        </div>
+        <div class="col-md-3 mb-2">
+          <label>CPF/CNPJ</label>
+          <input type="text" name="cliente_cpf_cnpj" id="cliente_cpf_cnpj" class="form-control">
+        </div>
+        <div class="col-md-3 mb-2">
+          <label>Telefone/WhatsApp</label>
+          <input type="text" name="cliente_telefone" id="cliente_telefone" class="form-control">
+        </div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-md-6">
+          <label>Email</label>
+          <input type="email" name="cliente_email" id="cliente_email" class="form-control">
+        </div>
+        <div class="col-md-6">
+          <label>Endereço do Serviço</label>
+          <input type="text" name="cliente_endereco" id="cliente_endereco" class="form-control">
+        </div>
+      </div>
+
+      <!-- 2. Detalhes da Ordem de Serviço -->
+      <hr>
+      <h5>Detalhes da Ordem de Serviço</h5>
+      <div class="row mb-2">
+        <div class="col-md-3">
+          <label>Nº da OS</label>
+          <input type="text" name="codigo" class="form-control" value="{{ os.codigo if os else '' }}" readonly>
+        </div>
+        <div class="col-md-3">
+          <label>Data de Emissão</label>
+          <input type="date" name="data_emissao" class="form-control" value="{{ os.data_emissao if os else '' }}">
+        </div>
+        <div class="col-md-3">
+          <label>Previsão de Conclusão</label>
+          <input type="date" name="previsao_conclusao" class="form-control" value="{{ os.previsao_conclusao if os else '' }}">
+        </div>
+        <div class="col-md-3">
+          <label>Tipo de Serviço</label>
+          <select name="tipo_servico" class="form-select">
+            <option value="">Selecione</option>
+            <option value="Manutenção">Manutenção</option>
+            <option value="Instalação">Instalação</option>
+            <option value="Laudo">Laudo</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
+      </div>
+      <div class="mb-2">
+        <label>Descrição Detalhada do Serviço</label>
+        <textarea name="descricao" class="form-control" rows="2"></textarea>
+      </div>
+
+      <!-- 3. Produtos/Peças Utilizadas -->
+      <hr>
+      <h5>Produtos/Peças Utilizadas</h5>
+      <div id="produtos-itens"></div>
+      <button type="button" class="btn btn-outline-secondary mb-3" onclick="adicionarProduto()">Adicionar Produto/Peça</button>
+
+      <!-- Produtos serão adicionados aqui via JS -->
+
+      <!-- 4. Horas Trabalhadas -->
+      <hr>
+      <h5>Horas Trabalhadas</h5>
+      <div class="row mb-2">
+        <div class="col-md-3">
+          <label>Técnico Responsável</label>
+          <input type="text" name="tecnico" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label>Hora de Início</label>
+          <input type="time" name="hora_inicio" id="hora_inicio" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label>Hora de Término</label>
+          <input type="time" name="hora_termino" id="hora_termino" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label>Total de Horas</label>
+          <input type="text" name="total_horas" id="total_horas" class="form-control" readonly>
+        </div>
+      </div>
+      <div class="mb-2">
+        <label>Atividade Realizada</label>
+        <textarea name="atividade" class="form-control" rows="2"></textarea>
+      </div>
+
+      <!-- 5. Deslocamento -->
+      <hr>
+      <h5>Deslocamento</h5>
+      <div class="row mb-2">
+        <div class="col-md-4">
+          <label>KM Inicial</label>
+          <input type="number" name="km_inicial" id="km_inicial" class="form-control">
+        </div>
+        <div class="col-md-4">
+          <label>KM Final</label>
+          <input type="number" name="km_final" id="km_final" class="form-control">
+        </div>
+        <div class="col-md-4">
+          <label>Total KM Percorrido</label>
+          <input type="number" name="total_km" id="total_km" class="form-control" readonly>
+        </div>
+      </div>
+
+      <!-- 6. Valores -->
+      <hr>
+      <h5>Valores</h5>
+      <div class="row mb-2">
+        <div class="col-md-3">
+          <label>Valor dos Serviços</label>
+          <input type="number" step="0.01" name="valor_servicos" id="valor_servicos" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label>Valor dos Produtos</label>
+          <input type="number" step="0.01" name="valor_produtos" id="valor_produtos" class="form-control" readonly>
+        </div>
+        <div class="col-md-3">
+          <label>Valor do Deslocamento</label>
+          <input type="number" step="0.01" name="valor_deslocamento" id="valor_deslocamento" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <label>Total Geral</label>
+          <input type="number" step="0.01" name="total_geral" id="total_geral" class="form-control" readonly>
+        </div>
+      </div>
+      <div class="mb-2">
+        <label>Condições de Pagamento</label>
+        <input type="text" name="condicoes_pagamento" class="form-control">
+      </div>
+
+      <!-- 7. Observações -->
+      <hr>
+      <div class="mb-2">
+        <label>Observações/Recados</label>
+        <textarea name="observacoes" class="form-control" rows="2"></textarea>
+      </div>
+
+      <!-- 8. Assinaturas -->
+      <hr>
+      <div class="mb-2">
+        <label>Assinaturas</label>
         <div class="row">
-            <div class="col-md-3 mb-3">
-                <label class="form-label">Código OS</label>
-                <input type="text" class="form-control" name="codigo" value="{{ os.codigo if os else '' }}" readonly>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Cliente</label>
-                <input type="text" class="form-control" name="cliente_id" value="{{ os.cliente_id if os else '' }}">
-            </div>
-            <div class="col-md-3 mb-3">
-                <label class="form-label">Data de Emissão</label>
-                <input type="date" class="form-control" name="data_emissao" value="{{ os.data_emissao if os else '' }}">
-            </div>
+          <div class="col-md-6">
+            <input type="text" name="assinatura_tecnico" class="form-control" placeholder="Técnico Responsável">
+          </div>
+          <div class="col-md-6">
+            <input type="text" name="assinatura_cliente" class="form-control" placeholder="Cliente">
+          </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Descrição</label>
-            <textarea class="form-control" name="descricao" rows="3">{{ os.descricao if os else '' }}</textarea>
-        </div>
-        <div class="d-flex justify-content-between">
-            <a href="/ordens_servico" class="btn btn-secondary">Cancelar</a>
-            <button type="submit" class="btn btn-success">Salvar</button>
-        </div>
+      </div>
+
+      <div class="d-flex justify-content-end mt-4">
+        <a href="/ordens_servico" class="btn btn-secondary me-2">Voltar</a>
+        <button type="submit" class="btn btn-success">Salvar Ordem de Serviço</button>
+      </div>
     </form>
+  </div>
 </div>
+
+<!-- Scripts para máscaras, adicionar produto, cálculos automáticos -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+let produtoCount = 0;
+
+function adicionarProduto() {
+  produtoCount++;
+  $('#produtos-itens').append(`
+    <div class="row mb-2 align-items-end produto-item" data-idx="${produtoCount}">
+      <div class="col-md-4">
+        <input type="text" name="produto_nome_${produtoCount}" class="form-control" placeholder="Produto/Peça">
+      </div>
+      <div class="col-md-2">
+        <input type="number" name="produto_qtd_${produtoCount}" class="form-control qtd" placeholder="Qtd" min="1" value="1">
+      </div>
+      <div class="col-md-2">
+        <input type="number" name="produto_valor_unit_${produtoCount}" class="form-control valor-unit" placeholder="Valor Unitário" step="0.01" min="0">
+      </div>
+      <div class="col-md-2">
+        <input type="number" name="produto_valor_total_${produtoCount}" class="form-control valor-total" placeholder="Valor Total" readonly>
+      </div>
+      <div class="col-md-2">
+        <button type="button" class="btn btn-outline-danger" onclick="removerProduto(this)">Remover</button>
+      </div>
+    </div>
+  `);
+}
+
+function removerProduto(btn) {
+  $(btn).closest('.produto-item').remove();
+  atualizarValores();
+}
+
+// Atualiza valores totais dos produtos e geral
+function atualizarValores() {
+  let totalProdutos = 0;
+  $('.produto-item').each(function() {
+    let qtd = parseFloat($(this).find('.qtd').val()) || 0;
+    let unit = parseFloat($(this).find('.valor-unit').val()) || 0;
+    let total = qtd * unit;
+    $(this).find('.valor-total').val(total.toFixed(2));
+    totalProdutos += total;
+  });
+  $('#valor_produtos').val(totalProdutos.toFixed(2));
+  atualizarTotalGeral();
+}
+
+// Cálculo automático total geral
+function atualizarTotalGeral() {
+  let serv = parseFloat($('#valor_servicos').val()) || 0;
+  let prod = parseFloat($('#valor_produtos').val()) || 0;
+  let desloc = parseFloat($('#valor_deslocamento').val()) || 0;
+  let total = serv + prod + desloc;
+  $('#total_geral').val(total.toFixed(2));
+}
+
+// Cálculo automático de horas trabalhadas
+function atualizarHoras() {
+  let inicio = $('#hora_inicio').val();
+  let termino = $('#hora_termino').val();
+  if (inicio && termino) {
+    let t1 = inicio.split(':');
+    let t2 = termino.split(':');
+    let d1 = new Date(2000, 0, 1, t1[0], t1[1]);
+    let d2 = new Date(2000, 0, 1, t2[0], t2[1]);
+    let diff = (d2 - d1) / (1000 * 60 * 60);
+    $('#total_horas').val(diff > 0 ? diff.toFixed(2) : '0.00');
+  }
+}
+
+// Cálculo automático de KM
+function atualizarKM() {
+  let ini = parseInt($('#km_inicial').val()) || 0;
+  let fin = parseInt($('#km_final').val()) || 0;
+  let total = fin - ini;
+  $('#total_km').val(total > 0 ? total : 0);
+}
+
+// Eventos automáticos
+$(document).on('input', '.qtd, .valor-unit', atualizarValores);
+$('#valor_servicos, #valor_deslocamento').on('input', atualizarTotalGeral);
+$('#hora_inicio, #hora_termino').on('change', atualizarHoras);
+$('#km_inicial, #km_final').on('input', atualizarKM);
+</script>
 {% endblock %}
