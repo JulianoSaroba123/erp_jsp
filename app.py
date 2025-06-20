@@ -11,6 +11,18 @@ from models.fornecedor_model import Fornecedor
 from models.os_model import OrdemServico
 import json
 
+def gerar_codigo(model, prefixo='JSP', inicio=100):
+    ultimo = model.query.order_by(model.id.desc()).first()
+    if ultimo and ultimo.codigo and ultimo.codigo.startswith(prefixo):
+        try:
+            num = int(ultimo.codigo.replace(prefixo, ''))
+        except:
+            num = inicio
+        novo_num = num + 1
+    else:
+        novo_num = inicio
+    return f"{prefixo}{novo_num:05d}"
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
