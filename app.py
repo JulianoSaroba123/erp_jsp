@@ -238,6 +238,29 @@ def excluir_fornecedor(id):
     db.session.delete(fornecedor)
     db.session.commit()
     return redirect('/fornecedores')
+
+@app.route('/ordens_servico')
+def lista_ordens_servico():
+    ordens = OrdemServico.query.all()
+    return render_template('lista_ordens_servico.html', ordens=ordens)
+
+@app.route('/ordem_servico/novo', methods=['GET', 'POST'])
+@app.route('/ordem_servico/editar/<int:id>', methods=['GET', 'POST'])
+def cadastro_ordem_servico(id=None):
+    os = OrdemServico.query.get(id) if id else None
+    if request.method == 'POST':
+        data = request.form.to_dict()
+        # Captura os campos dinâmicos de produtos/peças em JSON
+        data['produtos'] = request.form.get('produtos_json', '[]')
+        if os:
+            for key, value in data.items():
+                setattr(os, key, value)
+        else:
+            os = OrdemServico(**data)
+            db.session.add(os)
+        db.session.commit()
+        return redirect('/ordens_servico')
+    return render_template('cadastro_ordem_servico.html', os=os)
     
 @app.route('/exportar_excel')
 def exportar_excel():
