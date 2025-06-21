@@ -73,17 +73,17 @@ def cadastro():
     return redirect('/')
 return
 render_template('cadastro_cliente.html',
-        cliente = None, codigo=codigo)
-        nome=request.form['nome'],
-        cpf_cnpj=request.form['cpf_cnpj'],
-        telefone=request.form['telefone'],
-        email=request.form['email'],
-        endereco=request.form['endereco'],
-        numero=request.form['numero']
-        )
-        db.session.add(cliente)
-        db.session.commit()
-        return redirect('/')
+       cliente = None, codigo=codigo)
+       nome=request.form['nome'],
+       cpf_cnpj=request.form['cpf_cnpj'],
+       telefone=request.form['telefone'],
+       email=request.form['email'],
+       endereco=request.form['endereco'],
+       numero=request.form['numero']
+       )
+       db.session.add(cliente)
+       db.session.commit()
+       return redirect('/')
     return render_template('cadastro_cliente.html', cliente=None)
 
 @app.route('/editar/<int:id>', methods=['GET', 'POST'])
