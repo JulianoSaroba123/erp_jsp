@@ -1,5 +1,6 @@
 # app.py
-from flask import Flask, render_template, request, redirect, send_file, session, url_for
+
+from flask import Flask, render_template, request, redirect, send_file, session, url_for, jsonify
 from models import db
 from models.cliente_model import Cliente
 from models.produto_model import Produto
@@ -9,37 +10,60 @@ from models.os_model import OrdemServico
 import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
-from flask import jsonify
 
-# Função para gerar códigos automáticos com prefixo (ex: CLT00001)
+# --- Função para gerar códigos automáticos (CLT/PRD/SRV/FRN/OSV) ---
 def gerar_codigo(model, prefixo, inicio=1):
     ultimo = model.query.order_by(model.id.desc()).first()
     if ultimo and ultimo.codigo and ultimo.codigo.startswith(prefixo):
         try:
             num = int(ultimo.codigo.replace(prefixo, ''))
-        except:
+        except Exception:
             num = inicio
         novo_num = num + 1
     else:
         novo_num = inicio
     return f"{prefixo}{novo_num:05d}"
 
+# --- Configuração Flask ---
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'chave-secreta-jsp'
-
 db.init_app(app)
 
 with app.app_context():
     db.create_all()
 
-# Proteção de rotas
+# --- Proteção de Rotas ---
 @app.before_request
 def proteger_rotas():
     rotas_livres = ['login']
     if 'usuario' not in session and request.endpoint not in rotas_livres:
         return redirect(url_for('login'))
+
+# ===================== LOGIN ============================
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        usuario = request.form['usuario']
+        senha = request.form['senha']
+        if usuario == 'admin' and senha == '123':
+            session['usuario'] = usuario
+            return redirect('/')
+        else:
+            return render_template('login.html', erro='Usuário ou senha inválidos')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('usuario', None)
+    return redirect('/login')
+
+# ===================== CLIENTES ============================
+@app.route('/')
+def index():
+    clientes = Cliente.query.all()
+    return render_template('lista_clientes.html', clientes=clientes)
 
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
@@ -80,7 +104,7 @@ def excluir(id):
     db.session.commit()
     return redirect('/')
 
-# --- PRODUTOS ---
+# ===================== PRODUTOS ============================
 @app.route('/produtos')
 def listar_produtos():
     produtos = Produto.query.all()
@@ -89,64 +113,30 @@ def listar_produtos():
 @app.route('/produto/novo', methods=['GET', 'POST'])
 @app.route('/produto/editar/<int:id>', methods=['GET', 'POST'])
 def cadastrar_produto(id=None):
-    from datetime import datetime
     produto = Produto.query.get(id) if id else None
-    fornecedores = Fornecedor.query.all()  # Pega fornecedores para o select
-
+    fornecedores = Fornecedor.query.all()
     if request.method == 'POST':
         data = request.form.to_dict()
-        # Conversão correta da data
-        data_str = data.get('data', '')
-        if data_str:
+        data['data'] = None
+        if data.get('data', ''):
             try:
-                data['data'] = datetime.strptime(data_str, "%Y-%m-%d").date()
-            except Exception:
-                return "Data em formato inválido. Use o formato AAAA-MM-DD."
-        else:
-            data['data'] = None
-
+                data['data'] = datetime.strptime(data['data'], "%Y-%m-%d").date()
+            except:
+                data['data'] = None
         data['valor_venda'] = float(data.get('valor_venda', 0))
-        data['valor_compra'] = float(data.get('valor_compra', 0)) 
+        data['valor_compra'] = float(data.get('valor_compra', 0))
         data['estoque'] = int(data.get('estoque', 0))
         data['lucro'] = float(data.get('lucro', 0))
-
         if produto:
             for key, value in data.items():
                 setattr(produto, key, value)
         else:
-            # Geração de código automático
-            data['codigo'] = gerar_codigo(Produto, prefixo='PRD')
+            data['codigo'] = gerar_codigo(Produto, 'PRD')
             produto = Produto(**data)
             db.session.add(produto)
-
         db.session.commit()
         return redirect('/produtos')
-
     return render_template('cadastro_produto.html', produto=produto, fornecedores=fornecedores)
-
-    produto = Produto.query.get(id) if id else None
-    if request.method == 'POST':
-        if not produto:
-            codigo = gerar_codigo(Produto, 'PRD')
-            produto = Produto(codigo=codigo)
-            db.session.add(produto)
-        produto.nome = request.form['nome']
-        produto.codigo_barras = request.form['codigo_barras']
-        produto.data = request.form['data']
-        produto.fornecedor = request.form['fornecedor']
-        produto.unidade = request.form['unidade']
-        produto.classificacao = request.form['classificacao']
-        produto.localizacao = request.form['localizacao']
-        produto.situacao = request.form['situacao']
-        produto.valor_venda = float(request.form['valor_venda'])
-        produto.valor_compra = float(request.form['valor_compra'])
-        produto.estoque = int(request.form['estoque'])
-        produto.lucro = float(request.form['lucro'])
-        produto.fabricante = request.form['fabricante']
-        produto.numero_serie = request.form['numero_serie']
-        db.session.commit()
-        return redirect('/produtos')
-    return render_template('cadastro_produto.html', produto=produto)
 
 @app.route('/produto/excluir/<int:id>')
 def excluir_produto(id):
@@ -155,7 +145,7 @@ def excluir_produto(id):
     db.session.commit()
     return redirect('/produtos')
 
-# --- SERVIÇOS ---
+# ===================== SERVIÇOS ============================
 @app.route('/servicos')
 def listar_servicos():
     servicos = Servico.query.all()
@@ -185,7 +175,7 @@ def excluir_servico(id):
     db.session.commit()
     return redirect('/servicos')
 
-# --- FORNECEDORES ---
+# ===================== FORNECEDORES ============================
 @app.route('/fornecedores')
 def listar_fornecedores():
     fornecedores = Fornecedor.query.all()
@@ -217,7 +207,7 @@ def excluir_fornecedor(id):
     db.session.commit()
     return redirect('/fornecedores')
 
-# --- ORDEM DE SERVIÇO (EXEMPLO SIMPLES) ---
+# ===================== ORDEM DE SERVIÇO (exemplo resumido) ============================
 @app.route('/ordens_servico')
 def lista_ordens_servico():
     ordens = OrdemServico.query.all()
@@ -232,10 +222,10 @@ def cadastro_ordem_servico(id=None):
             codigo = gerar_codigo(OrdemServico, 'OSV')
             os = OrdemServico(codigo=codigo)
             db.session.add(os)
-        # Adapte aqui conforme seus campos de OS
-        os.cliente_id = request.form['cliente_id']
-        os.descricao = request.form['descricao']
-        os.data_emissao = datetime.strptime(request.form['data_emissao'], "%Y-%m-%d")
+        # Adapte os campos conforme seu modelo de OS!
+        os.cliente_id = request.form.get('cliente_id')
+        os.descricao = request.form.get('descricao')
+        os.data_emissao = datetime.strptime(request.form.get('data_emissao'), "%Y-%m-%d")
         db.session.commit()
         return redirect('/ordens_servico')
     return render_template('cadastro_ordem_servico.html', os=os)
@@ -246,7 +236,8 @@ def excluir_ordem_servico(id):
     db.session.delete(os)
     db.session.commit()
     return redirect('/ordens_servico')
-    # --- AUTOCOMPLETE CLIENTE ---
+
+# ===================== AUTOCOMPLETE ============================
 @app.route('/buscar_clientes')
 def buscar_clientes():
     termo = request.args.get('q', '')
@@ -262,7 +253,6 @@ def buscar_clientes():
         } for c in clientes
     ])
 
-# --- AUTOCOMPLETE PRODUTO ---
 @app.route('/buscar_produtos')
 def buscar_produtos():
     termo = request.args.get('q', '')
@@ -274,29 +264,21 @@ def buscar_produtos():
             "valor_venda": p.valor_venda
         } for p in produtos
     ])
-    # --- AUTOCOMPLETE SERVIÇOS ---
+
 @app.route('/buscar_servicos')
 def buscar_servicos():
     termo = request.args.get('q', '')
     servicos = Servico.query.filter(Servico.nome.ilike(f'%{termo}%')).all()
-    lista = []
-    for s in servicos:
-        lista.append({
-            'id': s.id,
-            'nome': s.nome,
-            'descricao': s.descricao,
-            'valor': float(s.valor)
-        })
-    return jsonify(lista)
+    return jsonify([
+        {
+            "id": s.id,
+            "nome": s.nome,
+            "descricao": getattr(s, 'descricao', ''),
+            "valor": float(s.valor)
+        } for s in servicos
+    ])
 
-@app.route('/')
-def index():
-    clientss = Cliente.query.all()
-    return
-render_template('lista_clientes.html', 
-                clientes=clientes
-                
-# --- EXPORTAÇÕES CLIENTE/PRODUTO/OS ---
+# ===================== EXPORTAÇÃO ============================
 @app.route('/exportar_excel')
 def exportar_excel():
     clientes = Cliente.query.all()
@@ -330,5 +312,6 @@ def exportar_pdf():
     nome_arquivo = f"Clientes_JSP_{datetime.now().strftime('%Y-%m-%d')}.pdf"
     return send_file(caminho, as_attachment=True, download_name=nome_arquivo)
 
+# ===================== RODAR SERVIDOR ============================
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
