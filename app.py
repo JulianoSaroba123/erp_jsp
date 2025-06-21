@@ -68,8 +68,11 @@ def index():
 def cadastro():
     if request.method == 'POST':
         codigo = gerar_codigo(Cliente, 'CLT')
-        cliente = Cliente(
-            codigo=codigo,
+    else:
+         codigo = gerar_codigo(Cliente, 'CLT')
+        return
+render_template('cadastro_cliente.html',
+        cliente = None, codigo=codigo)
             nome=request.form['nome'],
             cpf_cnpj=request.form['cpf_cnpj'],
             telefone=request.form['telefone'],
