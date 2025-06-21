@@ -288,6 +288,14 @@ def buscar_servicos():
             'valor': float(s.valor)
         })
     return jsonify(lista)
+
+@app.route('/')
+def index():
+    clientss = Cliente.query.all()
+    return
+render_template('lista_clientes.html', 
+                clientes=clientes
+                
 # --- EXPORTAÇÕES CLIENTE/PRODUTO/OS ---
 @app.route('/exportar_excel')
 def exportar_excel():
