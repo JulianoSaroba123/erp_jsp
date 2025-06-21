@@ -70,7 +70,8 @@ def cadastro():
         codigo = gerar_codigo(Cliente, 'CLT')
     else:
          codigo = gerar_codigo(Cliente, 'CLT')
-        return
+        return redirect('/')
+return
 render_template('cadastro_cliente.html',
         cliente = None, codigo=codigo)
             nome=request.form['nome'],
