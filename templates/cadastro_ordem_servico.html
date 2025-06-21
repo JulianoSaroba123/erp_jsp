@@ -94,9 +94,7 @@
 
       <!-- 3. Produtos/Peças Utilizadas -->
       <h5 class="mt-4 mb-3 text-primary">3. Produtos/Peças Utilizadas</h5>
-      <div id="produtos-lista">
-        <!-- Produtos vão aparecer aqui -->
-      </div>
+      <div id="produtos-lista"></div>
       <button type="button" class="btn btn-outline-success btn-sm mb-3" onclick="adicionarProduto()">Adicionar Produto/Peça</button>
       <div class="row mb-2">
         <div class="col-md-3"><b>Total dos Produtos:</b> R$ <span id="total-produtos">0,00</span></div>
@@ -189,7 +187,6 @@
 <!-- SCRIPTS AUTOCOMPLETE E CÁLCULOS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
-// -------- AUTOCOMPLETE CLIENTE --------
 $('#cliente_nome').on('input', function(){
   let termo = $(this).val();
   if (termo.length >= 2) {
@@ -341,4 +338,8 @@ function atualizarTotalGeral() {
   let vs = parseFloat($('#valor_servico').val()) || 0;
   let vp = parseFloat($('#valor_produto').val()) || 0;
   let vd = parseFloat($('#valor_deslocamento').val()) || 0;
-  let total = vs
+  let total = vs + vp + vd;
+  $('#total_geral').val(total.toFixed(2));
+}
+</script>
+{% endblock %}
