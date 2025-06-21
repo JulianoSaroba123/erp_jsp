@@ -223,7 +223,16 @@ $('#cliente_nome').on('input', function(){
       let lista = $('#cliente-lista').empty().show();
       if(data.length){
         data.forEach(c => {
-          lista.append(`<div data-nome="${c.nome}" data-cpf="${c.cpf_cnpj}" data-tel="${c.telefone}" data-email="${c.email}" data-endereco="${c.endereco}">${c.nome} - ${c.cpf_cnpj}</div>`);
+          // Adiciona data-id para pegar o id do cliente depois!
+          lista.append(`<div 
+            data-id="${c.id}" 
+            data-nome="${c.nome}" 
+            data-cpf="${c.cpf_cnpj}" 
+            data-tel="${c.telefone}" 
+            data-email="${c.email}" 
+            data-endereco="${c.endereco}">
+              ${c.nome} - ${c.cpf_cnpj}
+            </div>`);
         });
       } else {
         lista.append('<div>Nenhum cliente encontrado.</div>');
@@ -233,19 +242,24 @@ $('#cliente_nome').on('input', function(){
     $('#cliente-lista').empty().hide();
   }
 });
+
 $('#cliente-lista').on('click', 'div', function(){
   $('#cliente_nome').val($(this).data('nome'));
   $('#cliente_cpf_cnpj').val($(this).data('cpf'));
   $('#cliente_telefone').val($(this).data('tel'));
   $('#cliente_email').val($(this).data('email'));
   $('#cliente_endereco').val($(this).data('endereco'));
+  $('#cliente_id').val($(this).data('id')); // <-- Corrigido: pega o id!
   $('#cliente-lista').empty().hide();
 });
+
 $(document).on('click', function(e){
   if(!$(e.target).closest('#cliente_nome, #cliente-lista').length){
     $('#cliente-lista').empty().hide();
   }
 });
+</script>
+
 
 /* --- AUTOCOMPLETE SERVICO --- */
 $('#servico_nome').on('input', function(){
