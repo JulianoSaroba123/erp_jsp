@@ -2,7 +2,7 @@
 {% block conteudo %}
 
 <style>
-.autocomplete-list, .autocomplete-list-produto {
+.autocomplete-list, .autocomplete-list-produto, .autocomplete-list-servico {
   position: absolute;
   background: #fff;
   border: 1px solid #bbb;
@@ -11,44 +11,15 @@
   max-height: 200px;
   overflow-y: auto;
   border-radius: 4px;
-  // -------- AUTOCOMPLETE SERVIÇO --------
-$('#servico_nome').on('input', function(){
-  let termo = $(this).val();
-  if (termo.length >= 2) {
-    $.get('/buscar_servicos?q=' + termo, function(data){
-      let lista = $('#servico-lista').empty().show();
-      if(data.length){
-        data.forEach(s => {
-          lista.append(`<div data-nome="${s.nome}" data-desc="${s.descricao}" data-valor="${s.valor}">${s.nome} - R$ ${parseFloat(s.valor).toFixed(2)}</div>`);
-        });
-      } else {
-        lista.append('<div>Nenhum serviço encontrado.</div>');
-      }
-    });
-  } else {
-    $('#servico-lista').empty().hide();
-  }
-});
-$('#servico-lista').on('click', 'div', function(){
-  $('#servico_nome').val($(this).data('nome'));
-  $('#descricao_servico').val($(this).data('desc'));
-  $('#valor_servico').val($(this).data('valor'));
-  $('#servico-lista').empty().hide();
-});
-$(document).on('click', function(e){
-  if(!$(e.target).closest('#servico_nome, #servico-lista').length){
-    $('#servico-lista').empty().hide();
-  }
-});
 }
-.autocomplete-list div, .autocomplete-list-produto div {
+.autocomplete-list div, .autocomplete-list-produto div, .autocomplete-list-servico div {
   padding: 8px;
   cursor: pointer;
 }
-.autocomplete-list div:hover, .autocomplete-list-produto div:hover {
+.autocomplete-list div:hover, .autocomplete-list-produto div:hover, .autocomplete-list-servico div:hover {
   background: #eee;
 }
-.produto-item { position: relative; margin-bottom: 12px; }
+.produto-item, .servico-item { position: relative; margin-bottom: 12px; }
 </style>
 
 <div class="container mt-4">
@@ -85,8 +56,8 @@ $(document).on('click', function(e){
         </div>
       </div>
 
-      <!-- 2. Detalhes da OS -->
-      <h5 class="mt-4 mb-3 text-primary">2. Detalhes da Ordem de Serviço</h5>
+      <!-- 2. Detalhes da Ordem de Serviço -->
+      <h5 class="mt-4 mb-3 text-primary">2. Detalhes do Serviço</h5>
       <div class="row">
         <div class="col-md-2 mb-2">
           <label>Nº da OS</label>
@@ -100,25 +71,43 @@ $(document).on('click', function(e){
           <label>Previsão de Conclusão</label>
           <input type="date" class="form-control" name="data_conclusao" value="{{ os.data_conclusao if os else '' }}">
         </div>
-        <div class="col-md-6 mb-2">
-          <label>Tipo de Serviço</label><br>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" name="tipo_servico" value="Manutenção" {% if os and 'Manutenção' in os.tipo_servico %}checked{% endif %}> <label class="form-check-label">Manutenção</label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" name="tipo_servico" value="Instalação" {% if os and 'Instalação' in os.tipo_servico %}checked{% endif %}> <label class="form-check-label">Instalação</label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" name="tipo_servico" value="Laudo" {% if os and 'Laudo' in os.tipo_servico %}checked{% endif %}> <label class="form-check-label">Laudo</label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" name="tipo_servico" value="Outros" {% if os and 'Outros' in os.tipo_servico %}checked{% endif %}> <label class="form-check-label">Outros</label>
-          </div>
+        <div class="col-md-6 mb-2 position-relative">
+          <label>Serviço</label>
+          <input type="text" name="servico_nome" id="servico_nome" class="form-control" value="{{ os.servico_nome if os else '' }}" autocomplete="off">
+          <div id="servico-lista" class="autocomplete-list-servico"></div>
+          <a href="/servico/novo" target="_blank" class="btn btn-outline-primary btn-sm mt-1">Novo Serviço</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <label>Descrição do Serviço</label>
+          <input type="text" class="form-control" id="descricao_servico" name="descricao_servico" value="{{ os.descricao_servico if os else '' }}">
+        </div>
+        <div class="col-md-2 mb-2">
+          <label>Qtd.</label>
+          <input type="number" class="form-control" id="qtd_servico" name="qtd_servico" value="{{ os.qtd_servico if os else '1' }}">
+        </div>
+        <div class="col-md-2 mb-2">
+          <label>Valor Unitário</label>
+          <input type="text" class="form-control" id="valor_unit_servico" name="valor_unit_servico" value="{{ os.valor_unit_servico if os else '' }}">
+        </div>
+        <div class="col-md-2 mb-2">
+          <label>Total Serviço</label>
+          <input type="text" class="form-control" id="valor_servico" name="valor_servico" readonly value="{{ os.valor_servico if os else '' }}">
+        </div>
+        <div class="col-md-2 mb-2">
+          <label>Tipo de Serviço</label>
+          <select class="form-select" name="tipo_servico" id="tipo_servico">
+            <option value="Manutenção" {% if os and os.tipo_servico=='Manutenção' %}selected{% endif %}>Manutenção</option>
+            <option value="Instalação" {% if os and os.tipo_servico=='Instalação' %}selected{% endif %}>Instalação</option>
+            <option value="Laudo" {% if os and os.tipo_servico=='Laudo' %}selected{% endif %}>Laudo</option>
+            <option value="Outros" {% if os and os.tipo_servico=='Outros' %}selected{% endif %}>Outros</option>
+          </select>
         </div>
       </div>
       <div class="mb-3">
         <label>Descrição Detalhada do Serviço</label>
-        <textarea class="form-control" name="descricao_servico" rows="2">{{ os.descricao_servico if os else '' }}</textarea>
+        <textarea class="form-control" name="descricao_detalhada_servico" rows="2">{{ os.descricao_detalhada_servico if os else '' }}</textarea>
       </div>
 
       <!-- 3. Produtos/Peças Utilizadas -->
@@ -129,7 +118,7 @@ $(document).on('click', function(e){
         <div class="col-md-3"><b>Total dos Produtos:</b> R$ <span id="total-produtos">0,00</span></div>
       </div>
 
-      <!-- 4. Horas Trabalhadas -->
+            <!-- 4. Horas Trabalhadas -->
       <h5 class="mt-4 mb-3 text-primary">4. Horas Trabalhadas</h5>
       <div class="row">
         <div class="col-md-4 mb-2">
@@ -176,7 +165,7 @@ $(document).on('click', function(e){
       <div class="row">
         <div class="col-md-3 mb-2">
           <label>Valor Serviços</label>
-          <input type="number" step="0.01" class="form-control" id="valor_servico" name="valor_servico" value="{{ os.valor_servico if os else '' }}">
+          <input type="text" class="form-control" id="valor_servico_final" name="valor_servico_final" readonly>
         </div>
         <div class="col-md-3 mb-2">
           <label>Valor Produtos</label>
@@ -216,7 +205,7 @@ $(document).on('click', function(e){
 <!-- SCRIPTS AUTOCOMPLETE E CÁLCULOS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
-// -------- AUTOCOMPLETE CLIENTE --------
+/* ---------- CLIENTE AUTOCOMPLETE ---------- */
 $('#cliente_nome').on('input', function(){
   let termo = $(this).val();
   if (termo.length >= 2) {
@@ -248,7 +237,39 @@ $(document).on('click', function(e){
   }
 });
 
-// -------- PRODUTOS DINÂMICOS E AUTOCOMPLETE --------
+/* ---------- SERVIÇO AUTOCOMPLETE ---------- */
+$('#servico_nome').on('input', function(){
+  let termo = $(this).val();
+  let lista = $('#servico-lista').empty().show();
+  if (termo.length >= 2) {
+    $.get('/buscar_servicos?q=' + termo, function(data){
+      if(data.length){
+        data.forEach(s => {
+          lista.append(`<div data-nome="${s.nome}" data-descricao="${s.descricao}" data-valor="${s.valor}">${s.nome} - R$ ${parseFloat(s.valor).toFixed(2)}</div>`);
+        });
+      } else {
+        lista.append('<div>Nenhum serviço encontrado.</div>');
+      }
+    });
+  } else {
+    lista.hide();
+  }
+});
+$('#servico-lista').on('click', 'div', function(){
+  $('#servico_nome').val($(this).data('nome'));
+  $('#descricao_servico').val($(this).data('descricao'));
+  $('#valor_unit_servico').val($(this).data('valor'));
+  $('#qtd_servico').val(1);
+  $('#servico-lista').empty().hide();
+  calcularTotalServico();
+});
+$(document).on('click', function(e){
+  if(!$(e.target).closest('#servico_nome, #servico-lista').length){
+    $('#servico-lista').empty().hide();
+  }
+});
+
+/* ---------- PRODUTOS DINÂMICOS E AUTOCOMPLETE ---------- */
 let produtoCount = 0;
 function adicionarProduto(nome='', qtde='', valor_unit='') {
   produtoCount++;
@@ -314,8 +335,6 @@ $(document).on('click', function(e){
     }
   });
 });
-
-// Atualização automática de valores produtos
 $(document).on('input', '.qtde-produto, .valor-unit', function(){
   atualizarValores();
 });
@@ -333,7 +352,20 @@ function atualizarValores() {
   atualizarTotalGeral();
 }
 
-// Horas trabalhadas (auto cálculo)
+/* ---------- SERVIÇO: TOTAL AUTOMÁTICO ---------- */
+$('#qtd_servico, #valor_unit_servico').on('input', function(){
+  calcularTotalServico();
+});
+function calcularTotalServico() {
+  let qtd = parseFloat($('#qtd_servico').val()) || 0;
+  let unit = parseFloat($('#valor_unit_servico').val()) || 0;
+  let total = qtd * unit;
+  $('#valor_servico').val(total.toFixed(2));
+  $('#valor_servico_final').val(total.toFixed(2));
+  atualizarTotalGeral();
+}
+
+/* ---------- HORAS TRABALHADAS ---------- */
 $('#hora_inicio, #hora_termino').on('input', function(){
   let ini = $('#hora_inicio').val();
   let fim = $('#hora_termino').val();
@@ -352,7 +384,7 @@ $('#hora_inicio, #hora_termino').on('input', function(){
   }
 });
 
-// KM automático
+/* ---------- KM AUTOMÁTICO ---------- */
 $('#km_inicial, #km_final').on('input', function(){
   let ki = parseFloat($('#km_inicial').val()) || 0;
   let kf = parseFloat($('#km_final').val()) || 0;
@@ -360,21 +392,24 @@ $('#km_inicial, #km_final').on('input', function(){
   $('#total_km').val(total > 0 ? total : 0);
 });
 
-// Total geral automático
-$('#valor_servico, #valor_deslocamento').on('input', function(){
+/* ---------- TOTAL GERAL AUTOMÁTICO ---------- */
+$('#valor_servico_final, #valor_produto, #valor_deslocamento').on('input', function(){
   atualizarTotalGeral();
 });
 function atualizarTotalGeral() {
-  let vs = parseFloat($('#valor_servico').val()) || 0;
+  let vs = parseFloat($('#valor_servico_final').val()) || 0;
   let vp = parseFloat($('#valor_produto').val()) || 0;
   let vd = parseFloat($('#valor_deslocamento').val()) || 0;
   let total = vs + vp + vd;
   $('#total_geral').val(total.toFixed(2));
 }
-script>
-  // Inicializa um produto ao abrir a tela
-  $(document).ready(function(){ adicionarProduto(); });
-</script>
 
+// Inicialização de cálculos se editar (para atualizar campos ao carregar)
+$(document).ready(function(){
+  atualizarValores();
+  calcularTotalServico();
+  atualizarTotalGeral();
+});
+</script>
 {% endblock %}
-// Inicializa um produto ao abrir a tela
+
