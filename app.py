@@ -297,8 +297,20 @@ def buscar_produtos():
             "valor_venda": p.valor_venda
         } for p in produtos
     ])
-    
-
+    # --- AUTOCOMPLETE SERVIÇOS ---
+@app.route('/buscar_servicos')
+def buscar_servicos():
+    termo = request.args.get('q', '')
+    servicos = Servico.query.filter(Servico.nome.ilike(f'%{termo}%')).all()
+    lista = []
+    for s in servicos:
+        lista.append({
+            'id': s.id,
+            'nome': s.nome,
+            'descricao': s.descricao,
+            'valor': float(s.valor)
+        })
+    return jsonify(lista)
 # --- EXPORTAÇÕES CLIENTE/PRODUTO/OS ---
 @app.route('/exportar_excel')
 def exportar_excel():
