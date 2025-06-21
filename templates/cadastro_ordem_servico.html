@@ -11,6 +11,35 @@
   max-height: 200px;
   overflow-y: auto;
   border-radius: 4px;
+  // -------- AUTOCOMPLETE SERVIÇO --------
+$('#servico_nome').on('input', function(){
+  let termo = $(this).val();
+  if (termo.length >= 2) {
+    $.get('/buscar_servicos?q=' + termo, function(data){
+      let lista = $('#servico-lista').empty().show();
+      if(data.length){
+        data.forEach(s => {
+          lista.append(`<div data-nome="${s.nome}" data-desc="${s.descricao}" data-valor="${s.valor}">${s.nome} - R$ ${parseFloat(s.valor).toFixed(2)}</div>`);
+        });
+      } else {
+        lista.append('<div>Nenhum serviço encontrado.</div>');
+      }
+    });
+  } else {
+    $('#servico-lista').empty().hide();
+  }
+});
+$('#servico-lista').on('click', 'div', function(){
+  $('#servico_nome').val($(this).data('nome'));
+  $('#descricao_servico').val($(this).data('desc'));
+  $('#valor_servico').val($(this).data('valor'));
+  $('#servico-lista').empty().hide();
+});
+$(document).on('click', function(e){
+  if(!$(e.target).closest('#servico_nome, #servico-lista').length){
+    $('#servico-lista').empty().hide();
+  }
+});
 }
 .autocomplete-list div, .autocomplete-list-produto div {
   padding: 8px;
