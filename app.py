@@ -41,49 +41,22 @@ def proteger_rotas():
     if 'usuario' not in session and request.endpoint not in rotas_livres:
         return redirect(url_for('login'))
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        usuario = request.form['usuario']
-        senha = request.form['senha']
-        if usuario == 'admin' and senha == '123':
-            session['usuario'] = usuario
-            return redirect('/')
-        else:
-            return render_template('login.html', erro='Usuário ou senha inválidos')
-    return render_template('login.html')
-
-@app.route('/logout')
-def logout():
-    session.pop('usuario', None)
-    return redirect('/login')
-
-# --- CLIENTES ---
-@app.route('/')
-def index():
-    clientes = Cliente.query.all()
-    return render_template('lista_clientes.html', clientes=clientes)
-
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
     if request.method == 'POST':
         codigo = gerar_codigo(Cliente, 'CLT')
-    else:
-         codigo = gerar_codigo(Cliente, 'CLT')
-    return redirect('/')
-return
-render_template('cadastro_cliente.html',
-       cliente = None, codigo=codigo)
-       nome=request.form['nome'],
-       cpf_cnpj=request.form['cpf_cnpj'],
-       telefone=request.form['telefone'],
-       email=request.form['email'],
-       endereco=request.form['endereco'],
-       numero=request.form['numero']
-       )
-       db.session.add(cliente)
-       db.session.commit()
-       return redirect('/')
+        cliente = Cliente(
+            codigo=codigo,
+            nome=request.form['nome'],
+            cpf_cnpj=request.form['cpf_cnpj'],
+            telefone=request.form['telefone'],
+            email=request.form['email'],
+            endereco=request.form['endereco'],
+            numero=request.form['numero']
+        )
+        db.session.add(cliente)
+        db.session.commit()
+        return redirect('/')
     return render_template('cadastro_cliente.html', cliente=None)
 
 @app.route('/editar/<int:id>', methods=['GET', 'POST'])
