@@ -74,12 +74,12 @@ def cadastro():
 return
 render_template('cadastro_cliente.html',
         cliente = None, codigo=codigo)
-            nome=request.form['nome'],
-            cpf_cnpj=request.form['cpf_cnpj'],
-            telefone=request.form['telefone'],
-            email=request.form['email'],
-            endereco=request.form['endereco'],
-            numero=request.form['numero']
+        nome=request.form['nome'],
+        cpf_cnpj=request.form['cpf_cnpj'],
+        telefone=request.form['telefone'],
+        email=request.form['email'],
+        endereco=request.form['endereco'],
+        numero=request.form['numero']
         )
         db.session.add(cliente)
         db.session.commit()
