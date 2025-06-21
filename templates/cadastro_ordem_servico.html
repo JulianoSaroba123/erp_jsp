@@ -342,5 +342,10 @@ function atualizarTotalGeral() {
   let total = vs + vp + vd;
   $('#total_geral').val(total.toFixed(2));
 }
+script>
+  // Inicializa um produto ao abrir a tela
+  $(document).ready(function(){ adicionarProduto(); });
+</script>
 
+{% endblock %}
 // Inicializa um produto ao abrir a tela
