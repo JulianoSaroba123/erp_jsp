@@ -242,7 +242,7 @@ from models.tipo_servico_model import TipoServico
 @app.route('/buscar_tipos_servico')
 def buscar_tipos_servico():
     termos = TipoServico.query.all()
-    return jsonify([{'id': t.id, 'text': t.nome} for t in termos]
+    return jsonify([{'id': t.id, 'text': t.nome} for t in termos])
 
 @app.route('/buscar_tipos_servico')
 def buscar_tipos_servico():
