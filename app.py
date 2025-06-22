@@ -237,7 +237,7 @@ def excluir_ordem_servico(id):
     db.session.commit()
     return redirect('/ordens_servico')
 
-from models.tipo_servico_model import TipoServic
+from models.tipo_servico_model import TipoServico
 
 @app.route('/buscar_tipos_servico')
 def buscar_tipos_servico():
