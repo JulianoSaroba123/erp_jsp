@@ -10,9 +10,6 @@ from models.os_model import OrdemServico
 import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
-# models/tipo_servico_model.py
-from models import
-
 
 # --- Função para gerar códigos automáticos (CLT/PRD/SRV/FRN/OSV) ---
 def gerar_codigo(model, prefixo, inicio=1):
