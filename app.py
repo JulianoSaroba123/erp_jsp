@@ -10,6 +10,9 @@ from models.os_model import OrdemServico
 import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
+# models/tipo_servico_model.py
+from models import
+
 
 # --- Função para gerar códigos automáticos (CLT/PRD/SRV/FRN/OSV) ---
 def gerar_codigo(model, prefixo, inicio=1):
@@ -236,6 +239,30 @@ def excluir_ordem_servico(id):
     db.session.delete(os)
     db.session.commit()
     return redirect('/ordens_servico')
+
+from models.tipo_servico_model import TipoServico
+
+@app.route('/buscar_tipos_servico')
+def buscar_tipos_servico():
+    termos = TipoServico.query.all()
+    return jsonify([{'id': t.id, 'text': t.nome} for t in termos]
+
+@app.route('/buscar_tipos_servico')
+def buscar_tipos_servico():
+    termos = TipoServico.query.all()
+    return jsonify([{'id': t.id, 'text': t.nome} for t in termos])
+
+@app.route('/adicionar_tipo_servico', methods=['POST'])
+def adicionar_tipo_servico():
+    nome = request.form.get('nome')
+    if not nome:
+        return jsonify({'success': False})
+    tipo = TipoServico.query.filter_by(nome=nome).first()
+    if not tipo:
+        tipo = TipoServico(nome=nome)
+        db.session.add(tipo)
+        db.session.commit()
+    return jsonify({'id': tipo.id, 'text': tipo.nome})
 
 # ===================== AUTOCOMPLETE ============================
 @app.route('/buscar_clientes')
