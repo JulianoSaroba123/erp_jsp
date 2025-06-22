@@ -116,9 +116,7 @@
 
       <!-- 3. Produtos/Peças Utilizadas -->
       <h5 class="mt-4 mb-3 text-primary">3. Produtos/Peças Utilizadas</h5>
-      <div id="produtos-lista">
-        <!-- Produtos dinâmicos aqui -->
-      </div>
+      <div id="produtos-lista"></div>
       <button type="button" class="btn btn-outline-success btn-sm mb-3" onclick="adicionarProduto()">Adicionar Produto/Peça</button>
       <div class="row mb-2">
         <div class="col-md-3"><b>Total dos Produtos:</b> R$ <span id="total-produtos">0,00</span></div>
@@ -211,7 +209,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-/* --- SELECT2 Tipo de Serviço --- */
+/* --- SELECT2 Tipo de Serviço (p/ combo dinâmica)--- */
 $('#tipo_servico_select').select2({
   placeholder: "Selecione ou adicione tipos de serviço",
   tags: true,
@@ -335,4 +333,116 @@ function adicionarProduto(nome='', qtde='', valor_unit='') {
     </div>
     <div class="col-md-2 mb-1">
       <label>Valor Total</label>
-      <input type="text" class="form-control valor
+      <input type="text" class="form-control valor-total" name="valor_total_${produtoCount}" readonly>
+    </div>
+    <div class="col-md-2 mb-1">
+      <button type="button" class="btn btn-danger btn-sm" onclick="$('#${id}').remove(); atualizarValores()">Remover</button>
+    </div>
+  </div>
+  `;
+  $('#produtos-lista').append(html);
+}
+
+// --- AUTOCOMPLETE PRODUTO ---
+$(document).on('input', '.produto-nome', function(){
+  let input = $(this);
+  let termo = input.val();
+  let lista = input.siblings('.autocomplete-list-produto').empty();
+  if (termo.length >= 2) {
+    $.get('/buscar_produtos?q=' + termo, function(data){
+      if(data.length){
+        data.forEach(p => {
+          lista.append(`<div data-nome="${p.nome}" data-valor="${p.valor_venda}">${p.nome} - R$ ${parseFloat(p.valor_venda).toFixed(2)}</div>`);
+        });
+      } else {
+        lista.append('<div>Nenhum produto encontrado.</div>');
+      }
+      lista.show();
+    });
+  } else {
+    lista.hide();
+  }
+});
+$(document).on('click', '.autocomplete-list-produto div', function(){
+  let div = $(this);
+  let grupo = div.closest('.produto-item');
+  grupo.find('.produto-nome').val(div.data('nome'));
+  grupo.find('.valor-unit').val(div.data('valor'));
+  div.parent().empty().hide();
+  atualizarValores();
+});
+$(document).on('click', function(e){
+  $('.autocomplete-list-produto').each(function(){
+    if(!$(e.target).closest(this).length && !$(e.target).hasClass('produto-nome')){
+      $(this).empty().hide();
+    }
+  });
+});
+
+// Atualização automática de valores dos produtos
+$(document).on('input', '.qtde-produto, .valor-unit', function(){
+  atualizarValores();
+});
+function atualizarValores() {
+  let totalProdutos = 0.0;
+  $('.produto-item').each(function(){
+    let qtde = parseFloat($(this).find('.qtde-produto').val()) || 0;
+    let valorUnit = parseFloat($(this).find('.valor-unit').val()) || 0;
+    let valorTotal = qtde * valorUnit;
+    $(this).find('.valor-total').val(valorTotal.toFixed(2));
+    totalProdutos += valorTotal;
+  });
+  $('#total-produtos').text(totalProdutos.toFixed(2));
+  $('#valor_produtos').val(totalProdutos.toFixed(2));
+  calcularTotalGeral();
+}
+
+// --- HORAS TRABALHADAS (cálculo automático)
+$('#hora_inicio, #hora_termino').on('input', function(){
+  let ini = $('#hora_inicio').val();
+  let fim = $('#hora_termino').val();
+  if(ini && fim) {
+    let [h1, m1] = ini.split(':').map(Number);
+    let [h2, m2] = fim.split(':').map(Number);
+    let min = (h2*60+m2) - (h1*60+m1);
+    if (min > 0) {
+      let horas = Math.floor(min/60);
+      let mins = min%60;
+      let total = (horas + mins/60).toFixed(2);
+      $('#total_horas').val(total);
+      $('#total_horas2').val(total);
+    } else {
+      $('#total_horas').val('0.00');
+      $('#total_horas2').val('0.00');
+    }
+    calcularValorServico();
+  }
+});
+
+// --- KM automático
+$('#km_inicial, #km_final').on('input', function(){
+  let ki = parseFloat($('#km_inicial').val()) || 0;
+  let kf = parseFloat($('#km_final').val()) || 0;
+  let total = kf - ki;
+  $('#km_total').val(total > 0 ? total : 0);
+});
+
+// --- Total geral automático
+$('#valor_servicos_total, #valor_deslocamento').on('input', function(){
+  calcularTotalGeral();
+});
+function calcularTotalGeral() {
+  let vs = parseFloat($('#valor_servicos_total').val()) || 0;
+  let vp = parseFloat($('#valor_produtos').val()) || 0;
+  let vd = parseFloat($('#valor_deslocamento').val()) || 0;
+  let total = vs + vp + vd;
+  $('#total_geral').val(total.toFixed(2));
+}
+
+// Inicialização (caso de edição)
+$(function(){
+  atualizarValores();
+  calcularTotalGeral();
+});
+</script>
+{% endblock %}
