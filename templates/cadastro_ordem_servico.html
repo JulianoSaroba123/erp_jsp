@@ -63,6 +63,17 @@
           <label>Nº da OS</label>
           <input type="text" class="form-control" name="numero_os" value="{{ os.numero_os if os else '' }}">
         </div>
+
+        <div class="mb-3">
+  <label>Tipo de Serviço</label>
+  <select class="form-control" name="tipo_servico" id="tipo_servico_select" multiple>
+    {% if os and os.tipo_servico %}
+      {% for tipo in os.tipo_servico.split(',') %}
+        <option value="{{ tipo.strip() }}" selected>{{ tipo.strip() }}</option>
+      {% endfor %}
+    {% endif %}
+  </select>
+</div>
         <div class="col-md-2 mb-2">
           <label>Data Emissão</label>
           <input type="date" class="form-control" name="data_emissao" value="{{ os.data_emissao if os else '' }}">
