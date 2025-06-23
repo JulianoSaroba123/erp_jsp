@@ -5,8 +5,14 @@
     <h4>Lista de Produtos</h4>
     <a href="/produto/novo" class="btn btn-primary">Novo Produto</a>
   </div>
+
+  <!-- Botões de exportação -->
+  <div class="mb-3">
+    <a href="/produtos/exportar_excel" class="btn btn-success">Exportar Excel</a>
+    <a href="/produtos/exportar_pdf" class="btn btn-danger">Exportar PDF</a>
+  </div>
+
   <div class="table-responsive">
-    
     <table class="table table-bordered table-striped">
       <thead class="table-dark">
         <tr>
@@ -33,14 +39,7 @@
         </tr>
         {% endfor %}
       </tbody>
-      <div class="mb-3">
-  <a href="/produtos/exportar_excel" class="btn btn-success">Exportar Excel</a>
-  <a href="/produtos/exportar_pdf" class="btn btn-danger">Exportar PDF</a>
-</div>
-
     </table>
   </div>
 </div>
 {% endblock %}
-
-
