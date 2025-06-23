@@ -1,96 +1,90 @@
 {% extends "base.html" %}
 {% block conteudo %}
-<div class="container mt-4">
-  <div class="card p-4 shadow-sm">
-    <h3>Cadastro de Produto</h3>
+<div class="card p-4 mt-4">
+    <h3>{{ 'Editar' if produto else 'Cadastro de' }} Produto</h3>
     <form method="POST">
-      <div class="row">
-        <div class="col-md-2 mb-3">
-          <label>Código</label>
-          <input type="text" name="codigo" class="form-control" value="{{ produto.codigo if produto else '' }}" readonly>
+        <div class="row">
+            <div class="col-md-2 mb-3">
+                <label class="form-label">Código</label>
+                <input type="text" class="form-control" name="codigo" value="{{ produto.codigo if produto else '' }}" readonly>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Nome do Produto</label>
+                <input type="text" class="form-control" name="nome" value="{{ produto.nome if produto else '' }}" required>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Código de Barras</label>
+                <input type="text" class="form-control" name="codigo_barras" value="{{ produto.codigo_barras if produto else '' }}">
+            </div>
         </div>
-        <div class="col-md-4 mb-3">
-          <label>Nome</label>
-          <input type="text" name="nome" class="form-control" value="{{ produto.nome if produto else '' }}" required>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Data</label>
+                <input type="date" class="form-control" name="data" value="{{ produto.data if produto and produto.data }}">
+            </div>
+            <div class="col-md-5 mb-3">
+                <label class="form-label">Fornecedor</label>
+                <select class="form-select" name="fornecedor">
+                  <option value="">Selecione...</option>
+                  {% for fornecedor in fornecedores %}
+                    <option value="{{ fornecedor.nome }}" {% if produto and produto.fornecedor == fornecedor.nome %}selected{% endif %}>
+                      {{ fornecedor.nome }}
+                    </option>
+                  {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label">Unidade</label>
+                <input type="text" class="form-control" name="unidade" value="{{ produto.unidade if produto else '' }}">
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label">Classificação</label>
+                <input type="text" class="form-control" name="classificacao" value="{{ produto.classificacao if produto else '' }}">
+            </div>
         </div>
-        <div class="col-md-3 mb-3">
-          <label>Código de Barras</label>
-          <input type="text" name="codigo_barras" class="form-control" value="{{ produto.codigo_barras if produto else '' }}">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Localização</label>
+                <input type="text" class="form-control" name="localizacao" value="{{ produto.localizacao if produto else '' }}">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Situação</label>
+                <select class="form-select" name="situacao">
+                    <option value="Ativo" {% if produto and produto.situacao == 'Ativo' %}selected{% endif %}>Ativo</option>
+                    <option value="Inativo" {% if produto and produto.situacao == 'Inativo' %}selected{% endif %}>Inativo</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Valor de Venda</label>
+                <input type="number" step="0.01" class="form-control" name="valor_venda" value="{{ produto.valor_venda if produto else '' }}">
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Valor de Compra</label>
+                <input type="number" step="0.01" class="form-control" name="valor_compra" value="{{ produto.valor_compra if produto else '' }}">
+            </div>
         </div>
-        <div class="col-md-3 mb-3">
-          <label>Data</label>
-          <input type="date" name="data" class="form-control" value="{{ produto.data if produto and produto.data else '' }}">
+        <div class="row">
+            <div class="col-md-2 mb-3">
+                <label class="form-label">Estoque</label>
+                <input type="number" class="form-control" name="estoque" value="{{ produto.estoque if produto else '' }}">
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label">Lucro (%)</label>
+                <input type="number" step="0.01" class="form-control" name="lucro" value="{{ produto.lucro if produto else '' }}">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Fabricante</label>
+                <input type="text" class="form-control" name="fabricante" value="{{ produto.fabricante if produto else '' }}">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Nº de Série</label>
+                <input type="text" class="form-control" name="numero_serie" value="{{ produto.numero_serie if produto else '' }}">
+            </div>
         </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-4 mb-3">
-          <label>Fornecedor</label>
-          <div class="input-group">
-            <select name="fornecedor" class="form-control" required>
-              <option value="">Selecione</option>
-              {% for f in fornecedores %}
-                <option value="{{ f.nome }}" {% if produto and produto.fornecedor == f.nome %}selected{% endif %}>{{ f.nome }}</option>
-              {% endfor %}
-            </select>
-            <a href="/fornecedor/novo" target="_blank" class="btn btn-outline-primary">+</a>
-          </div>
+        <div class="d-flex justify-content-between">
+            <a href="/produtos" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-success">Salvar</button>
         </div>
-        <div class="col-md-2 mb-3">
-          <label>Unidade</label>
-          <input type="text" name="unidade" class="form-control" value="{{ produto.unidade if produto else '' }}">
-        </div>
-        <div class="col-md-2 mb-3">
-          <label>Classificação</label>
-          <input type="text" name="classificacao" class="form-control" value="{{ produto.classificacao if produto else '' }}">
-        </div>
-        <div class="col-md-2 mb-3">
-          <label>Localização</label>
-          <input type="text" name="localizacao" class="form-control" value="{{ produto.localizacao if produto else '' }}">
-        </div>
-        <div class="col-md-2 mb-3">
-          <label>Situação</label>
-          <select name="situacao" class="form-control">
-            <option value="Ativo" {% if produto and produto.situacao == "Ativo" %}selected{% endif %}>Ativo</option>
-            <option value="Inativo" {% if produto and produto.situacao == "Inativo" %}selected{% endif %}>Inativo</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-2 mb-3">
-          <label>Valor Venda</label>
-          <input type="number" name="valor_venda" step="0.01" class="form-control" value="{{ produto.valor_venda if produto else '' }}">
-        </div>
-        <div class="col-md-2 mb-3">
-          <label>Valor Compra</label>
-          <input type="number" name="valor_compra" step="0.01" class="form-control" value="{{ produto.valor_compra if produto else '' }}">
-        </div>
-        <div class="col-md-2 mb-3">
-          <label>Estoque</label>
-          <input type="number" name="estoque" class="form-control" value="{{ produto.estoque if produto else '' }}">
-        </div>
-        <div class="col-md-2 mb-3">
-          <label>Lucro (%)</label>
-          <input type="number" name="lucro" step="0.01" class="form-control" value="{{ produto.lucro if produto else '' }}">
-        </div>
-        <div class="col-md-2 mb-3">
-          <label>Fabricante</label>
-          <input type="text" name="fabricante" class="form-control" value="{{ produto.fabricante if produto else '' }}">
-        </div>
-        <div class="col-md-2 mb-3">
-          <label>Nº de Série</label>
-          <input type="text" name="numero_serie" class="form-control" value="{{ produto.numero_serie if produto else '' }}">
-        </div>
-      </div>
-
-      <div class="d-flex justify-content-between">
-        <a href="/produtos" class="btn btn-secondary">Cancelar</a>
-        <button type="submit" class="btn btn-success">Salvar</button>
-      </div>
     </form>
-  </div>
 </div>
 {% endblock %}
-
-
