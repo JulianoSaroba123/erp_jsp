@@ -297,7 +297,7 @@ def buscar_servicos():
         } for s in servicos
     ])
     @app.route('/cadastrar_tipo_servico')
-def cadastrar_tipo_servico():
+ def cadastrar_tipo_servico():
     from models.tipo_servico_model import TipoServico, db
     tipos = ['Manutenção', 'Instalação', 'Laudo', 'Outros']
     for t in tipos:
