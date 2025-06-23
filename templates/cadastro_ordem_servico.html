@@ -37,7 +37,7 @@
         </div>
         <div class="col-md-3 mb-2">
           <label>CPF/CNPJ</label>
-          <input type="text" id="cliente_cpf_cnpj" name="cliente_cpf_cnpj" class="form-control" value="{{ os.cliente_cpf_cnpj if os else '' }}">
+          <input type="text" id="cliente_cnpj_cpf" name="cliente_cnpj_cpf" class="form-control" value="{{ os.cliente_cnpj_cpf if os else '' }}">
         </div>
         <div class="col-md-3 mb-2">
           <label>Telefone</label>
@@ -58,37 +58,47 @@
       <!-- 2. Detalhes da Ordem de Serviço -->
       <h5 class="mt-4 mb-3 text-primary">2. Detalhes da Ordem de Serviço</h5>
       <div class="row">
-        <div class="col-md-3 mb-2">
+        <div class="col-md-2 mb-2">
           <label>Nº da OS</label>
           <input type="text" class="form-control" name="codigo" value="{{ os.codigo if os else '' }}" readonly>
         </div>
-        <div class="col-md-3 mb-2">
+        <div class="col-md-2 mb-2">
           <label>Data Emissão</label>
           <input type="date" class="form-control" name="data_emissao" value="{{ os.data_emissao if os else '' }}">
         </div>
-        <div class="col-md-3 mb-2">
+        <div class="col-md-2 mb-2">
           <label>Previsão de Conclusão</label>
           <input type="date" class="form-control" name="previsao_conclusao" value="{{ os.previsao_conclusao if os else '' }}">
         </div>
-        <div class="col-md-3 mb-2 position-relative">
+        <div class="col-md-6 mb-2">
           <label>Tipo de Serviço</label>
-          <input type="text" name="tipo_servico" id="tipo_servico" class="form-control" value="{{ os.tipo_servico if os else '' }}" autocomplete="off">
-          <div id="tipo-servico-lista" class="autocomplete-list-servico"></div>
-          <a href="/servico/novo" target="_blank" class="btn btn-outline-primary btn-sm mt-1">Novo Serviço</a>
+          <select class="form-select" name="tipo_servico" id="tipo_servico">
+            <option value="">Selecione</option>
+            {% for tipo in tipos_servico %}
+              <option value="{{ tipo.nome }}" {% if os and os.tipo_servico == tipo.nome %}selected{% endif %}>{{ tipo.nome }}</option>
+            {% endfor %}
+          </select>
+          <a href="/servico/novo" target="_blank" class="btn btn-outline-primary btn-sm mt-1">Novo Tipo de Serviço</a>
         </div>
       </div>
-      <div class="row">
-        <div class="col-md-8 mb-2">
-          <label>Descrição do Serviço</label>
-          <input type="text" name="descricao_servico" id="descricao_servico" class="form-control" value="{{ os.descricao_servico if os else '' }}">
+      <div class="row align-items-end">
+        <div class="col-md-4 mb-2 position-relative">
+          <label>Serviço</label>
+          <input type="text" name="servico_nome" id="servico_nome" class="form-control" value="{{ os.servico_nome if os else '' }}" autocomplete="off">
+          <div id="servico-lista" class="autocomplete-list-servico"></div>
+          <a href="/servico/novo" target="_blank" class="btn btn-outline-primary btn-sm mt-1">Novo Serviço</a>
+        </div>
+        <div class="col-md-3 mb-2">
+          <label>Descrição</label>
+          <input type="text" id="descricao_servico" name="descricao_servico" class="form-control" value="{{ os.descricao_servico if os else '' }}">
         </div>
         <div class="col-md-2 mb-2">
-          <label>Qtd</label>
-          <input type="number" name="qtd_servico" id="qtd_servico" class="form-control" value="1" min="1">
+          <label>Quantidade</label>
+          <input type="number" id="qtd_servico" name="qtd_servico" class="form-control" min="1" value="{{ os.qtd_servico if os else '1' }}">
         </div>
-        <div class="col-md-2 mb-2">
+        <div class="col-md-3 mb-2">
           <label>Valor Unitário</label>
-          <input type="text" name="valor_unit_servico" id="valor_unit_servico" class="form-control" value="">
+          <input type="text" id="valor_unit_servico" name="valor_unit_servico" class="form-control" value="{{ os.valor_unit_servico if os else '' }}">
         </div>
       </div>
       <div class="row">
@@ -98,15 +108,13 @@
         </div>
         <div class="col-md-3 mb-2">
           <label>Valor do Serviço</label>
-          <input type="text" class="form-control" id="valor_servico" name="valor_servicos" value="{{ os.valor_servicos if os else '' }}" readonly>
+          <input type="text" class="form-control" id="valor_servicos" name="valor_servicos" value="{{ os.valor_servicos if os else '' }}" readonly>
         </div>
       </div>
 
       <!-- 3. Produtos/Peças Utilizadas -->
       <h5 class="mt-4 mb-3 text-primary">3. Produtos/Peças Utilizadas</h5>
-      <div id="produtos-lista">
-        <!-- Produtos dinâmicos aparecem aqui -->
-      </div>
+      <div id="produtos-lista"></div>
       <button type="button" class="btn btn-outline-success btn-sm mb-3" onclick="adicionarProduto()">Adicionar Produto/Peça</button>
       <div class="row mb-2">
         <div class="col-md-3"><b>Total dos Produtos:</b> R$ <span id="total-produtos">0,00</span></div>
@@ -129,10 +137,10 @@
         </div>
         <div class="col-md-2 mb-2">
           <label>Total de Horas</label>
-          <input type="text" class="form-control" id="total_horas2" readonly>
+          <input type="text" class="form-control" id="total_horas2" value="{{ os.total_horas if os else '' }}" readonly>
         </div>
         <div class="col-md-2 mb-2">
-          <label>Atividade Realizada</label>
+          <label>Atividade</label>
           <input type="text" class="form-control" name="atividade_realizada" value="{{ os.atividade_realizada if os else '' }}">
         </div>
       </div>
@@ -150,7 +158,7 @@
         </div>
         <div class="col-md-2 mb-2">
           <label>Total KM</label>
-          <input type="text" class="form-control" id="total_km" name="km_total" value="{{ os.km_total if os else '' }}" readonly>
+          <input type="text" class="form-control" id="km_total" name="km_total" value="{{ os.km_total if os else '' }}" readonly>
         </div>
       </div>
 
@@ -159,11 +167,11 @@
       <div class="row">
         <div class="col-md-3 mb-2">
           <label>Valor Serviços</label>
-          <input type="text" class="form-control" id="valor_servico_total" name="valor_servicos" value="{{ os.valor_servicos if os else '' }}" readonly>
+          <input type="text" class="form-control" id="valor_servicos_total" name="valor_servicos_total" value="{{ os.valor_servicos if os else '' }}" readonly>
         </div>
         <div class="col-md-3 mb-2">
           <label>Valor Produtos</label>
-          <input type="text" class="form-control" id="valor_produto" name="valor_produtos" value="{{ os.valor_produtos if os else '' }}" readonly>
+          <input type="text" class="form-control" id="valor_produtos" name="valor_produtos" value="{{ os.valor_produtos if os else '' }}" readonly>
         </div>
         <div class="col-md-3 mb-2">
           <label>Valor Deslocamento</label>
@@ -185,7 +193,7 @@
 
       <!-- 8. Assinaturas (placeholder) -->
       <h5 class="mt-4 mb-2 text-primary">8. Assinaturas</h5>
-      <p><i>Funcionalidade de assinatura digital pode ser implementada posteriormente.</i></p>
+      <p><i>Funcionalidade de assinatura digital pode ser implementada futuramente.</i></p>
 
       <!-- Botões -->
       <div class="d-flex justify-content-between mt-4">
@@ -196,10 +204,10 @@
   </div>
 </div>
 
-<!-- SCRIPTS AUTOCOMPLETE E CÁLCULOS -->
+<!-- SCRIPTS AUTOCOMPLETE E CÁLCULOS (JQuery) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
-// AUTOCOMPLETE CLIENTE
+/* --- AUTOCOMPLETE CLIENTE --- */
 $('#cliente_nome').on('input', function(){
   let termo = $(this).val();
   if (termo.length >= 2) {
@@ -207,7 +215,7 @@ $('#cliente_nome').on('input', function(){
       let lista = $('#cliente-lista').empty().show();
       if(data.length){
         data.forEach(c => {
-          lista.append(`<div data-nome="${c.nome}" data-cpf="${c.cpf_cnpj}" data-tel="${c.telefone}" data-email="${c.email}" data-endereco="${c.endereco}">${c.nome} - ${c.cpf_cnpj}</div>`);
+          lista.append(`<div data-nome="${c.nome}" data-cnpjcpf="${c.cpf_cnpj}" data-tel="${c.telefone}" data-email="${c.email}" data-endereco="${c.endereco}">${c.nome} - ${c.cpf_cnpj}</div>`);
         });
       } else {
         lista.append('<div>Nenhum cliente encontrado.</div>');
@@ -219,7 +227,7 @@ $('#cliente_nome').on('input', function(){
 });
 $('#cliente-lista').on('click', 'div', function(){
   $('#cliente_nome').val($(this).data('nome'));
-  $('#cliente_cpf_cnpj').val($(this).data('cpf'));
+  $('#cliente_cnpj_cpf').val($(this).data('cnpjcpf'));
   $('#cliente_telefone').val($(this).data('tel'));
   $('#cliente_email').val($(this).data('email'));
   $('#cliente_endereco').val($(this).data('endereco'));
@@ -231,18 +239,18 @@ $(document).on('click', function(e){
   }
 });
 
-// AUTOCOMPLETE TIPO SERVIÇO
-$('#tipo_servico').on('input', function(){
+/* --- AUTOCOMPLETE SERVIÇO --- */
+$('#servico_nome').on('input', function(){
   let termo = $(this).val();
-  let lista = $('#tipo-servico-lista').empty();
-  if (termo.length >= 1) {
-    $.get('/buscar_tipos_servico?q=' + termo, function(data){
+  let lista = $('#servico-lista').empty();
+  if (termo.length >= 2) {
+    $.get('/buscar_servicos?q=' + termo, function(data){
       if(data.length){
-        data.forEach(t => {
-          lista.append(`<div data-nome="${t.text}">${t.text}</div>`);
+        data.forEach(s => {
+          lista.append(`<div data-nome="${s.nome}" data-descricao="${s.descricao || ''}" data-valor="${s.valor}">${s.nome} - R$ ${parseFloat(s.valor).toFixed(2)}</div>`);
         });
       } else {
-        lista.append('<div>Nenhum tipo encontrado.</div>');
+        lista.append('<div>Nenhum serviço encontrado.</div>');
       }
       lista.show();
     });
@@ -250,17 +258,22 @@ $('#tipo_servico').on('input', function(){
     lista.hide();
   }
 });
-$('#tipo-servico-lista').on('click', 'div', function(){
-  $('#tipo_servico').val($(this).data('nome'));
-  $('#tipo-servico-lista').empty().hide();
+$('#servico-lista').on('click', 'div', function(){
+  $('#servico_nome').val($(this).data('nome'));
+  $('#descricao_servico').val($(this).data('descricao'));
+  $('#valor_unit_servico').val($(this).data('valor'));
+  $('#servico-lista').empty().hide();
+  calcularValorServico();
 });
 $(document).on('click', function(e){
-  if(!$(e.target).closest('#tipo_servico, #tipo-servico-lista').length){
-    $('#tipo-servico-lista').empty().hide();
-  }
+  $('.autocomplete-list-servico').each(function(){
+    if(!$(e.target).closest(this).length && !$(e.target).hasClass('servico-nome')){
+      $(this).empty().hide();
+    }
+  });
 });
 
-// --- CALCULO VALOR SERVICO ---
+/* --- CALCULO VALOR SERVICO --- */
 $('#valor_unit_servico, #qtd_servico, #total_horas').on('input', function(){
   calcularValorServico();
 });
@@ -269,12 +282,12 @@ function calcularValorServico() {
   let qtd = parseFloat($('#qtd_servico').val()) || 1;
   let horas = parseFloat($('#total_horas').val()) || 1;
   let total = valor * qtd * horas;
-  $('#valor_servico').val(total.toFixed(2));
-  $('#valor_servico_total').val(total.toFixed(2));
+  $('#valor_servicos').val(total.toFixed(2));
+  $('#valor_servicos_total').val(total.toFixed(2));
   calcularTotalGeral();
 }
 
-// PRODUTOS DINÂMICOS
+/* --- PRODUTOS DINÂMICOS --- */
 let produtoCount = 0;
 function adicionarProduto(nome='', qtde='', valor_unit='') {
   produtoCount++;
@@ -315,7 +328,7 @@ $(document).on('input', '.produto-nome', function(){
   if (termo.length >= 2) {
     $.get('/buscar_produtos?q=' + termo, function(data){
       if(data.length){
-        data.forEach(p => {
+  data.forEach(p => {
           lista.append(`<div data-nome="${p.nome}" data-valor="${p.valor_venda}">${p.nome} - R$ ${parseFloat(p.valor_venda).toFixed(2)}</div>`);
         });
       } else {
@@ -344,3 +357,69 @@ $(document).on('click', function(e){
 });
 
 // Atualização de valores produtos
+$(document).on('input', '.qtde-produto, .valor-unit', function(){
+  atualizarValores();
+});
+function atualizarValores() {
+  let totalProdutos = 0.0;
+  $('.produto-item').each(function(){
+    let qtde = parseFloat($(this).find('.qtde-produto').val()) || 0;
+    let valorUnit = parseFloat($(this).find('.valor-unit').val()) || 0;
+    let valorTotal = qtde * valorUnit;
+    $(this).find('.valor-total').val(valorTotal.toFixed(2));
+    totalProdutos += valorTotal;
+  });
+  $('#total-produtos').text(totalProdutos.toFixed(2));
+  $('#valor_produtos').val(totalProdutos.toFixed(2));
+  calcularTotalGeral();
+}
+
+// Horas trabalhadas (auto cálculo)
+$('#hora_inicio, #hora_termino').on('input', function(){
+  let ini = $('#hora_inicio').val();
+  let fim = $('#hora_termino').val();
+  if(ini && fim) {
+    let [h1, m1] = ini.split(':').map(Number);
+    let [h2, m2] = fim.split(':').map(Number);
+    let min = (h2*60+m2) - (h1*60+m1);
+    if (min > 0) {
+      let horas = Math.floor(min/60);
+      let mins = min%60;
+      let total = (horas + mins/60).toFixed(2);
+      $('#total_horas').val(total);
+      $('#total_horas2').val(total);
+    } else {
+      $('#total_horas').val('0.00');
+      $('#total_horas2').val('0.00');
+    }
+    calcularValorServico();
+  }
+});
+
+// KM automático
+$('#km_inicial, #km_final').on('input', function(){
+  let ki = parseFloat($('#km_inicial').val()) || 0;
+  let kf = parseFloat($('#km_final').val()) || 0;
+  let total = kf - ki;
+  $('#km_total').val(total > 0 ? total : 0);
+});
+
+// Total geral automático
+$('#valor_servicos_total, #valor_deslocamento, #valor_produtos').on('input', function(){
+  calcularTotalGeral();
+});
+function calcularTotalGeral() {
+  let vs = parseFloat($('#valor_servicos_total').val()) || 0;
+  let vp = parseFloat($('#valor_produtos').val()) || 0;
+  let vd = parseFloat($('#valor_deslocamento').val()) || 0;
+  let total = vs + vp + vd;
+  $('#total_geral').val(total.toFixed(2));
+}
+
+// Inicialização (caso de edição)
+$(function(){
+  atualizarValores();
+  calcularTotalGeral();
+});
+</script>
+{% endblock %}
