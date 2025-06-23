@@ -2,7 +2,7 @@ from models import db
 
 class Fornecedor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    codigo = db.Column(db.String(20), unique=True)
+    codigo = db.Column(db.String(20), unique=True)  # Código automático ex: FRN00001
     nome = db.Column(db.String(100), nullable=False)
     cnpj = db.Column(db.String(18), nullable=False)
     telefone = db.Column(db.String(15), nullable=True)
