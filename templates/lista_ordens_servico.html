@@ -21,8 +21,8 @@
       <tbody>
         {% for os in ordens %}
         <tr>
-          <td>{{ os.numero_os }}</td>
-          <td>{{ os.nome_cliente }}</td>
+          <td>{{ os.codigo }}</td> <!-- Corrigido: era numero_os -->
+          <td>{{ os.cliente_nome }}</td> <!-- Corrigido: era nome_cliente -->
           <td>{{ os.tipo_servico }}</td>
           <td>
             {% if os.data_emissao %}{{ os.data_emissao.strftime('%d/%m/%Y') }}{% endif %}
