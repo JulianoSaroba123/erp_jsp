@@ -11,7 +11,7 @@ import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
 
---- Função para gerar códigos automáticos (CLT/PRD/SRV/FRN/OSV) ---
+#--- Função para gerar códigos automáticos (CLT/PRD/SRV/FRN/OSV) ---
 
 def gerar_codigo(model, prefixo, inicio=1):
 ultimo = model.query.order_by(model.id.desc()).first()
