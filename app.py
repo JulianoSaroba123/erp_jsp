@@ -110,46 +110,36 @@ db.session.commit()
 return redirect('/')
 
 ===================== PRODUTOS ============================
-
-@app.route('/produtos')
-def listar_produtos():
-produtos = Produto.query.all()
-return render_template('lista_produtos.html', produtos=produtos)
-
 @app.route('/produto/novo', methods=['GET', 'POST'])
-@app.route('/produto/editar/int:id', methods=['GET', 'POST'])
+@app.route('/produto/editar/<int:id>', methods=['GET', 'POST'])
 def cadastrar_produto(id=None):
-produto = Produto.query.get(id) if id else None
-fornecedores = Fornecedor.query.all()
-if request.method == 'POST':
-data = request.form.to_dict()
-data['data'] = None
-if data.get('data', ''):
-try:
-data['data'] = datetime.strptime(data['data'], "%Y-%m-%d").date()
-except:
-data['data'] = None
-data['valor_venda'] = float(data.get('valor_venda', 0))
-data['valor_compra'] = float(data.get('valor_compra', 0))
-data['estoque'] = int(data.get('estoque', 0))
-data['lucro'] = float(data.get('lucro', 0))
-if produto:
-for key, value in data.items():
-setattr(produto, key, value)
-else:
-data['codigo'] = gerar_codigo(Produto, 'PRD')
-produto = Produto(**data)
-db.session.add(produto)
-db.session.commit()
-return redirect('/produtos')
-return render_template('cadastro_produto.html', produto=produto, fornecedores=fornecedores)
-
-@app.route('/produto/excluir/int:id')
-def excluir_produto(id):
-produto = Produto.query.get_or_404(id)
-db.session.delete(produto)
-db.session.commit()
-return redirect('/produtos')
+    produto = Produto.query.get(id) if id else None
+    fornecedores = Fornecedor.query.all()
+    if request.method == 'POST':
+        data = request.form.to_dict()
+        
+        # Garantir conversão segura
+        data['data'] = None
+        if request.form.get('data'):
+            try:
+                data['data'] = datetime.strptime(request.form['data'], "%Y-%m-%d").date()
+            except:
+                data['data'] = None
+        data['valor_venda'] = float(request.form.get('valor_venda') or 0)
+        data['valor_compra'] = float(request.form.get('valor_compra') or 0)
+        data['estoque'] = int(request.form.get('estoque') or 0)
+        data['lucro'] = float(request.form.get('lucro') or 0)
+        
+        if produto:
+            for key, value in data.items():
+                setattr(produto, key, value)
+        else:
+            data['codigo'] = gerar_codigo(Produto, 'PRD')
+            produto = Produto(**data)
+            db.session.add(produto)
+        db.session.commit()
+        return redirect('/produtos')
+    return render_template('cadastro_produto.html', produto=produto, fornecedores=fornecedores)
 
 ===================== SERVIÇOS ============================
 
