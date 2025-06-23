@@ -296,7 +296,8 @@ def buscar_servicos():
             "valor": float(s.valor)
         } for s in servicos
     ])
-    @app.route('/cadastrar_tipo_servico')
+
+@app.route('/cadastrar_tipo_servico')
 def cadastrar_tipo_servico():
     from models.tipo_servico_model import TipoServico, db
     tipos = ['Manutenção', 'Instalação', 'Laudo', 'Outros']
@@ -304,7 +305,7 @@ def cadastrar_tipo_servico():
         if not TipoServico.query.filter_by(nome=t).first():
             db.session.add(TipoServico(nome=t))
     db.session.commit()
-    return "Tipos de serviço cadastrados!"
+    return "Tipos de serviço cadastrados"
 
 # ===================== EXPORTAÇÃO ============================
 @app.route('/exportar_excel')
