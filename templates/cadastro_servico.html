@@ -2,7 +2,7 @@
 {% block conteudo %}
 <div class="card p-4 mt-4">
     <h3>{{ 'Editar' if servico else 'Cadastro de' }} Serviço</h3>
-    <form method="POST">
+    <form method="POST" autocomplete="off">
         <div class="row">
             <div class="col-md-2 mb-3">
                 <label class="form-label">Código</label>
@@ -10,7 +10,7 @@
             </div>
             <div class="col-md-7 mb-3">
                 <label class="form-label">Nome</label>
-                <input type="text" class="form-control" name="nome" value="{{ servico.nome if servico else '' }}" required>
+                <input type="text" class="form-control" name="nome" value="{{ servico.nome if servico else '' }}" required autofocus>
             </div>
             <div class="col-md-3 mb-3">
                 <label class="form-label">Unidade</label>
@@ -20,7 +20,7 @@
         <div class="row">
             <div class="col-md-4 mb-3">
                 <label class="form-label">Valor</label>
-                <input type="number" step="0.01" class="form-control" name="valor" value="{{ servico.valor if servico else '' }}">
+                <input type="number" step="0.01" min="0" class="form-control" name="valor" value="{{ servico.valor if servico else '' }}" required>
             </div>
             <div class="col-md-4 mb-3">
                 <label class="form-label">Situação</label>
