@@ -1,1 +1,18 @@
-
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="container mt-4">
+  <div class="card p-4">
+    <h3>{{ 'Editar' if tipo else 'Novo' }} Tipo de Serviço</h3>
+    <form method="POST">
+      <div class="mb-3">
+        <label class="form-label">Nome do Tipo de Serviço</label>
+        <input type="text" class="form-control" name="nome" value="{{ tipo.nome if tipo else '' }}" required>
+      </div>
+      <div class="d-flex justify-content-between">
+        <a href="/tipos_servico" class="btn btn-secondary">Voltar</a>
+        <button type="submit" class="btn btn-success">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
