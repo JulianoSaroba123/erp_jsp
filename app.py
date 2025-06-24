@@ -223,7 +223,7 @@ def cadastro_ordem_servico(id=None):
             os = OrdemServico(codigo=codigo)
             db.session.add(os)
         os.cliente_nome = request.form.get('cliente_nome')
-        os.cliente_cnpj_cpf = request.form.get('cliente_cpf_cnpj')
+        os.cliente_cnpj_cpf = request.form.get('cliente_cnpj_cpf')
         os.cliente_telefone = request.form.get('cliente_telefone')
         os.cliente_email = request.form.get('cliente_email')
         os.cliente_endereco = request.form.get('cliente_endereco')
