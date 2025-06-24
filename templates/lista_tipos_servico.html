@@ -2,13 +2,13 @@
 {% block conteudo %}
 <div class="container mt-4">
   <h3>Lista de Tipos de Serviço</h3>
-  <a href="/tipos_servico/novo" class="btn btn-primary mb-3">Novo Tipo de Serviço</a>
-  <table class="table table-bordered">
+  <a href="/tipo_servico/novo" class="btn btn-primary mb-3">Novo Tipo de Serviço</a>
+  <table class="table table-bordered table-hover align-middle">
     <thead class="table-dark">
       <tr>
-        <th>Código</th>
-        <th>Nome</th>
-        <th>Ações</th>
+        <th scope="col">Código</th>
+        <th scope="col">Nome</th>
+        <th scope="col" class="text-center">Ações</th>
       </tr>
     </thead>
     <tbody>
@@ -16,9 +16,9 @@
       <tr>
         <td>{{ t.id }}</td>
         <td>{{ t.nome }}</td>
-        <td>
-          <a href="/tipos_servico/editar/{{ t.id }}" class="btn btn-warning btn-sm">Editar</a>
-          <a href="/tipos_servico/excluir/{{ t.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Excluir?')">Excluir</a>
+        <td class="text-center">
+          <a href="/tipo_servico/editar/{{ t.id }}" class="btn btn-warning btn-sm">Editar</a>
+          <a href="/tipo_servico/excluir/{{ t.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Excluir este tipo de serviço?')">Excluir</a>
         </td>
       </tr>
       {% else %}
