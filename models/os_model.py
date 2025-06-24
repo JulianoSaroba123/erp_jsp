@@ -6,7 +6,7 @@ class OrdemServico(db.Model):
 
     # Dados do Cliente
     cliente_nome = db.Column(db.String(100), nullable=False)
-    cliente_cnpj_cpf = db.Column(db.String(20), nullable=True)  # Corrigido nome do campo!
+    cliente_cpf_cnpj = db.Column(db.String(20), nullable=True)  # Corrigido nome do campo!
     cliente_telefone = db.Column(db.String(20), nullable=True)
     cliente_email = db.Column(db.String(100), nullable=True)
     cliente_endereco = db.Column(db.String(150), nullable=True)
