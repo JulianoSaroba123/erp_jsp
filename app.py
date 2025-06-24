@@ -9,6 +9,7 @@ from models.tipo_servico_model import TipoServico
 import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
+import json
 
 # Função para gerar códigos automáticos (CLT/PRD/SRV/FRN/OSV)
 def gerar_codigo(model, prefixo, inicio=1):
@@ -71,7 +72,7 @@ def cadastro():
         cliente = Cliente(
             codigo=codigo,
             nome=request.form['nome'],
-            cpf_cnpj=request.form['cnpj_cpf'],
+            cpf_cnpj=request.form['cpf_cnpj'],  # Corrigido aqui
             telefone=request.form['telefone'],
             email=request.form['email'],
             endereco=request.form['endereco'],
@@ -87,7 +88,7 @@ def editar(id):
     cliente = Cliente.query.get_or_404(id)
     if request.method == 'POST':
         cliente.nome = request.form['nome']
-        cliente.cpf_cnpj = request.form['cnpj_cpf']
+        cliente.cpf_cnpj = request.form['cpf_cnpj']  # Corrigido aqui
         cliente.telefone = request.form['telefone']
         cliente.email = request.form['email']
         cliente.endereco = request.form['endereco']
@@ -215,40 +216,65 @@ def lista_ordens_servico():
 @app.route('/ordem_servico/novo', methods=['GET', 'POST'])
 @app.route('/ordem_servico/editar/<int:id>', methods=['GET', 'POST'])
 def cadastro_ordem_servico(id=None):
-    tipos_servico = TipoServico.query.all() #<- Coloquei essa linha Agora de pouco
+    tipos_servico = TipoServico.query.all()
     os = OrdemServico.query.get(id) if id else None
+    produtos_os = []
+    if os and os.produtos:
+        try:
+            produtos_os = json.loads(os.produtos)
+        except Exception:
+            produtos_os = []
     if request.method == 'POST':
         if not os:
             codigo = gerar_codigo(OrdemServico, 'OSV')
             os = OrdemServico(codigo=codigo)
             db.session.add(os)
+        # Dados do Cliente
         os.cliente_nome = request.form.get('cliente_nome')
         os.cliente_cnpj_cpf = request.form.get('cliente_cnpj_cpf')
         os.cliente_telefone = request.form.get('cliente_telefone')
         os.cliente_email = request.form.get('cliente_email')
         os.cliente_endereco = request.form.get('cliente_endereco')
-        os.data_emissao = request.form.get('data_emissao')
-        os.previsao_conclusao = request.form.get('previsao_conclusao')
+        # Datas
+        data_emissao = request.form.get('data_emissao')
+        os.data_emissao = datetime.strptime(data_emissao, '%Y-%m-%d') if data_emissao else None
+        previsao_conclusao = request.form.get('previsao_conclusao')
+        os.previsao_conclusao = datetime.strptime(previsao_conclusao, '%Y-%m-%d') if previsao_conclusao else None
+        # Serviço
         os.tipo_servico = request.form.get('tipo_servico')
+        os.servico_nome = request.form.get('servico_nome')
         os.descricao_servico = request.form.get('descricao_servico')
-        os.produtos = request.form.get('produtos')
+        os.qtd_servico = request.form.get('qtd_servico')  # pode tratar como int depois
+        os.valor_unit_servico = request.form.get('valor_unit_servico')
+        # Produtos (JSON)
+        produtos_json = request.form.get('produtos')
+        os.produtos = produtos_json if produtos_json else json.dumps([])
+        # Profissional e horários
         os.tecnico_responsavel = request.form.get('tecnico_responsavel')
         os.hora_inicio = request.form.get('hora_inicio')
         os.hora_termino = request.form.get('hora_termino')
         os.total_horas = request.form.get('total_horas')
         os.atividade_realizada = request.form.get('atividade_realizada')
+        # Deslocamento
         os.km_inicial = request.form.get('km_inicial')
         os.km_final = request.form.get('km_final')
         os.km_total = request.form.get('km_total')
-        os.valor_servicos = request.form.get('valor_servicos')
-        os.valor_produtos = request.form.get('valor_produtos')
-        os.valor_deslocamento = request.form.get('valor_deslocamento')
-        os.total_geral = request.form.get('total_geral')
+        # Valores
+        os.valor_servicos = float(request.form.get('valor_servicos') or 0)
+        os.valor_produtos = float(request.form.get('valor_produtos') or 0)
+        os.valor_deslocamento = float(request.form.get('valor_deslocamento') or 0)
+        os.total_geral = float(request.form.get('total_geral') or 0)
+        # Outros
         os.condicoes_pagamento = request.form.get('condicoes_pagamento')
         os.observacoes = request.form.get('observacoes')
         db.session.commit()
         return redirect('/ordens_servico')
-    return render_template('cadastro_ordem_servico.html', os=os, tipos_servico=tipos_servico)
+    return render_template(
+        'cadastro_ordem_servico.html',
+        os=os,
+        tipos_servico=tipos_servico,
+        produtos_os=produtos_os  # se for utilizar produtos dinâmicos no template
+    )
 
 @app.route('/ordem_servico/excluir/<int:id>')
 def excluir_ordem_servico(id):
@@ -266,7 +292,7 @@ def buscar_clientes():
         {
             "id": c.id,
             "nome": c.nome,
-            "cpf_cnpj": c.cnpj_cpf,
+            "cpf_cnpj": c.cpf_cnpj,
             "telefone": c.telefone,
             "email": c.email,
             "endereco": c.endereco
@@ -303,29 +329,7 @@ def buscar_tipos_servico():
     termos = TipoServico.query.all()
     return jsonify([{'id': t.id, 'text': t.nome} for t in termos])
 
-@app.route('/adicionar_tipo_servico', methods=['POST'])
-def adicionar_tipo_servico():
-    nome = request.form.get('nome')
-    if not nome:
-        return jsonify({'success': False})
-    nome = nome.strip().lower()    
-    tipo = TipoServico.query.filter_by(nome=nome).first()
-    if not tipo:
-        tipo = TipoServico(nome=nome)
-        db.session.add(tipo)
-        db.session.commit()
-    return jsonify({'id': tipo.id, 'text': tipo.nome})
-
-@app.route('/cadastrar_tipo_servico')
-def cadastrar_tipo_servico():
-    tipos = ['Manutenção', 'Instalação', 'Laudo', 'Outros']
-    for t in tipos:
-        if not TipoServico.query.filter_by(nome=t).first():
-            db.session.add(TipoServico(nome=t))
-    db.session.commit()
-    return "Tipos de serviço cadastrados"
-    from models.tipo_servico_model import TipoServico
-
+# CRUD Tipos de Serviço (corrigido)
 @app.route('/tipos_servico')
 def lista_tipos_servico():
     tipos = TipoServico.query.all()
@@ -333,13 +337,6 @@ def lista_tipos_servico():
 
 @app.route('/tipo_servico/novo', methods=['GET', 'POST'])
 @app.route('/tipo_servico/editar/<int:id>', methods=['GET', 'POST'])
-@app.route('/tipo_servico/excluir/<int:id>')
-def excluir_tipo_servico(id):
-    tipo = TipoServico.query.get(id)
-    if tipo:
-        db.session.delete(tipo)
-        db.session.commit()
-    return redirect('/tipos_servico')  
 def cadastro_tipo_servico(id=None):
     tipo = TipoServico.query.get(id) if id else None
     if request.method == 'POST':
@@ -352,8 +349,15 @@ def cadastro_tipo_servico(id=None):
         db.session.commit()
         return redirect('/tipos_servico')
     return render_template('cadastro_tipo_servico.html', tipo=tipo)
-    
-   
+
+@app.route('/tipo_servico/excluir/<int:id>')
+def excluir_tipo_servico(id):
+    tipo = TipoServico.query.get(id)
+    if tipo:
+        db.session.delete(tipo)
+        db.session.commit()
+    return redirect('/tipos_servico')
+
 # EXPORTAÇÃO
 @app.route('/exportar_excel')
 def exportar_excel():
