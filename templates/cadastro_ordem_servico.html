@@ -73,13 +73,11 @@
         <div class="col-md-6 mb-2">
           <label>Tipo de Serviço</label>
           <select class="form-select" name="tipo_servico" id="tipo_servico">
-            <option value="">Selecione</option>
-            {% for tipo in tipos_servico %}
-              <option value="{{ tipo.nome }}" {% if os and os.tipo_servico == tipo.nome %}selected{% endif %}>{{ tipo.nome }}</option>
-            {% endfor %}
+          <option value="">Selecione</option>
+          {% for tipo in tipos_servico %}
+          <option value="{{ tipo.nome }}" {% if os and os.tipo_servico == tipo.nome %}selected{% endif %}>{{ tipo.nome }}</option>{% endfor %}
           </select>
-          <a href="/servico/novo" target="_blank" class="btn btn-outline-primary btn-sm mt-1">Novo Tipo de Serviço</a>
-        </div>
+        <a href="/servico/novo" target="_blank" class="btn btn-outline-primary btn-sm mt-1">Novo Tipo de Serviço</a>
       </div>
       <div class="row align-items-end">
         <div class="col-md-4 mb-2 position-relative">
