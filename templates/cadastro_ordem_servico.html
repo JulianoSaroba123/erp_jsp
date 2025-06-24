@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+8{% extends "base.html" %}
 {% block conteudo %}
 <style>
 .autocomplete-list, .autocomplete-list-produto, .autocomplete-list-servico {
@@ -71,14 +71,15 @@
           <input type="date" class="form-control" name="previsao_conclusao" value="{{ os.previsao_conclusao if os else '' }}">
         </div>
         <div class="col-md-6 mb-2">
-          <label>Tipo de Serviço</label>
-          <select class="form-select" name="tipo_servico" id="tipo_servico">
-          <option value="">Selecione</option>
-          {% for tipo in tipos_servico %}
-          <option value="{{ tipo.nome }}" {% if os and os.tipo_servico == tipo.nome %}selected{% endif %}>{{ tipo.nome }}</option>{% endfor %}
-          </select>
-        <a href="/servico/novo" target="_blank" class="btn btn-outline-primary btn-sm mt-1">Novo Tipo de Serviço</a>
-      </div>
+  <label>Tipo de Serviço</label>
+  <select class="form-select" name="tipo_servico" id="tipo_servico" required>
+    <option value="">Selecione</option>
+    {% for tipo in tipos_servico %}
+      <option value="{{ tipo.nome }}" {% if os and os.tipo_servico == tipo.nome %}selected{% endif %}>{{ tipo.nome }}</option>
+    {% endfor %}
+  </select>
+  <a href="/tipo_servico/novo" target="_blank" class="btn btn-outline-primary btn-sm mt-1">Novo Tipo de Serviço</a>
+        </div>
       <div class="row align-items-end">
         <div class="col-md-4 mb-2 position-relative">
           <label>Serviço</label>
