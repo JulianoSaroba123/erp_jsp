@@ -308,7 +308,8 @@ def adicionar_tipo_servico():
     if not nome:
         return jsonify({'success': False})
     tipo = TipoServico.query.filter_by(nome=nome).first()
-    if not tipo:
+    nome = nome.strip().lower()
+tipo = TipoServico.query.filter_by(nome=nome).first()
         tipo = TipoServico(nome=nome)
         db.session.add(tipo)
         db.session.commit()
