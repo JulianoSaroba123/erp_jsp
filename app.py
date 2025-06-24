@@ -332,6 +332,13 @@ def lista_tipos_servico():
 
 @app.route('/tipo_servico/novo', methods=['GET', 'POST'])
 @app.route('/tipo_servico/editar/<int:id>', methods=['GET', 'POST'])
+@app.route('/tipo_servico/excluir/<int:id>')
+def excluir_tipo_servico(id):
+    tipo = TipoServico.query.get(id)
+    if tipo:
+        db.session.delete(tipo)
+        db.session.commit()
+    return redirect('/tipos_servico')  
 def cadastro_tipo_servico(id=None):
     tipo = TipoServico.query.get(id) if id else None
     if request.method == 'POST':
@@ -345,6 +352,7 @@ def cadastro_tipo_servico(id=None):
         return redirect('/tipos_servico')
     return render_template('cadastro_tipo_servico.html', tipo=tipo)
     
+   
 # EXPORTAÇÃO
 @app.route('/exportar_excel')
 def exportar_excel():
