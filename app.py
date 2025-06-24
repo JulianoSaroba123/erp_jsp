@@ -25,7 +25,7 @@ def gerar_codigo(model, prefixo, inicio=1):
 
 # Configuração Flask
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://erp_jsp_db_user:gdFfYSCkyJG20d13hZl301mEZ63QZH18@dpg-d1d1f3fdiees73ccik6g-a.oregon-postgres.render.com/erp_jsp_db
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'chave-secreta-jsp'
 db.init_app(app)
