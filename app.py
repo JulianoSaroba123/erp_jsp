@@ -322,6 +322,27 @@ def cadastrar_tipo_servico():
             db.session.add(TipoServico(nome=t))
     db.session.commit()
     return "Tipos de serviço cadastrados"
+    from models.tipo_servico_model import TipoServico
+
+@app.route('/tipos_servico')
+def lista_tipos_servico():
+    tipos = TipoServico.query.all()
+    return render_template('lista_tipos_servico.html', tipos=tipos)
+
+@app.route('/tipo_servico/novo', methods=['GET', 'POST'])
+@app.route('/tipo_servico/editar/<int:id>', methods=['GET', 'POST'])
+def cadastro_tipo_servico(id=None):
+    tipo = TipoServico.query.get(id) if id else None
+    if request.method == 'POST':
+        nome = request.form['nome']
+        if not tipo:
+            tipo = TipoServico(nome=nome)
+            db.session.add(tipo)
+        else:
+            tipo.nome = nome
+        db.session.commit()
+        return redirect('/tipos_servico')
+    return render_template('cadastro_tipo_servico.html', tipo=tipo)
 
 # EXPORTAÇÃO
 @app.route('/exportar_excel')
