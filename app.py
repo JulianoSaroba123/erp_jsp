@@ -72,7 +72,7 @@ def cadastro():
         cliente = Cliente(
             codigo=codigo,
             nome=request.form['nome'],
-            cnpj_cpf=request.form['cnpj_cpf'],  # Corrigido aqui
+            cpf_cnpj=request.form['cpf_cnpj'],  # Corrigido aqui
             telefone=request.form['telefone'],
             email=request.form['email'],
             endereco=request.form['endereco'],
@@ -88,7 +88,7 @@ def editar(id):
     cliente = Cliente.query.get_or_404(id)
     if request.method == 'POST':
         cliente.nome = request.form['nome']
-        cliente.cnpj_cpf = request.form['cnpj_cpf']  # Corrigido aqui
+        cliente.cpf_cnpj = request.form['cpf_cnpj']  # Corrigido aqui
         cliente.telefone = request.form['telefone']
         cliente.email = request.form['email']
         cliente.endereco = request.form['endereco']
@@ -231,7 +231,7 @@ def cadastro_ordem_servico(id=None):
             db.session.add(os)
         # Dados do Cliente
         os.cliente_nome = request.form.get('cliente_nome')
-        os.cliente_cnpj_cpf = request.form.get('cliente_cnpj_cpf')
+        os.cliente_cpf_cnpj = request.form.get('cliente_cpf_cnpj')
         os.cliente_telefone = request.form.get('cliente_telefone')
         os.cliente_email = request.form.get('cliente_email')
         os.cliente_endereco = request.form.get('cliente_endereco')
@@ -292,7 +292,7 @@ def buscar_clientes():
         {
             "id": c.id,
             "nome": c.nome,
-            "cnpj_cpf": c.cnpj_cpf,
+            "cpf_cnpj": c.cpf_cnpj,
             "telefone": c.telefone,
             "email": c.email,
             "endereco": c.endereco
@@ -365,7 +365,7 @@ def exportar_excel():
     dados = [{
         'Código': c.codigo,
         'Nome': c.nome,
-        'CPF/CNPJ': c.cnpj_cpf,
+        'CPF/CNPJ': c.cpf_cnpj,
         'Telefone': c.telefone,
         'Email': c.email,
         'Endereço': f'{c.endereco}, Nº {c.numero}'
@@ -384,7 +384,7 @@ def exportar_pdf():
     pdf.cell(200, 10, txt="Lista de Clientes - ERP JSP", ln=True, align='C')
     pdf.ln(10)
     for c in clientes:
-        texto = f"{c.codigo or ''} - {c.nome} | {c.cnpj_cpf} | {c.telefone} | {c.email} | {c.endereco}, Nº {c.numero}"
+        texto = f"{c.codigo or ''} - {c.nome} | {c.cpf_cnpj} | {c.telefone} | {c.email} | {c.endereco}, Nº {c.numero}"
         pdf.multi_cell(0, 10, texto)
         pdf.ln(1)
     caminho = "clientes_exportados.pdf"
