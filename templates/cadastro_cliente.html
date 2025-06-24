@@ -1,346 +1,90 @@
 {% extends "base.html" %}
 {% block conteudo %}
-<style>
-.autocomplete-list, .autocomplete-list-produto, .autocomplete-list-servico {
-  position: absolute;
-  background: #fff;
-  border: 1px solid #bbb;
-  z-index: 10;
-  width: 100%;
-  max-height: 200px;
-  overflow-y: auto;
-  border-radius: 4px;
-}
-.autocomplete-list div, .autocomplete-list-produto div, .autocomplete-list-servico div {
-  padding: 8px;
-  cursor: pointer;
-}
-.autocomplete-list div:hover, .autocomplete-list-produto div:hover, .autocomplete-list-servico div:hover {
-  background: #eee;
-}
-.produto-item { position: relative; margin-bottom: 12px; }
-</style>
-
 <div class="container mt-4">
   <div class="card shadow-sm p-4">
-    <h3 class="mb-4">{{ 'Editar Ordem de Serviço' if os else 'Nova Ordem de Serviço' }}</h3>
+    <h3 class="mb-4">{{ 'Editar Cliente' if cliente else 'Cadastro de Cliente' }}</h3>
     <form method="POST" autocomplete="off">
-
-      <!-- 1. Dados do Cliente -->
-      <h5 class="mb-3 text-primary">1. Dados do Cliente</h5>
       <div class="row">
-        <div class="col-md-6 mb-2 position-relative">
-          <label>Cliente</label>
-          <input type="text" name="cliente_nome" id="cliente_nome" class="form-control" value="{{ os.cliente_nome if os else '' }}" required autocomplete="off">
-          <div id="cliente-lista" class="autocomplete-list"></div>
-          <a href="/cadastro" target="_blank" class="btn btn-outline-primary btn-sm mt-1">Novo Cliente</a>
+        <div class="col-md-2 mb-3">
+          <label class="form-label">Código</label>
+          <input type="text" class="form-control" name="codigo" value="{{ cliente.codigo if cliente else '' }}" readonly>
         </div>
-        <div class="col-md-3 mb-2">
-          <label>CPF/CNPJ</label>
-          <input type="text" id="cliente_cpf_cnpj" name="cliente_cpf_cnpj" class="form-control" value="{{ os.cliente_cpf_cnpj if os else '' }}">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Nome</label>
+          <input type="text" class="form-control" name="nome" value="{{ cliente.nome if cliente else '' }}" required>
         </div>
-        <div class="col-md-3 mb-2">
-          <label>Telefone</label>
-          <input type="text" id="cliente_telefone" name="cliente_telefone" class="form-control" value="{{ os.cliente_telefone if os else '' }}">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">CPF/CNPJ</label>
+          <input type="text" class="form-control" id="cpf_cnpj" name="cpf_cnpj" value="{{ cliente.cpf_cnpj if cliente else '' }}" required>
         </div>
       </div>
       <div class="row">
-        <div class="col-md-6 mb-2">
-          <label>Email</label>
-          <input type="email" id="cliente_email" name="cliente_email" class="form-control" value="{{ os.cliente_email if os else '' }}">
+        <div class="col-md-2 mb-3">
+          <label class="form-label">CEP</label>
+          <input type="text" class="form-control" id="cep" name="cep" maxlength="9" value="{{ cliente.cep if cliente else '' }}">
         </div>
-        <div class="col-md-6 mb-2">
-          <label>Endereço</label>
-          <input type="text" id="cliente_endereco" name="cliente_endereco" class="form-control" value="{{ os.cliente_endereco if os else '' }}">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Endereço</label>
+          <input type="text" class="form-control" id="endereco" name="endereco" value="{{ cliente.endereco if cliente else '' }}">
         </div>
-      </div>
-
-      <!-- 2. Detalhes da Ordem de Serviço -->
-      <h5 class="mt-4 mb-3 text-primary">2. Detalhes da Ordem de Serviço</h5>
-      <div class="row">
-        <div class="col-md-3 mb-2">
-          <label>Nº da OS</label>
-          <input type="text" class="form-control" name="codigo" value="{{ os.codigo if os else '' }}" readonly>
+        <div class="col-md-2 mb-3">
+          <label class="form-label">Número</label>
+          <input type="text" class="form-control" name="numero" value="{{ cliente.numero if cliente else '' }}">
         </div>
-        <div class="col-md-3 mb-2">
-          <label>Data Emissão</label>
-          <input type="date" class="form-control" name="data_emissao" value="{{ os.data_emissao if os else '' }}">
-        </div>
-        <div class="col-md-3 mb-2">
-          <label>Previsão de Conclusão</label>
-          <input type="date" class="form-control" name="previsao_conclusao" value="{{ os.previsao_conclusao if os else '' }}">
-        </div>
-        <div class="col-md-3 mb-2 position-relative">
-          <label>Tipo de Serviço</label>
-          <input type="text" name="tipo_servico" id="tipo_servico" class="form-control" value="{{ os.tipo_servico if os else '' }}" autocomplete="off">
-          <div id="tipo-servico-lista" class="autocomplete-list-servico"></div>
-          <a href="/servico/novo" target="_blank" class="btn btn-outline-primary btn-sm mt-1">Novo Serviço</a>
+        <div class="col-md-2 mb-3">
+          <label class="form-label">Cidade</label>
+          <input type="text" class="form-control" id="cidade" name="cidade" value="{{ cliente.cidade if cliente else '' }}">
         </div>
       </div>
       <div class="row">
-        <div class="col-md-8 mb-2">
-          <label>Descrição do Serviço</label>
-          <input type="text" name="descricao_servico" id="descricao_servico" class="form-control" value="{{ os.descricao_servico if os else '' }}">
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Telefone</label>
+          <input type="text" class="form-control" id="telefone" name="telefone" value="{{ cliente.telefone if cliente else '' }}">
         </div>
-        <div class="col-md-2 mb-2">
-          <label>Qtd</label>
-          <input type="number" name="qtd_servico" id="qtd_servico" class="form-control" value="1" min="1">
-        </div>
-        <div class="col-md-2 mb-2">
-          <label>Valor Unitário</label>
-          <input type="text" name="valor_unit_servico" id="valor_unit_servico" class="form-control" value="">
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" name="email" value="{{ cliente.email if cliente else '' }}">
         </div>
       </div>
-      <div class="row">
-        <div class="col-md-2 mb-2">
-          <label>Total de Horas</label>
-          <input type="text" class="form-control" id="total_horas" name="total_horas" value="{{ os.total_horas if os else '' }}" readonly>
-        </div>
-        <div class="col-md-3 mb-2">
-          <label>Valor do Serviço</label>
-          <input type="text" class="form-control" id="valor_servico" name="valor_servicos" value="{{ os.valor_servicos if os else '' }}" readonly>
-        </div>
-      </div>
-
-      <!-- 3. Produtos/Peças Utilizadas -->
-      <h5 class="mt-4 mb-3 text-primary">3. Produtos/Peças Utilizadas</h5>
-      <div id="produtos-lista">
-        <!-- Produtos dinâmicos aparecem aqui -->
-      </div>
-      <button type="button" class="btn btn-outline-success btn-sm mb-3" onclick="adicionarProduto()">Adicionar Produto/Peça</button>
-      <div class="row mb-2">
-        <div class="col-md-3"><b>Total dos Produtos:</b> R$ <span id="total-produtos">0,00</span></div>
-      </div>
-
-      <!-- 4. Horas Trabalhadas -->
-      <h5 class="mt-4 mb-3 text-primary">4. Horas Trabalhadas</h5>
-      <div class="row">
-        <div class="col-md-4 mb-2">
-          <label>Técnico Responsável</label>
-          <input type="text" class="form-control" name="tecnico_responsavel" value="{{ os.tecnico_responsavel if os else '' }}">
-        </div>
-        <div class="col-md-2 mb-2">
-          <label>Hora Início</label>
-          <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" value="{{ os.hora_inicio if os else '' }}">
-        </div>
-        <div class="col-md-2 mb-2">
-          <label>Hora Término</label>
-          <input type="time" class="form-control" id="hora_termino" name="hora_termino" value="{{ os.hora_termino if os else '' }}">
-        </div>
-        <div class="col-md-2 mb-2">
-          <label>Total de Horas</label>
-          <input type="text" class="form-control" id="total_horas2" readonly>
-        </div>
-        <div class="col-md-2 mb-2">
-          <label>Atividade Realizada</label>
-          <input type="text" class="form-control" name="atividade_realizada" value="{{ os.atividade_realizada if os else '' }}">
-        </div>
-      </div>
-
-      <!-- 5. Deslocamento -->
-      <h5 class="mt-4 mb-3 text-primary">5. Deslocamento</h5>
-      <div class="row">
-        <div class="col-md-2 mb-2">
-          <label>KM Inicial</label>
-          <input type="number" class="form-control" id="km_inicial" name="km_inicial" value="{{ os.km_inicial if os else '' }}">
-        </div>
-        <div class="col-md-2 mb-2">
-          <label>KM Final</label>
-          <input type="number" class="form-control" id="km_final" name="km_final" value="{{ os.km_final if os else '' }}">
-        </div>
-        <div class="col-md-2 mb-2">
-          <label>Total KM</label>
-          <input type="text" class="form-control" id="total_km" name="km_total" value="{{ os.km_total if os else '' }}" readonly>
-        </div>
-      </div>
-
-      <!-- 6. Valores -->
-      <h5 class="mt-4 mb-3 text-primary">6. Valores</h5>
-      <div class="row">
-        <div class="col-md-3 mb-2">
-          <label>Valor Serviços</label>
-          <input type="text" class="form-control" id="valor_servico_total" name="valor_servicos" value="{{ os.valor_servicos if os else '' }}" readonly>
-        </div>
-        <div class="col-md-3 mb-2">
-          <label>Valor Produtos</label>
-          <input type="text" class="form-control" id="valor_produto" name="valor_produtos" value="{{ os.valor_produtos if os else '' }}" readonly>
-        </div>
-        <div class="col-md-3 mb-2">
-          <label>Valor Deslocamento</label>
-          <input type="number" step="0.01" class="form-control" id="valor_deslocamento" name="valor_deslocamento" value="{{ os.valor_deslocamento if os else '' }}">
-        </div>
-        <div class="col-md-3 mb-2">
-          <label>Total Geral</label>
-          <input type="text" class="form-control" id="total_geral" name="total_geral" value="{{ os.total_geral if os else '' }}" readonly>
-        </div>
-      </div>
-      <div class="mb-3">
-        <label>Condições de Pagamento</label>
-        <input type="text" class="form-control" name="condicoes_pagamento" value="{{ os.condicoes_pagamento if os else '' }}">
-      </div>
-
-      <!-- 7. Observações -->
-      <h5 class="mt-4 mb-2 text-primary">7. Observações/Recados</h5>
-      <textarea class="form-control mb-3" name="observacoes" rows="2">{{ os.observacoes if os else '' }}</textarea>
-
-      <!-- 8. Assinaturas (placeholder) -->
-      <h5 class="mt-4 mb-2 text-primary">8. Assinaturas</h5>
-      <p><i>Funcionalidade de assinatura digital pode ser implementada posteriormente.</i></p>
-
-      <!-- Botões -->
-      <div class="d-flex justify-content-between mt-4">
-        <a href="/ordens_servico" class="btn btn-secondary">Voltar</a>
+      <div class="d-flex justify-content-between">
+        <a href="/" class="btn btn-secondary">Cancelar</a>
         <button type="submit" class="btn btn-success">Salvar</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- SCRIPTS AUTOCOMPLETE E CÁLCULOS -->
+<!-- jQuery, jQuery Mask e busca de CEP -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 <script>
-// AUTOCOMPLETE CLIENTE
-$('#cliente_nome').on('input', function(){
-  let termo = $(this).val();
-  if (termo.length >= 2) {
-    $.get('/buscar_clientes?q=' + termo, function(data){
-      let lista = $('#cliente-lista').empty().show();
-      if(data.length){
-        data.forEach(c => {
-          lista.append(`<div data-nome="${c.nome}" data-cpf="${c.cpf_cnpj}" data-tel="${c.telefone}" data-email="${c.email}" data-endereco="${c.endereco}">${c.nome} - ${c.cpf_cnpj}</div>`);
-        });
-      } else {
-        lista.append('<div>Nenhum cliente encontrado.</div>');
-      }
-    });
-  } else {
-    $('#cliente-lista').empty().hide();
-  }
-});
-$('#cliente-lista').on('click', 'div', function(){
-  $('#cliente_nome').val($(this).data('nome'));
-  $('#cliente_cpf_cnpj').val($(this).data('cpf'));
-  $('#cliente_telefone').val($(this).data('tel'));
-  $('#cliente_email').val($(this).data('email'));
-  $('#cliente_endereco').val($(this).data('endereco'));
-  $('#cliente-lista').empty().hide();
-});
-$(document).on('click', function(e){
-  if(!$(e.target).closest('#cliente_nome, #cliente-lista').length){
-    $('#cliente-lista').empty().hide();
-  }
-});
+$(function(){
+  // Máscara inteligente para CPF/CNPJ
+  $('#cpf_cnpj').on('input', function() {
+    var val = $(this).val().replace(/\D/g, '');
+    if (val.length <= 11) {
+      $(this).mask('000.000.000-00');
+    } else {
+      $(this).mask('00.000.000/0000-00');
+    }
+  });
+  // Máscara telefone
+  $('#telefone').mask('(00) 00000-0000');
+  // Máscara CEP
+  $('#cep').mask('00000-000');
 
-// AUTOCOMPLETE TIPO SERVIÇO
-$('#tipo_servico').on('input', function(){
-  let termo = $(this).val();
-  let lista = $('#tipo-servico-lista').empty();
-  if (termo.length >= 1) {
-    $.get('/buscar_tipos_servico?q=' + termo, function(data){
-      if(data.length){
-        data.forEach(t => {
-          lista.append(`<div data-nome="${t.text}">${t.text}</div>`);
-        });
-      } else {
-        lista.append('<div>Nenhum tipo encontrado.</div>');
-      }
-      lista.show();
-    });
-  } else {
-    lista.hide();
-  }
-});
-$('#tipo-servico-lista').on('click', 'div', function(){
-  $('#tipo_servico').val($(this).data('nome'));
-  $('#tipo-servico-lista').empty().hide();
-});
-$(document).on('click', function(e){
-  if(!$(e.target).closest('#tipo_servico, #tipo-servico-lista').length){
-    $('#tipo-servico-lista').empty().hide();
-  }
-});
-
-// --- CALCULO VALOR SERVICO ---
-$('#valor_unit_servico, #qtd_servico, #total_horas').on('input', function(){
-  calcularValorServico();
-});
-function calcularValorServico() {
-  let valor = parseFloat($('#valor_unit_servico').val()) || 0;
-  let qtd = parseFloat($('#qtd_servico').val()) || 1;
-  let horas = parseFloat($('#total_horas').val()) || 1;
-  let total = valor * qtd * horas;
-  $('#valor_servico').val(total.toFixed(2));
-  $('#valor_servico_total').val(total.toFixed(2));
-  calcularTotalGeral();
-}
-
-// PRODUTOS DINÂMICOS
-let produtoCount = 0;
-function adicionarProduto(nome='', qtde='', valor_unit='') {
-  produtoCount++;
-  let id = 'produto'+produtoCount;
-  let html = `
-  <div class="row align-items-end produto-item position-relative" id="${id}">
-    <div class="col-md-4 mb-1 position-relative">
-      <label>Produto/Peça</label>
-      <input type="text" class="form-control produto-nome" name="produto_nome_${produtoCount}" autocomplete="off" value="${nome}">
-      <div class="autocomplete-list-produto"></div>
-      <a href="/produto/novo" target="_blank" class="btn btn-outline-primary btn-sm mt-1">Novo Produto</a>
-    </div>
-    <div class="col-md-2 mb-1">
-      <label>Qtde</label>
-      <input type="number" class="form-control qtde-produto" name="qtde_${produtoCount}" min="1" value="${qtde}">
-    </div>
-    <div class="col-md-2 mb-1">
-      <label>Valor Unit.</label>
-      <input type="text" class="form-control valor-unit" name="valor_unit_${produtoCount}" value="${valor_unit}">
-    </div>
-    <div class="col-md-2 mb-1">
-      <label>Valor Total</label>
-      <input type="text" class="form-control valor-total" name="valor_total_${produtoCount}" readonly>
-    </div>
-    <div class="col-md-2 mb-1">
-      <button type="button" class="btn btn-danger btn-sm" onclick="$('#${id}').remove(); atualizarValores()">Remover</button>
-    </div>
-  </div>
-  `;
-  $('#produtos-lista').append(html);
-}
-
-// Autocomplete produto
-$(document).on('input', '.produto-nome', function(){
-  let input = $(this);
-  let termo = input.val();
-  let lista = input.siblings('.autocomplete-list-produto').empty();
-  if (termo.length >= 2) {
-    $.get('/buscar_produtos?q=' + termo, function(data){
-      if(data.length){
-        data.forEach(p => {
-          lista.append(`<div data-nome="${p.nome}" data-valor="${p.valor_venda}">${p.nome} - R$ ${parseFloat(p.valor_venda).toFixed(2)}</div>`);
-        });
-      } else {
-        lista.append('<div>Nenhum produto encontrado.</div>');
-      }
-      lista.show();
-    });
-  } else {
-    lista.hide();
-  }
-});
-$(document).on('click', '.autocomplete-list-produto div', function(){
-  let div = $(this);
-  let grupo = div.closest('.produto-item');
-  grupo.find('.produto-nome').val(div.data('nome'));
-  grupo.find('.valor-unit').val(div.data('valor'));
-  div.parent().empty().hide();
-  atualizarValores();
-});
-$(document).on('click', function(e){
-  $('.autocomplete-list-produto').each(function(){
-    if(!$(e.target).closest(this).length && !$(e.target).hasClass('produto-nome')){
-      $(this).empty().hide();
+  // Busca automática de endereço via CEP
+  $('#cep').on('blur', function(){
+    let cep = $(this).val().replace(/\D/g, '');
+    if (cep.length === 8) {
+      $.getJSON('https://viacep.com.br/ws/' + cep + '/json/', function(data){
+        if (!data.erro) {
+          $('#endereco').val(data.logradouro);
+          $('#cidade').val(data.localidade);
+        }
+      });
     }
   });
 });
-
-// Atualização de valores produtos
+</script>
+{% endblock %}
