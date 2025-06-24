@@ -4,7 +4,7 @@ class Cliente(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     codigo = db.Column(db.String(20), unique=True)
     nome = db.Column(db.String(100), nullable=False)
-    cnpj_cpf = db.Column(db.String(20), nullable=False)
+    cpf_cnpj = db.Column(db.String(20), nullable=False)
     telefone = db.Column(db.String(20), nullable=True)
     email = db.Column(db.String(100), nullable=True)
     endereco = db.Column(db.String(150), nullable=True)
