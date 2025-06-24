@@ -215,7 +215,7 @@ def lista_ordens_servico():
 @app.route('/ordem_servico/novo', methods=['GET', 'POST'])
 @app.route('/ordem_servico/editar/<int:id>', methods=['GET', 'POST'])
 def cadastro_ordem_servico(id=None):
-    tipos_servico = TipoServico.query.all()
+    tipos_servico = TipoServico.query.all() #<- Coloquei essa linha Agora de pouco
     os = OrdemServico.query.get(id) if id else None
     if request.method == 'POST':
         if not os:
