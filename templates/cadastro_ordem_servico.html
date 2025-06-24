@@ -74,7 +74,7 @@
   <label>Tipo de Serviço</label>
   <select class="form-select" name="tipo_servico" id="tipo_servico" required>
     <option value="">Selecione</option>
-    {% for tipo in tipos_servico %}
+    {% for tipo in tipos_servico %} 
       <option value="{{ tipo.nome }}" {% if os and os.tipo_servico == tipo.nome %}selected{% endif %}>{{ tipo.nome }}</option>
     {% endfor %}
   </select>
