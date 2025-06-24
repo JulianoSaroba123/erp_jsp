@@ -248,7 +248,7 @@ def cadastro_ordem_servico(id=None):
         os.observacoes = request.form.get('observacoes')
         db.session.commit()
         return redirect('/ordens_servico')
-    return render_template('cadastro_ordem_servico.html', os=os, tipos_servicos=tipos_servico)
+    return render_template('cadastro_ordem_servico.html', os=os, tipos_servico=tipos_servico)
 
 @app.route('/ordem_servico/excluir/<int:id>')
 def excluir_ordem_servico(id):
