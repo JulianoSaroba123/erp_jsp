@@ -1,1 +1,38 @@
+{% extends 'base.html' %}
+{% block conteudo %}
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Tipos de Serviço</h3>
+    <a href="/tipo_servico/novo" class="btn btn-primary">Novo Tipo de Serviço</a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Nome do Tipo de Serviço</th>
+          <th class="text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tipos %}
+        <tr>
+          <td>{{ t.id }}</td>
+          <td>{{ t.nome }}</td>
+          <td class="text-center">
+            <a href="/tipo_servico/editar/{{ t.id }}" class="btn btn-warning btn-sm">Editar</a>
+            <!-- Se quiser excluir, só adicionar a rota de exclusão -->
+            <!-- <a href="/tipo_servico/excluir/{{ t.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Excluir este tipo?')">Excluir</a> -->
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="3" class="text-center">Nenhum tipo de serviço cadastrado.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
 
