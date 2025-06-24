@@ -307,13 +307,13 @@ def adicionar_tipo_servico():
     nome = request.form.get('nome')
     if not nome:
         return jsonify({'success': False})
+    nome = nome.strip().lower()    
     tipo = TipoServico.query.filter_by(nome=nome).first()
-    nome = nome.strip().lower()
-    tipo = TipoServico.query.filter_by(nome=nome).first()
-    tipo = TipoServico(nome=nome)
+    if not tipo:
+        tipo = TipoServico(nome=nome)
         db.session.add(tipo)
         db.session.commit()
-        return jsonify({'id': tipo.id, 'text': tipo.nome})
+    return jsonify({'id': tipo.id, 'text': tipo.nome})
 
 @app.route('/cadastrar_tipo_servico')
 def cadastrar_tipo_servico():
