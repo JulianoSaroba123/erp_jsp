@@ -15,7 +15,7 @@
         </div>
         <div class="col-md-4 mb-3">
           <label class="form-label">CPF/CNPJ</label>
-          <input type="text" class="form-control" id="cpf_cnpj" name="cpf_cnpj" value="{{ cliente.cpf_cnpj if cliente else '' }}" required>
+          <input type="text" class="form-control" id="cnpj_cpf" name="cnpj_cpf" value="{{ cliente.cnpj_cpf if cliente else '' }}" required>
         </div>
       </div>
       <div class="row">
@@ -60,7 +60,7 @@
 <script>
 $(function(){
   // Máscara inteligente para CPF/CNPJ
-  $('#cpf_cnpj').on('input', function() {
+  $('#cnpj_cpf').on('input', function() {
     var val = $(this).val().replace(/\D/g, '');
     if (val.length <= 11) {
       $(this).mask('000.000.000-00');
