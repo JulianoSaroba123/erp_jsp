@@ -343,6 +343,11 @@ def cadastro_tipo_servico(id=None):
         db.session.commit()
         return redirect('/tipos_servico')
     return render_template('cadastro_tipo_servico.html', tipo=tipo)
+    @app.route('/tipos_servico')
+def lista_tipos_servico():
+    from models.tipo_servico_model import TipoServico
+    tipos = TipoServico.query.all()
+    return render_template('lista_tipos_servico.html', tipos=tipos)
 
 # EXPORTAÇÃO
 @app.route('/exportar_excel')
