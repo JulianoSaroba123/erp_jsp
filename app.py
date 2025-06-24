@@ -215,6 +215,7 @@ def lista_ordens_servico():
 @app.route('/ordem_servico/novo', methods=['GET', 'POST'])
 @app.route('/ordem_servico/editar/<int:id>', methods=['GET', 'POST'])
 def cadastro_ordem_servico(id=None):
+    tipos_servico = TipoServico.query.all()
     os = OrdemServico.query.get(id) if id else None
     if request.method == 'POST':
         if not os:
@@ -247,7 +248,7 @@ def cadastro_ordem_servico(id=None):
         os.observacoes = request.form.get('observacoes')
         db.session.commit()
         return redirect('/ordens_servico')
-    return render_template('cadastro_ordem_servico.html', os=os)
+    return render_template('cadastro_ordem_servico.html', os=os, tipos_servicos=tipo_servico)
 
 @app.route('/ordem_servico/excluir/<int:id>')
 def excluir_ordem_servico(id):
