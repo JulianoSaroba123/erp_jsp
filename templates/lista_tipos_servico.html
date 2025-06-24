@@ -1,38 +1,32 @@
 {% extends "base.html" %}
 {% block conteudo %}
 <div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3>Tipos de Serviço Cadastrados</h3>
-    <a href="/tipo_servico/novo" class="btn btn-primary">Novo Tipo de Serviço</a>
-  </div>
-  <div class="table-responsive">
-    <table class="table table-bordered table-hover align-middle">
-      <thead class="table-dark">
-        <tr>
-          <th>Código</th>
-          <th>Nome do Tipo</th>
-          <th class="text-center">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for tipo in tipos %}
-        <tr>
-          <td>{{ tipo.id }}</td>
-          <td>{{ tipo.nome }}</td>
-          <td class="text-center">
-            <a href="/tipo_servico/editar/{{ tipo.id }}" class="btn btn-warning btn-sm">Editar</a>
-            <a href="/tipo_servico/excluir/{{ tipo.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Deseja excluir este tipo de serviço?')">Excluir</a>
-          </td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="3" class="text-center">Nenhum tipo de serviço cadastrado.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  <h3>Lista de Tipos de Serviço</h3>
+  <a href="/tipos_servico/novo" class="btn btn-primary mb-3">Novo Tipo de Serviço</a>
+  <table class="table table-bordered">
+    <thead class="table-dark">
+      <tr>
+        <th>Código</th>
+        <th>Nome</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in tipos %}
+      <tr>
+        <td>{{ t.id }}</td>
+        <td>{{ t.nome }}</td>
+        <td>
+          <a href="/tipos_servico/editar/{{ t.id }}" class="btn btn-warning btn-sm">Editar</a>
+          <a href="/tipos_servico/excluir/{{ t.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Excluir?')">Excluir</a>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="3" class="text-center">Nenhum tipo cadastrado.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endblock %}
-
-
