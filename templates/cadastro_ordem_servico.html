@@ -228,8 +228,9 @@
       </div>
     </form>
   </div>
-           
- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
 /* --- AUTOCOMPLETE CLIENTE --- */
 $('#cliente_nome').on('input', function(){
@@ -312,16 +313,7 @@ function calcularValorServico() {
 }
 
 /* ---------- PRODUTOS (LISTBOX/TABELA) ---------- */
-
-// Array dos produtos (nome, qtde, valor_unit)
 let listaProdutos = [];
-// Ao editar, carrega os produtos salvos (se existirem)
-{% if os and os.produtos %}
-try {
-  listaProdutos = JSON.parse('{{ os.produtos|safe }}');
-} catch (e) { listaProdutos = []; }
-{%
-// Ao editar, carrega os produtos salvos (se existirem)
 {% if os and os.produtos %}
 try {
   listaProdutos = JSON.parse(`{{ os.produtos | tojson | safe }}`);
@@ -345,7 +337,7 @@ function renderTabelaProdutos() {
           <input type="number" class="form-control form-control-sm qtde-editavel" value="${qtde}" min="1" style="width:80px;">
         </td>
         <td>
-          <input type="text" class="form-control form-control-sm valor-unit-editavel" value="${valorUnit.toFixed(2)}" style="width:100px;">
+        <input type="text" class="form-control form-control-sm valor-unit-editavel" value="${valorUnit.toFixed(2)}" style="width:100px;">
         </td>
         <td>
           <input type="text" class="form-control form-control-sm valor-total-editavel" value="${valorTotal.toFixed(2)}" style="width:110px;" readonly>
@@ -489,11 +481,5 @@ function calcularTotalGeral() {
   let total = vs + vp + vd;
   $('#total_geral').val(total.toFixed(2));
 }
-
-// Inicialização (caso de edição)
-$(function(){
-  renderTabelaProdutos();
-  calcularTotalGeral();
-});
 </script>
 {% endblock %}
