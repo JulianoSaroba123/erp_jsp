@@ -45,6 +45,8 @@
             <a href="/ordem_servico/editar/{{ os.id }}" class="btn btn-warning btn-sm">Editar</a>
             <a href="/ordem_servico/excluir/{{ os.id }}" class="btn btn-danger btn-sm"
                onclick="return confirm('Deseja excluir esta OS?')">Excluir</a>
+            <a href="/ordem_servico/{{ os.id }}/imprimir" target="_blank" class="btn btn-outline-primary btn-sm">
+              Imprimir Relatório</a>
           </td>
         </tr>
         {% else %}
