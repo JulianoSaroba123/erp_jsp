@@ -391,6 +391,22 @@ def exportar_pdf():
     pdf.output(caminho)
     nome_arquivo = f"Clientes_JSP_{datetime.now().strftime('%Y-%m-%d')}.pdf"
     return send_file(caminho, as_attachment=True, download_name=nome_arquivo)
+    # Rota para visualizar e imprimir a OS em HTML (visualização bonita p/ impressão)
+@app.route('/ordem_servico/<int:os_id>/imprimir')
+def imprimir_os(os_id):
+    os = OrdemServico.query.get_or_404(os_id)
+    return render_template('impressao_os.html', os=os)
+
+# Rota para gerar PDF da OS (opcional, se quiser PDF direto)
+@app.route('/ordem_servico/<int:os_id>/pdf')
+def pdf_os(os_id):
+    os = OrdemServico.query.get_or_404(os_id)
+    rendered = render_template('impressao_os.html', os=os)
+    pdf = gerar_pdf(rendered)  # Função usando pdfkit/weasyprint
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'inline; filename=os_{os_id}.pdf'
+    return response
 
 # RODAR SERVIDOR
 if __name__ == '__main__':
