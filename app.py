@@ -282,6 +282,12 @@ def excluir_ordem_servico(id):
     db.session.delete(os)
     db.session.commit()
     return redirect('/ordens_servico')
+# Rota de impressão    
+@app.route('/ordem_servico/<int:os_id>/imprimir')
+def imprimir_os(os_id):
+    os = OrdemServico.query.get_or_404(os_id)
+    return render_template('impressao_os.html', os=os)    
+    
 
 # AUTOCOMPLETE E BUSCAS
 @app.route('/buscar_clientes')
