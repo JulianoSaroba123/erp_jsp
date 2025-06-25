@@ -3,17 +3,40 @@
 <div class="container mt-4">
   <h2>Ordem de Serviço #{{ os.codigo }}</h2>
   <hr>
-  <h4>Dados do Cliente</h4>
-  <p><b>Nome:</b> {{ os.cliente_nome }}<br>
-     <b>CPF/CNPJ:</b> {{ os.cliente_cpf_cnpj }}<br>
-     <b>Telefone:</b> {{ os.cliente_telefone }}</p>
-  <!-- ... continue os dados da OS ... -->
+  <h4>Cliente</h4>
+  <p>
+    <b>Nome:</b> {{ os.cliente_nome }}<br>
+    <b>CPF/CNPJ:</b> {{ os.cliente_cpf_cnpj }}<br>
+    <b>Telefone:</b> {{ os.cliente_telefone }}<br>
+    <b>Email:</b> {{ os.cliente_email }}<br>
+    <b>Endereço:</b> {{ os.cliente_endereco }}
+  </p>
+  <h4>Detalhes</h4>
+  <p>
+    <b>Data Emissão:</b> {{ os.data_emissao }}<br>
+    <b>Tipo de Serviço:</b> {{ os.tipo_servico }}<br>
+    <b>Descrição:</b> {{ os.descricao_servico }}
+  </p>
+  <h4>Produtos/Peças Utilizadas</h4>
+  {% if os.produtos %}
+    <ul>
+    {% for prod in os.produtos|fromjson %}
+      <li>{{ prod.nome }} — {{ prod.qtde }} x R$ {{ prod.valor_unit }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  <h4>Valores</h4>
+  <p>
+    <b>Serviços:</b> R$ {{ os.valor_servicos }}<br>
+    <b>Produtos:</b> R$ {{ os.valor_produtos }}<br>
+    <b>Deslocamento:</b> R$ {{ os.valor_deslocamento }}<br>
+    <b>Total:</b> <b>R$ {{ os.total_geral }}</b>
+  </p>
   <button onclick="window.print()" class="btn btn-success no-print">Imprimir</button>
 </div>
 <style>
 @media print {
   .no-print { display: none !important; }
-  /* Adicione estilos para ajustar o layout na impressão */
 }
 </style>
 {% endblock %}
