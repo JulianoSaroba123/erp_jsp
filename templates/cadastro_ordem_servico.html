@@ -1,8 +1,25 @@
 {% extends "base.html" %}
 {% block conteudo %}
 <style>
-  /* ... seu CSS ... */
+.autocomplete-list, .autocomplete-list-produto, .autocomplete-list-servico {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #bbb;
+  z-index: 10;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 4px;
+}
+.autocomplete-list div, .autocomplete-list-produto div, .autocomplete-list-servico div {
+  padding: 8px;
+  cursor: pointer;
+}
+.autocomplete-list div:hover, .autocomplete-list-produto div:hover, .autocomplete-list-servico div:hover {
+  background: #eee;
+}
 </style>
+
 <div class="container mt-4">
   <div class="card shadow-sm p-4">
     <h3 class="mb-4">{{ 'Editar Ordem de Serviço' if os else 'Nova Ordem de Serviço' }}</h3>
@@ -66,7 +83,7 @@
       <div class="row align-items-end">
         <div class="col-md-4 mb-2 position-relative">
           <label>Serviço</label>
-          <input type="text" name="servico_nome" id="servico_nome" class="form-control" value="{{ os.servico_nome if os else '' }}" autocomplete="off">
+          <input type="text" name="servico_nome" id="servico_nome" class="form-control" value="{{ os.servico_nome if os and os.servico_nome else '' }}" autocomplete="off">
           <div id="servico-lista" class="autocomplete-list-servico"></div>
           <a href="/servico/novo" target="_blank" class="btn btn-outline-primary btn-sm mt-1">Novo Serviço</a>
         </div>
@@ -76,7 +93,7 @@
         </div>
         <div class="col-md-2 mb-2">
           <label>Quantidade</label>
-          <input type="number" id="qtd_servico" name="qtd_servico" class="form-control" min="1" value="{{ os.qtd_servico if os else '1' }}">
+          <input type="number" id="qtd_servico" name="qtd_servico" class="form-control" min="1" value="{{ os.qtd_servico if os and os.qtd_servico else '1' }}">
         </div>
         <div class="col-md-3 mb-2">
           <label>Valor Unitário</label>
@@ -96,31 +113,387 @@
 
       <!-- 3. Produtos/Peças Utilizadas -->
       <h5 class="mt-4 mb-3 text-primary">3. Produtos/Peças Utilizadas</h5>
-      <div id="produtos-lista"></div>
-      <button type="button" class="btn btn-outline-success btn-sm mb-3" onclick="adicionarProduto()">Adicionar Produto/Peça</button>
+      <div class="table-responsive mb-2">
+        <table class="table table-bordered align-middle" id="tabela-produtos">
+          <thead class="table-light">
+            <tr>
+              <th>Produto/Peça</th>
+              <th>Qtde</th>
+              <th>Valor Unit.</th>
+              <th>Valor Total</th>
+              <th>Ação</th>
+            </tr>
+            <tr>
+              <td>
+                <input type="text" class="form-control produto-nome-novo" placeholder="Digite o produto" autocomplete="off">
+                <div class="autocomplete-list-produto"></div>
+              </td>
+              <td><input type="number" class="form-control qtde-produto-novo" min="1" value="1"></td>
+              <td><input type="text" class="form-control valor-unit-novo" value=""></td>
+              <td><input type="text" class="form-control valor-total-novo" readonly></td>
+              <td>
+                <button type="button" class="btn btn-success btn-sm" id="btn-adicionar-produto">Adicionar</button>
+              </td>
+            </tr>
+          </thead>
+          <tbody id="produtos-lista-tbody">
+            <!-- Produtos já cadastrados aparecem aqui ao editar -->
+          </tbody>
+        </table>
+      </div>
       <div class="row mb-2">
         <div class="col-md-3"><b>Total dos Produtos:</b> R$ <span id="total-produtos">0,00</span></div>
       </div>
+      <input type="hidden" name="produtos" id="input-produtos-json">
 
       <!-- 4. Horas Trabalhadas -->
-      <!-- ... resto igual ... -->
+      <h5 class="mt-4 mb-3 text-primary">4. Horas Trabalhadas</h5>
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <label>Técnico Responsável</label>
+          <input type="text" class="form-control" name="tecnico_responsavel" value="{{ os.tecnico_responsavel if os else '' }}">
+        </div>
+        <div class="col-md-2 mb-2">
+          <label>Hora Início</label>
+          <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" value="{{ os.hora_inicio if os else '' }}">
+        </div>
+        <div class="col-md-2 mb-2">
+          <label>Hora Término</label>
+          <input type="time" class="form-control" id="hora_termino" name="hora_termino" value="{{ os.hora_termino if os else '' }}">
+        </div>
+        <div class="col-md-2 mb-2">
+          <label>Total de Horas</label>
+          <input type="text" class="form-control" id="total_horas2" value="{{ os.total_horas if os else '' }}" readonly>
+        </div>
+        <div class="col-md-2 mb-2">
+          <label>Atividade</label>
+          <input type="text" class="form-control" name="atividade_realizada" value="{{ os.atividade_realizada if os else '' }}">
+        </div>
+      </div>
 
-      <!-- (restante do seu template, scripts e tudo mais, permanece igual) -->
+      <!-- 5. Deslocamento -->
+      <h5 class="mt-4 mb-3 text-primary">5. Deslocamento</h5>
+      <div class="row">
+        <div class="col-md-2 mb-2">
+          <label>KM Inicial</label>
+          <input type="number" class="form-control" id="km_inicial" name="km_inicial" value="{{ os.km_inicial if os else '' }}">
+        </div>
+        <div class="col-md-2 mb-2">
+          <label>KM Final</label>
+          <input type="number" class="form-control" id="km_final" name="km_final" value="{{ os.km_final if os else '' }}">
+        </div>
+        <div class="col-md-2 mb-2">
+          <label>Total KM</label>
+          <input type="text" class="form-control" id="km_total" name="km_total" value="{{ os.km_total if os else '' }}" readonly>
+        </div>
+      </div>
 
+      <!-- 6. Valores -->
+      <h5 class="mt-4 mb-3 text-primary">6. Valores</h5>
+      <div class="row">
+        <div class="col-md-3 mb-2">
+          <label>Valor Serviços</label>
+          <input type="text" class="form-control" id="valor_servicos_total" name="valor_servicos_total" value="{{ os.valor_servicos if os else '' }}" readonly>
+        </div>
+        <div class="col-md-3 mb-2">
+          <label>Valor Produtos</label>
+          <input type="text" class="form-control" id="valor_produtos" name="valor_produtos" value="{{ os.valor_produtos if os else '' }}" readonly>
+        </div>
+        <div class="col-md-3 mb-2">
+          <label>Valor Deslocamento</label>
+          <input type="number" step="0.01" class="form-control" id="valor_deslocamento" name="valor_deslocamento" value="{{ os.valor_deslocamento if os else '' }}">
+        </div>
+        <div class="col-md-3 mb-2">
+          <label>Total Geral</label>
+          <input type="text" class="form-control" id="total_geral" name="total_geral" value="{{ os.total_geral if os else '' }}" readonly>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label>Condições de Pagamento</label>
+        <input type="text" class="form-control" name="condicoes_pagamento" value="{{ os.condicoes_pagamento if os else '' }}">
+      </div>
+
+      <!-- 7. Observações -->
+      <h5 class="mt-4 mb-2 text-primary">7. Observações/Recados</h5>
+      <textarea class="form-control mb-3" name="observacoes" rows="2">{{ os.observacoes if os else '' }}</textarea>
+
+      <!-- 8. Assinaturas (placeholder) -->
+      <h5 class="mt-4 mb-2 text-primary">8. Assinaturas</h5>
+      <p><i>Funcionalidade de assinatura digital pode ser implementada futuramente.</i></p>
+
+      <!-- Botões -->
+      <div class="d-flex justify-content-between mt-4">
+        <a href="/ordens_servico" class="btn btn-secondary">Voltar</a>
+        <button type="submit" class="btn btn-success">Salvar</button>
+      </div>
+    </form>
+  </div>
+            </div>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
+/* --- AUTOCOMPLETE CLIENTE --- */
+$('#cliente_nome').on('input', function(){
+  let termo = $(this).val();
+  if (termo.length >= 2) {
+    $.get('/buscar_clientes?q=' + termo, function(data){
+      let lista = $('#cliente-lista').empty().show();
+      if(data.length){
+        data.forEach(c => {
+          lista.append(`<div data-nome="${c.nome}" data-cpf_cnpj="${c.cpf_cnpj}" data-tel="${c.telefone}" data-email="${c.email}" data-endereco="${c.endereco}">${c.nome} - ${c.cpf_cnpj}</div>`);
+        });
+      } else {
+        lista.append('<div>Nenhum cliente encontrado.</div>');
+      }
+    });
+  } else {
+    $('#cliente-lista').empty().hide();
+  }
+});
+$('#cliente-lista').on('click', 'div', function(){
+  $('#cliente_nome').val($(this).data('nome'));
+  $('#cliente_cpf_cnpj').val($(this).data('cpf_cnpj'));
+  $('#cliente_telefone').val($(this).data('tel'));
+  $('#cliente_email').val($(this).data('email'));
+  $('#cliente_endereco').val($(this).data('endereco'));
+  $('#cliente-lista').empty().hide();
+});
+$(document).on('click', function(e){
+  if(!$(e.target).closest('#cliente_nome, #cliente-lista').length){
+    $('#cliente-lista').empty().hide();
+  }
+});
+
+/* --- AUTOCOMPLETE SERVIÇO --- */
+$('#servico_nome').on('input', function(){
+  let termo = $(this).val();
+  let lista = $('#servico-lista').empty();
+  if (termo.length >= 2) {
+    $.get('/buscar_servicos?q=' + termo, function(data){
+      if(data.length){
+        data.forEach(s => {
+          lista.append(`<div data-nome="${s.nome}" data-descricao="${s.descricao || ''}" data-valor="${s.valor}">${s.nome} - R$ ${parseFloat(s.valor).toFixed(2)}</div>`);
+        });
+      } else {
+        lista.append('<div>Nenhum serviço encontrado.</div>');
+      }
+      lista.show();
+    });
+  } else {
+    lista.hide();
+  }
+});
+$('#servico-lista').on('click', 'div', function(){
+  $('#servico_nome').val($(this).data('nome'));
+  $('#descricao_servico').val($(this).data('descricao'));
+  $('#valor_unit_servico').val($(this).data('valor'));
+  $('#servico-lista').empty().hide();
+  calcularValorServico();
+});
+$(document).on('click', function(e){
+  $('.autocomplete-list-servico').each(function(){
+    if(!$(e.target).closest(this).length && !$(e.target).hasClass('servico-nome')){
+      $(this).empty().hide();
+    }
+  });
+});
+
+/* --- CALCULO VALOR SERVICO --- */
+$('#valor_unit_servico, #qtd_servico, #total_horas').on('input', function(){
+  calcularValorServico();
+});
+function calcularValorServico() {
+  let valor = parseFloat($('#valor_unit_servico').val()) || 0;
+  let qtd = parseFloat($('#qtd_servico').val()) || 1;
+  let horas = parseFloat($('#total_horas').val()) || 1;
+  let total = valor * qtd * horas;
+  $('#valor_servicos').val(total.toFixed(2));
+  $('#valor_servicos_total').val(total.toFixed(2));
+  calcularTotalGeral();
+}
+
+/* ---------- PRODUTOS (LISTBOX/TABELA) ---------- */
+
+// Array dos produtos (nome, qtde, valor_unit)
+let listaProdutos = [];
+// Ao editar, carrega os produtos salvos (se existirem)
+{% if os and os.produtos %}
+try {
+  listaProdutos = JSON.parse('{{ os.produtos|safe }}');
+} catch (e) { listaProdutos = []; }
+{%
+// Ao editar, carrega os produtos salvos (se existirem)
+{% if os and os.produtos %}
+try {
+  listaProdutos = JSON.parse(`{{ os.produtos | tojson | safe }}`);
+} catch (e) { listaProdutos = []; }
+{% endif %}
+
+// Função para atualizar a tabela/listbox dos produtos
+function renderTabelaProdutos() {
+  let tbody = $('#produtos-lista-tbody');
+  tbody.empty();
+  let totalProdutos = 0.0;
+  listaProdutos.forEach(function(prod, i) {
+    let valorUnit = parseFloat(prod.valor_unit) || 0;
+    let qtde = parseFloat(prod.qtde) || 0;
+    let valorTotal = valorUnit * qtde;
+    totalProdutos += valorTotal;
+    tbody.append(`
+      <tr data-idx="${i}">
+        <td>${prod.nome}</td>
+        <td>
+          <input type="number" class="form-control form-control-sm qtde-editavel" value="${qtde}" min="1" style="width:80px;">
+        </td>
+        <td>
+          <input type="text" class="form-control form-control-sm valor-unit-editavel" value="${valorUnit.toFixed(2)}" style="width:100px;">
+        </td>
+        <td>
+          <input type="text" class="form-control form-control-sm valor-total-editavel" value="${valorTotal.toFixed(2)}" style="width:110px;" readonly>
+        </td>
+        <td>
+          <button type="button" class="btn btn-danger btn-sm btn-remover-produto">Remover</button>
+        </td>
+      </tr>
+    `);
+  });
+  $('#total-produtos').text(totalProdutos.toFixed(2));
+  $('#valor_produtos').val(totalProdutos.toFixed(2));
+  $('#input-produtos-json').val(JSON.stringify(listaProdutos));
+  calcularTotalGeral();
+}
+renderTabelaProdutos();
+
+// Adicionar produto à lista
+$('#btn-adicionar-produto').click(function(){
+  let nome = $('.produto-nome-novo').val().trim();
+  let qtde = $('.qtde-produto-novo').val();
+  let valor_unit = $('.valor-unit-novo').val();
+  if (nome && qtde && valor_unit) {
+    listaProdutos.push({
+      nome: nome,
+      qtde: qtde,
+      valor_unit: valor_unit
+    });
+    // Limpa campos do produto novo
+    $('.produto-nome-novo').val('');
+    $('.qtde-produto-novo').val('1');
+    $('.valor-unit-novo').val('');
+    $('.valor-total-novo').val('');
+    renderTabelaProdutos();
+  }
+});
+
+// Atualiza valor total na linha de produto novo
+$('.qtde-produto-novo, .valor-unit-novo').on('input', function(){
+  let qtde = parseFloat($('.qtde-produto-novo').val()) || 0;
+  let valor_unit = parseFloat($('.valor-unit-novo').val()) || 0;
+  $('.valor-total-novo').val((qtde * valor_unit).toFixed(2));
+});
+
+// Remover produto da lista
+$('#produtos-lista-tbody').on('click', '.btn-remover-produto', function(){
+  let idx = $(this).closest('tr').data('idx');
+  listaProdutos.splice(idx, 1);
+  renderTabelaProdutos();
+});
+
+// Editar quantidade ou valor na tabela/listbox
+$('#produtos-lista-tbody').on('input', '.qtde-editavel, .valor-unit-editavel', function(){
+  let tr = $(this).closest('tr');
+  let idx = tr.data('idx');
+  let novaQtde = parseFloat(tr.find('.qtde-editavel').val()) || 0;
+  let novoValorUnit = parseFloat(tr.find('.valor-unit-editavel').val()) || 0;
+  listaProdutos[idx].qtde = novaQtde;
+  listaProdutos[idx].valor_unit = novoValorUnit;
+  tr.find('.valor-total-editavel').val((novaQtde * novoValorUnit).toFixed(2));
+  $('#input-produtos-json').val(JSON.stringify(listaProdutos));
+  renderTabelaProdutos();
+});
+
+// Autocomplete para adicionar produto novo
+$(document).on('input', '.produto-nome-novo', function(){
+  let input = $(this);
+  let termo = input.val();
+  let lista = input.siblings('.autocomplete-list-produto').empty();
+  if (termo.length >= 2) {
+    $.get('/buscar_produtos?q=' + termo, function(data){
+      if(data.length){
+        data.forEach(p => {
+          lista.append(`<div data-nome="${p.nome}" data-valor="${p.valor_venda}">${p.nome} - R$ ${parseFloat(p.valor_venda).toFixed(2)}</div>`);
+        });
+      } else {
+        lista.append('<div>Nenhum produto encontrado.</div>');
+      }
+      lista.show();
+    });
+  } else {
+    lista.hide();
+  }
+});
+$(document).on('click', '.autocomplete-list-produto div', function(){
+  let div = $(this);
+  let input = div.closest('td').find('.produto-nome-novo');
+  input.val(div.data('nome'));
+  div.closest('tr').find('.valor-unit-novo').val(div.data('valor'));
+  div.parent().empty().hide();
+  $('.qtde-produto-novo, .valor-unit-novo').trigger('input');
+});
+$(document).on('click', function(e){
+  $('.autocomplete-list-produto').each(function(){
+    if(!$(e.target).closest(this).length && !$(e.target).hasClass('produto-nome-novo')){
+      $(this).empty().hide();
+    }
+  });
+});
+
+/* ---- DEMAIS CÁLCULOS E FUNÇÕES ---- */
+
+// Horas trabalhadas (auto cálculo)
+$('#hora_inicio, #hora_termino').on('input', function(){
+  let ini = $('#hora_inicio').val();
+  let fim = $('#hora_termino').val();
+  if(ini && fim) {
+    let [h1, m1] = ini.split(':').map(Number);
+    let [h2, m2] = fim.split(':').map(Number);
+    let min = (h2*60+m2) - (h1*60+m1);
+    if (min > 0) {
+      let horas = Math.floor(min/60);
+      let mins = min%60;
+      let total = (horas + mins/60).toFixed(2);
+      $('#total_horas').val(total);
+      $('#total_horas2').val(total);
+    } else {
+      $('#total_horas').val('0.00');
+      $('#total_horas2').val('0.00');
+    }
+    calcularValorServico();
+  }
+});
+
+// KM automático
+$('#km_inicial, #km_final').on('input', function(){
+  let ki = parseFloat($('#km_inicial').val()) || 0;
+  let kf = parseFloat($('#km_final').val()) || 0;
+  let total = kf - ki;
+  $('#km_total').val(total > 0 ? total : 0);
+});
+
+// Total geral automático
+$('#valor_servicos_total, #valor_deslocamento, #valor_produtos').on('input', function(){
+  calcularTotalGeral();
+});
+function calcularTotalGeral() {
+  let vs = parseFloat($('#valor_servicos_total').val()) || 0;
+  let vp = parseFloat($('#valor_produtos').val()) || 0;
+  let vd = parseFloat($('#valor_deslocamento').val()) || 0;
+  let total = vs + vp + vd;
+  $('#total_geral').val(total.toFixed(2));
+}
+
+// Inicialização (caso de edição)
 $(function(){
-  // ... restante do seu script ...
-  // Inicialização dos produtos em modo edição:
-  {% if produtos_utilizados %}
-    {% for prod in produtos_utilizados %}
-      adicionarProduto(
-        `{{ prod['nome']|e }}`,
-        `{{ prod['qtde']|e }}`,
-        `{{ prod['valor_unit']|e }}`
-      );
-    {% endfor %}
-  {% endif %}
+  renderTabelaProdutos();
+  calcularTotalGeral();
 });
 </script>
-
 {% endblock %}
