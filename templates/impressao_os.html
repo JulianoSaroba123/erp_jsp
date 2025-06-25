@@ -1,1 +1,19 @@
-
+{% extends "base.html" %}
+{% block conteudo %}
+<div class="container mt-4">
+  <h2>Ordem de Serviço #{{ os.codigo }}</h2>
+  <hr>
+  <h4>Dados do Cliente</h4>
+  <p><b>Nome:</b> {{ os.cliente_nome }}<br>
+     <b>CPF/CNPJ:</b> {{ os.cliente_cpf_cnpj }}<br>
+     <b>Telefone:</b> {{ os.cliente_telefone }}</p>
+  <!-- ... continue os dados da OS ... -->
+  <button onclick="window.print()" class="btn btn-success no-print">Imprimir</button>
+</div>
+<style>
+@media print {
+  .no-print { display: none !important; }
+  /* Adicione estilos para ajustar o layout na impressão */
+}
+</style>
+{% endblock %}
