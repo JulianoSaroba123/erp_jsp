@@ -17,7 +17,10 @@ class OrdemServico(db.Model):
 
     # Serviço
     tipo_servico = db.Column(db.String(50), nullable=True)  # Combobox
+    servico_nome = db.Column(db.String(100), nullable=True) # Novo campo
     descricao_servico = db.Column(db.Text, nullable=True)
+    qtd_servico = db.Column(db.Integer, nullable=True)      # Novo campo
+    valor_unit_servico = db.Column(db.Float, nullable=True) # Novo campo
 
     # Produtos utilizados (armazenado como string JSON)
     produtos = db.Column(db.Text, nullable=True)  
