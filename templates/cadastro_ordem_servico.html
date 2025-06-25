@@ -97,7 +97,7 @@
         </div>
         <div class="col-md-3 mb-2">
           <label>Valor Unitário</label>
-          <input type="text" id="valor_unit_servico" name="valor_unit_servico" class="form-control" value="{{ os.valor_unit_servico if os else '' }}">
+          <input type="text" id="valor_unit_servico" name="valor_unit_servico" class="form-control" value="{{ os.valor_unit_servico if os and os.valor_unit_servico else '' }}">
         </div>
       </div>
       <div class="row">
@@ -232,7 +232,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
-/* --- AUTOCOMPLETE CLIENTE --- */
+/* ------------------- AUTOCOMPLETE CLIENTE ------------------- */
 $('#cliente_nome').on('input', function(){
   let termo = $(this).val();
   if (termo.length >= 2) {
@@ -264,7 +264,7 @@ $(document).on('click', function(e){
   }
 });
 
-/* --- AUTOCOMPLETE SERVIÇO --- */
+/* ------------------- AUTOCOMPLETE SERVIÇO ------------------- */
 $('#servico_nome').on('input', function(){
   let termo = $(this).val();
   let lista = $('#servico-lista').empty();
@@ -298,7 +298,7 @@ $(document).on('click', function(e){
   });
 });
 
-/* --- CALCULO VALOR SERVICO --- */
+/* --------- CALCULO VALOR SERVICO --------- */
 $('#valor_unit_servico, #qtd_servico, #total_horas').on('input', function(){
   calcularValorServico();
 });
@@ -316,11 +316,13 @@ function calcularValorServico() {
 let listaProdutos = [];
 {% if os and os.produtos %}
 try {
-  listaProdutos = JSON.parse(`{{ os.produtos | tojson | safe }}`);
+  listaProdutos = typeof {{ os.produtos | tojson | safe }} === "string"
+    ? JSON.parse({{ os.produtos | tojson | safe }})
+    : {{ os.produtos | tojson | safe }};
 } catch (e) { listaProdutos = []; }
 {% endif %}
 
-// Função para atualizar a tabela/listbox dos produtos
+// Função para renderizar a tabela de produtos
 function renderTabelaProdutos() {
   let tbody = $('#produtos-lista-tbody');
   tbody.empty();
@@ -337,7 +339,7 @@ function renderTabelaProdutos() {
           <input type="number" class="form-control form-control-sm qtde-editavel" value="${qtde}" min="1" style="width:80px;">
         </td>
         <td>
-        <input type="text" class="form-control form-control-sm valor-unit-editavel" value="${valorUnit.toFixed(2)}" style="width:100px;">
+          <input type="text" class="form-control form-control-sm valor-unit-editavel" value="${valorUnit.toFixed(2)}" style="width:100px;">
         </td>
         <td>
           <input type="text" class="form-control form-control-sm valor-total-editavel" value="${valorTotal.toFixed(2)}" style="width:110px;" readonly>
@@ -353,20 +355,14 @@ function renderTabelaProdutos() {
   $('#input-produtos-json').val(JSON.stringify(listaProdutos));
   calcularTotalGeral();
 }
-renderTabelaProdutos();
+$(document).ready(function() { renderTabelaProdutos(); });
 
-// Adicionar produto à lista
 $('#btn-adicionar-produto').click(function(){
   let nome = $('.produto-nome-novo').val().trim();
   let qtde = $('.qtde-produto-novo').val();
   let valor_unit = $('.valor-unit-novo').val();
   if (nome && qtde && valor_unit) {
-    listaProdutos.push({
-      nome: nome,
-      qtde: qtde,
-      valor_unit: valor_unit
-    });
-    // Limpa campos do produto novo
+    listaProdutos.push({ nome, qtde, valor_unit });
     $('.produto-nome-novo').val('');
     $('.qtde-produto-novo').val('1');
     $('.valor-unit-novo').val('');
@@ -375,21 +371,18 @@ $('#btn-adicionar-produto').click(function(){
   }
 });
 
-// Atualiza valor total na linha de produto novo
 $('.qtde-produto-novo, .valor-unit-novo').on('input', function(){
   let qtde = parseFloat($('.qtde-produto-novo').val()) || 0;
   let valor_unit = parseFloat($('.valor-unit-novo').val()) || 0;
   $('.valor-total-novo').val((qtde * valor_unit).toFixed(2));
 });
 
-// Remover produto da lista
 $('#produtos-lista-tbody').on('click', '.btn-remover-produto', function(){
   let idx = $(this).closest('tr').data('idx');
   listaProdutos.splice(idx, 1);
   renderTabelaProdutos();
 });
 
-// Editar quantidade ou valor na tabela/listbox
 $('#produtos-lista-tbody').on('input', '.qtde-editavel, .valor-unit-editavel', function(){
   let tr = $(this).closest('tr');
   let idx = tr.data('idx');
@@ -402,7 +395,7 @@ $('#produtos-lista-tbody').on('input', '.qtde-editavel, .valor-unit-editavel', f
   renderTabelaProdutos();
 });
 
-// Autocomplete para adicionar produto novo
+// Autocomplete para produto novo
 $(document).on('input', '.produto-nome-novo', function(){
   let input = $(this);
   let termo = input.val();
@@ -439,8 +432,6 @@ $(document).on('click', function(e){
 });
 
 /* ---- DEMAIS CÁLCULOS E FUNÇÕES ---- */
-
-// Horas trabalhadas (auto cálculo)
 $('#hora_inicio, #hora_termino').on('input', function(){
   let ini = $('#hora_inicio').val();
   let fim = $('#hora_termino').val();
@@ -483,4 +474,3 @@ function calcularTotalGeral() {
 }
 </script>
 {% endblock %}
-  
