@@ -282,12 +282,6 @@ def excluir_ordem_servico(id):
     db.session.delete(os)
     db.session.commit()
     return redirect('/ordens_servico')
-# Rota de impressão    
-@app.route('/ordem_servico/<int:os_id>/imprimir')
-def imprimir_os(os_id):
-    os = OrdemServico.query.get_or_404(os_id)
-    return render_template('impressao_os.html', os=os)    
-    
 
 # AUTOCOMPLETE E BUSCAS
 @app.route('/buscar_clientes')
@@ -397,6 +391,7 @@ def exportar_pdf():
     pdf.output(caminho)
     nome_arquivo = f"Clientes_JSP_{datetime.now().strftime('%Y-%m-%d')}.pdf"
     return send_file(caminho, as_attachment=True, download_name=nome_arquivo)
+    
     # Rota para visualizar e imprimir a OS em HTML (visualização bonita p/ impressão)
 @app.route('/ordem_servico/<int:os_id>/imprimir')
 def imprimir_os(os_id):
