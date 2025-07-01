@@ -6,7 +6,7 @@
     <h3 class="mb-4">Lista de Produtos</h3>
 
     <div class="mb-3 d-flex justify-content-between">
-      <a href="{{ url_for('novo_produto') }}" class="btn btn-success">Novo Produto</a>
+      <a href="{{ url_for('cadastrar_produto') }}" class="btn btn-success">Novo Produto</a>
       <a href="{{ url_for('exportar_produtos_excel') }}" class="btn btn-outline-primary">Exportar Excel</a>
     </div>
 
@@ -29,13 +29,13 @@
           <tr>
             <td>{{ produto.nome }}</td>
             <td>{{ produto.codigo_barras }}</td>
-            <td>{{ produto.fornecedor }}</td>
+            <td>{{ produto.fornecedor.nome if produto.fornecedor else '' }}</td>
             <td>{{ produto.estoque }}</td>
-            <td>{{ produto.valor_compra }}</td>
-            <td>{{ produto.valor_venda }}</td>
-            <td>{{ produto.lucro }}</td>
+            <td>R$ {{ "%.2f"|format(produto.valor_compra) }}</td>
+            <td>R$ {{ "%.2f"|format(produto.valor_venda) }}</td>
+            <td>{{ produto.lucro }}%</td>
             <td>
-              <a href="{{ url_for('editar_produto', id=produto.id) }}" class="btn btn-sm btn-warning">Editar</a>
+              <a href="{{ url_for('cadastrar_produto', id=produto.id) }}" class="btn btn-sm btn-warning">Editar</a>
               <a href="{{ url_for('excluir_produto', id=produto.id) }}" class="btn btn-sm btn-danger"
                  onclick="return confirm('Deseja excluir este produto?');">Excluir</a>
             </td>
@@ -48,3 +48,4 @@
 </div>
 
 {% endblock %}
+
