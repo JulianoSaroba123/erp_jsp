@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+<!-- Container principal com margem superior -->
+<div class="container mt-4">
+
+  <!-- Cabeçalho com título e botão de novo serviço -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Serviços Cadastrados</h3>
+    <a href="/servico/novo" class="btn btn-primary">Novo Serviço</a>
+  </div>
+
+  <!-- Bloco de exportação comentado (pode ser ativado no futuro) -->
+  {# 
+  <div class="mb-3">
+    <a href="/servicos/exportar_excel" class="btn btn-success">Exportar Excel</a>
+    <a href="/servicos/exportar_pdf" class="btn btn-danger">Exportar PDF</a>
+  </div>
+  #}
+
+  <!-- Tabela responsiva com os serviços cadastrados -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      
+      <!-- Cabeçalho da tabela -->
+      <thead class="table-dark">
+        <tr>
+          <th scope="col">Código</th>
+          <th scope="col">Nome</th>
+          <th scope="col">Valor</th>
+          <th scope="col">Unidade</th>
+          <th scope="col">Situação</th>
+          <th scope="col" class="text-center">Ações</th>
+        </tr>
+      </thead>
+
+      <!-- Corpo da tabela com os dados dos serviços -->
+      <tbody>
+        {% for s in servicos %}
+        <tr>
+          <!-- Código do serviço -->
+          <td>{{ s.codigo }}</td>
+
+          <!-- Nome do serviço -->
+          <td>{{ s.nome }}</td>
+
+          <!-- Valor do serviço formatado -->
+          <td>R$ {{ "%.2f"|format(s.valor) }}</td>
+
+          <!-- Unidade de medida -->
+          <td>{{ s.unidade }}</td>
+
+          <!-- Situação (Ativo/Inativo) -->
+          <td>{{ s.situacao }}</td>
+
+          <!-- Ações: Editar e Excluir -->
+          <td class="text-center">
+            <a href="/servico/editar/{{ s.id }}" class="btn btn-warning btn-sm">Editar</a>
+            <a href="/servico/excluir/{{ s.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Deseja excluir este serviço?')">Excluir</a>
+          </td>
+        </tr>
+        {% else %}
+        <!-- Caso não existam serviços cadastrados -->
+        <tr>
+          <td colspan="6" class="text-center">Nenhum serviço cadastrado.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+  </div>
+</div>
+{% endblock %}

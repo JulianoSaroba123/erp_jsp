@@ -1,0 +1,55 @@
+
+{% extends 'base.html' %}
+
+{% block conteudo %}
+<style>
+.tabela-clientes {
+  overflow-x: auto;
+}
+</style>
+
+<div class="container mt-4">
+  <div class="card shadow-sm p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="mb-0">Lista de Clientes</h3>
+      <a href="/logout" class="btn btn-secondary">Sair</a>
+    </div>
+    <div class="mb-3 d-flex flex-wrap gap-2">
+      <a href="/cadastro" class="btn btn-primary">Novo Cliente</a>
+      <a href="/exportar_excel" class="btn btn-success">Exportar Excel</a>
+      <a href="/exportar_pdf" class="btn btn-danger">Exportar PDF</a>
+    </div>
+    <div class="tabela-clientes">
+      <table class="table table-striped table-bordered align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Código</th>
+            <th>Nome</th>
+            <th>CPF/CNPJ</th>
+            <th>Telefone</th>
+            <th>Email</th>
+            <th>Endereço</th>
+            <th class="text-center">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in clientes %}
+          <tr>
+            <td>{{ c.codigo }}</td>
+            <td>{{ c.nome }}</td>
+            <td>{{ c.cpf_cnpj }}</td>
+            <td>{{ c.telefone }}</td>
+            <td>{{ c.email }}</td>
+            <td>{{ c.endereco }}, Nº {{ c.numero }}</td>
+            <td class="text-center">
+              <a href="/editar/{{ c.id }}" class="btn btn-sm btn-warning">Editar</a>
+              <a href="/excluir/{{ c.id }}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir?')">Excluir</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

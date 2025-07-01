@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block conteudo %}
+<!-- Container principal com espaçamento no topo -->
+<div class="container mt-5">
+
+  <!-- Título da página e botão para criar nova OS -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Ordens de Serviço</h3>
+    <a href="/ordem_servico/novo" class="btn btn-primary">Nova Ordem de Serviço</a>
+  </div>
+
+  <!-- Tabela responsiva para exibir as ordens -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      
+      <!-- Cabeçalho da tabela -->
+      <thead class="table-dark">
+        <tr>
+          <th>Nº OS</th>
+          <th>Cliente</th>
+          <th>Tipo</th>
+          <th>Emissão</th>
+          <th>Previsão</th>
+          <th>Status</th>
+          <th class="text-center">Ações</th>
+        </tr>
+      </thead>
+
+      <!-- Corpo da tabela com as ordens -->
+      <tbody>
+        {% for os in ordens %}
+        <tr>
+          <!-- Código da OS -->
+          <td>{{ os.codigo }}</td>
+
+          <!-- Nome do cliente -->
+          <td>{{ os.cliente_nome }}</td>
+
+          <!-- Tipo de serviço -->
+          <td>{{ os.tipo_servico }}</td>
+
+          <!-- Data de emissão formatada -->
+          <td>
+            {% if os.data_emissao %}
+              {{ os.data_emissao.strftime('%d/%m/%Y') }}
+            {% endif %}
+          </td>
+
+          <!-- Data de previsão de conclusão formatada -->
+          <td>
+            {% if os.previsao_conclusao %}
+              {{ os.previsao_conclusao.strftime('%d/%m/%Y') }}
+            {% endif %}
+          </td>
+
+          <!-- Status baseado no valor total -->
+          <td>
+            {% if os.total_geral %}
+              {% if os.total_geral > 0 %}
+                <span class="badge bg-success">Concluída</span>
+              {% else %}
+                <span class="badge bg-warning text-dark">Em Andamento</span>
+              {% endif %}
+            {% else %}
+              <span class="badge bg-secondary">Não informado</span>
+            {% endif %}
+          </td>
+
+          <!-- Ações: Editar, Excluir, Imprimir -->
+          <td class="text-center">
+            <a href="/ordem_servico/editar/{{ os.id }}" class="btn btn-warning btn-sm">Editar</a>
+            <a href="/ordem_servico/excluir/{{ os.id }}" class="btn btn-danger btn-sm"
+               onclick="return confirm('Deseja excluir esta OS?')">Excluir</a>
+            <a href="/ordem_servico/{{ os.id }}/imprimir" target="_blank" class="btn btn-outline-primary btn-sm">
+              Imprimir Relatório
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <!-- Caso não existam ordens cadastradas -->
+        <tr>
+          <td colspan="7" class="text-center">Nenhuma ordem de serviço cadastrada.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+  </div>
+</div>
+{% endblock %}

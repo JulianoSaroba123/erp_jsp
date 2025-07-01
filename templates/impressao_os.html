@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block conteudo %}
+
+<!-- Container principal da visualização da Ordem de Serviço -->
+<div class="container mt-4">
+  
+  <!-- Cabeçalho com o número da OS -->
+  <h2>Ordem de Serviço #{{ os.codigo }}</h2>
+  <hr>
+
+  <!-- Seção de dados do cliente -->
+  <h4>Cliente</h4>
+  <p>
+    <!-- Informações do cliente associadas à OS -->
+    <b>Nome:</b> {{ os.cliente_nome }}<br>
+    <b>CPF/CNPJ:</b> {{ os.cliente_cpf_cnpj }}<br>
+    <b>Telefone:</b> {{ os.cliente_telefone }}<br>
+    <b>Email:</b> {{ os.cliente_email }}<br>
+    <b>Endereço:</b> {{ os.cliente_endereco }}
+  </p>
+
+  <!-- Seção de detalhes do serviço -->
+  <h4>Detalhes</h4>
+  <p>
+    <b>Data Emissão:</b> {{ os.data_emissao }}<br>
+    <b>Tipo de Serviço:</b> {{ os.tipo_servico }}<br>
+    <b>Descrição:</b> {{ os.descricao_servico }}
+  </p>
+
+  <!-- Seção de produtos/peças utilizadas -->
+  <h4>Produtos/Peças Utilizadas</h4>
+  {% if os.produtos %}
+    <ul>
+      <!-- Lista cada produto vinculado à OS -->
+      {% for prod in os.produtos|fromjson %}
+        <li>{{ prod.nome }} — {{ prod.qtde }} x R$ {{ prod.valor_unit }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <!-- Seção de valores financeiros -->
+  <h4>Valores</h4>
+  <p>
+    <!-- Subtotais e total geral -->
+    <b>Serviços:</b> R$ {{ os.valor_servicos }}<br>
+    <b>Produtos:</b> R$ {{ os.valor_produtos }}<br>
+    <b>Deslocamento:</b> R$ {{ os.valor_deslocamento }}<br>
+    <b>Total:</b> <b>R$ {{ os.total_geral }}</b>
+  </p>
+
+  <!-- Botão de impressão (visível apenas na tela) -->
+  <button onclick="window.print()" class="btn btn-success no-print">Imprimir</button>
+
+</div>
+
+<!-- Estilo CSS para esconder o botão ao imprimir -->
+<style>
+@media print {
+  .no-print { display: none !important; }
+}
+</style>
+
+{% endblock %}

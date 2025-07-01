@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block conteudo %}
+<!-- Container principal com margem superior -->
+<div class="container mt-4">
+
+  <!-- Título da página -->
+  <h3>Lista de Tipos de Serviço</h3>
+
+  <!-- Botão para adicionar novo tipo de serviço -->
+  <a href="/tipo_servico/novo" class="btn btn-primary mb-3">Novo Tipo de Serviço</a>
+
+  <!-- Tabela com os tipos de serviço -->
+  <table class="table table-bordered table-hover align-middle">
+    
+    <!-- Cabeçalho da tabela -->
+    <thead class="table-dark">
+      <tr>
+        <th scope="col">Código</th> <!-- ID do tipo de serviço -->
+        <th scope="col">Nome</th>   <!-- Nome do tipo de serviço -->
+        <th scope="col" class="text-center">Ações</th> <!-- Botões de ação -->
+      </tr>
+    </thead>
+
+    <!-- Corpo da tabela com dados dinâmicos -->
+    <tbody>
+      {% for t in tipos %}
+      <tr>
+        <td>{{ t.id }}</td>     <!-- Código -->
+        <td>{{ t.nome }}</td>   <!-- Nome -->
+        <td class="text-center">
+          <!-- Botão de edição -->
+          <a href="/tipo_servico/editar/{{ t.id }}" class="btn btn-warning btn-sm">Editar</a>
+
+          <!-- Botão de exclusão com confirmação -->
+          <a href="/tipo_servico/excluir/{{ t.id }}" class="btn btn-danger btn-sm"
+             onclick="return confirm('Excluir este tipo de serviço?')">Excluir</a>
+        </td>
+      </tr>
+      {% else %}
+      <!-- Caso não existam tipos cadastrados -->
+      <tr>
+        <td colspan="3" class="text-center">Nenhum tipo cadastrado.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+{% endblock %}

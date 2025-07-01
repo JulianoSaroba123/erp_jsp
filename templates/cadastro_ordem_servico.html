@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<!-- Estilo CSS para listas de autocomplete -->
+<style>
+.autocomplete-list, .autocomplete-list-produto, .autocomplete-list-servico {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #bbb;
+  z-index: 10;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 4px;
+}
+.autocomplete-list div, .autocomplete-list-produto div, .autocomplete-list-servico div {
+  padding: 8px;
+  cursor: pointer;
+}
+.autocomplete-list div:hover, .autocomplete-list-produto div:hover, .autocomplete-list-servico div:hover {
+  background: #eee;
+}
+</style>
+
+<!-- Container principal do formulário -->
+<div class="container mt-4">
+  <div class="card shadow-sm p-4">
+    <h3 class="mb-4">{{ 'Editar Ordem de Serviço' if os else 'Nova Ordem de Serviço' }}</h3>
+    <form method="POST" autocomplete="off">
+
+      <!-- 1. Dados do Cliente -->
+      <h5 class="mb-3 text-primary">1. Dados do Cliente</h5>
+      <div class="row">
+        <!-- Campo com autocomplete para buscar cliente -->
+        <div class="col-md-6 mb-2 position-relative">
+          <label>Cliente</label>
+          <input type="text" name="cliente_nome" id="cliente_nome" class="form-control" value="{{ os.cliente_nome if os else '' }}" required autocomplete="off">
+          <div id="cliente-lista" class="autocomplete-list"></div>
+          <a href="/cadastro" target="_blank" class="btn btn-outline-primary btn-sm mt-1">Novo Cliente</a>
+        </div>
+        <!-- CPF/CNPJ e telefone do cliente -->
+        <div class="col-md-3 mb-2">
+          <label>CPF/CNPJ</label>
+          <input type="text" id="cliente_cpf_cnpj" name="cliente_cpf_cnpj" class="form-control" value="{{ os.cliente_cpf_cnpj if os else '' }}">
+        </div>
+        <div class="col-md-3 mb-2">
+          <label>Telefone</label>
+          <input type="text" id="cliente_telefone" name="cliente_telefone" class="form-control" value="{{ os.cliente_telefone if os else '' }}">
+        </div>
+      </div>
+      <div class="row">
+        <!-- Email e endereco do cliente -->
+        <div class="col-md-6 mb-2">
+          <label>Email</label>
+          <input type="email" id="cliente_email" name="cliente_email" class="form-control" value="{{ os.cliente_email if os else '' }}">
+        </div>
+        <div class="col-md-6 mb-2">
+          <label>Endereço</label>
+          <input type="text" id="cliente_endereco" name="cliente_endereco" class="form-control" value="{{ os.cliente_endereco if os else '' }}">
+        </div>
+      </div>
+
+      <!-- 2. Detalhes da Ordem de Serviço -->
+      <h5 class="mt-4 mb-3 text-primary">2. Detalhes da Ordem de Serviço</h5>
+      <div class="row">
+        <!-- Código da OS, datas e tipo de serviço -->
+        <div class="col-md-2 mb-2">
+          <label>Nº da OS</label>
+          <input type="text" class="form-control" name="codigo" value="{{ os.codigo if os else '' }}" readonly>
+        </div>
+        <div class="col-md-2 mb-2">
+          <label>Data Emissão</label>
+          <input type="date" class="form-control" name="data_emissao" value="{{ os.data_emissao if os else '' }}">
+        </div>
+        <div class="col-md-2 mb-2">
+          <label>Previsão de Conclusão</label>
+          <input type="date" class="form-control" name="previsao_conclusao" value="{{ os.previsao_conclusao if os else '' }}">
+        </div>
+        <div class="col-md-6 mb-2">
+          <label>Tipo de Serviço</label>
+          <select class="form-select" name="tipo_servico" id="tipo_servico" required>
+            <option value="">Selecione</option>
+            {% for tipo in tipos_servico %}
+              <option value="{{ tipo.nome }}" {% if os and os.tipo_servico == tipo.nome %}selected{% endif %}>{{ tipo.nome }}</option>
+            {% endfor %}
+          </select>
+          <a href="/tipo_servico/novo" target="_blank" class="btn btn-outline-primary btn-sm mt-1">Novo Tipo de Serviço</a>
+        </div>
+      </div>
+
+      <!-- Demais blocos continuam -->
+      <!-- ... Produtos, horas, deslocamento, valores, etc ... -->
+
+      <!-- Botões finais -->
+      <div class="d-flex justify-content-between mt-4">
+        <a href="/ordens_servico" class="btn btn-secondary">Voltar</a>
+        <button type="submit" class="btn btn-success">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Scripts JavaScript serão adicionados no final para manter a estrutura limpa -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+// Aqui vão os scripts de autocomplete, cálculos e interações JS
+</script>
+{% endblock %}
