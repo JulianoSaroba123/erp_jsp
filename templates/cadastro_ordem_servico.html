@@ -104,4 +104,122 @@
 <script>
 // Aqui vão os scripts de autocomplete, cálculos e interações JS
 </script>
+<!-- 3. Produtos Utilizados -->
+<h5 class="mt-4 mb-3 text-primary">3. Produtos Utilizados</h5>
+<div class="mb-3">
+  <label>Produtos (JSON)</label>
+  <textarea name="produtos" class="form-control" rows="3">{{ os.produtos if os else '' }}</textarea>
+</div>
+
+<!-- 4. Horários e Atividades -->
+<h5 class="mt-4 mb-3 text-primary">4. Horários e Atividades</h5>
+<div class="row">
+  <div class="col-md-3 mb-2">
+    <label>Técnico Responsável</label>
+    <input type="text" class="form-control" name="tecnico_responsavel" value="{{ os.tecnico_responsavel if os else '' }}">
+  </div>
+  <div class="col-md-3 mb-2">
+    <label>Hora Início</label>
+    <input type="time" class="form-control" name="hora_inicio" value="{{ os.hora_inicio if os else '' }}">
+  </div>
+  <div class="col-md-3 mb-2">
+    <label>Hora Término</label>
+    <input type="time" class="form-control" name="hora_termino" value="{{ os.hora_termino if os else '' }}">
+  </div>
+  <div class="col-md-3 mb-2">
+    <label>Total de Horas</label>
+    <input type="text" class="form-control" name="total_horas" value="{{ os.total_horas if os else '' }}">
+  </div>
+</div>
+<div class="mb-3">
+  <label>Atividade Realizada</label>
+  <textarea class="form-control" name="atividade_realizada" rows="2">{{ os.atividade_realizada if os else '' }}</textarea>
+</div>
+
+<!-- 5. Quilometragem -->
+<h5 class="mt-4 mb-3 text-primary">5. Quilometragem</h5>
+<div class="row">
+  <div class="col-md-4 mb-2">
+    <label>KM Inicial</label>
+    <input type="text" class="form-control" name="km_inicial" value="{{ os.km_inicial if os else '' }}">
+  </div>
+  <div class="col-md-4 mb-2">
+    <label>KM Final</label>
+    <input type="text" class="form-control" name="km_final" value="{{ os.km_final if os else '' }}">
+  </div>
+  <div class="col-md-4 mb-2">
+    <label>KM Total</label>
+    <input type="text" class="form-control" name="km_total" value="{{ os.km_total if os else '' }}">
+  </div>
+</div>
+
+<!-- 6. Valores -->
+<h5 class="mt-4 mb-3 text-primary">6. Valores</h5>
+<div class="row">
+  <div class="col-md-4 mb-2">
+    <label>Valor dos Serviços (R$)</label>
+    <input type="number" step="0.01" class="form-control" name="valor_servicos" value="{{ os.valor_servicos if os else '' }}">
+  </div>
+  <div class="col-md-4 mb-2">
+    <label>Valor dos Produtos (R$)</label>
+    <input type="number" step="0.01" class="form-control" name="valor_produtos" value="{{ os.valor_produtos if os else '' }}">
+  </div>
+  <div class="col-md-4 mb-2">
+    <label>Valor do Deslocamento (R$)</label>
+    <input type="number" step="0.01" class="form-control" name="valor_deslocamento" value="{{ os.valor_deslocamento if os else '' }}">
+  </div>
+</div>
+<div class="mb-2">
+  <label>Total Geral (R$)</label>
+  <input type="number" step="0.01" class="form-control" name="total_geral" value="{{ os.total_geral if os else '' }}">
+</div>
+
+<!-- 7. Pagamento e Observações -->
+<h5 class="mt-4 mb-3 text-primary">7. Outras Informações</h5>
+<div class="mb-3">
+  <label>Condições de Pagamento</label>
+  <input type="text" class="form-control" name="condicoes_pagamento" value="{{ os.condicoes_pagamento if os else '' }}">
+</div>
+<div class="mb-3">
+  <label>Observações</label>
+  <textarea class="form-control" name="observacoes" rows="3">{{ os.observacoes if os else '' }}</textarea>
+</div>
+<!-- Botões finais -->
+<div class="d-flex justify-content-between mt-4">
+  <a href="/ordens_servico" class="btn btn-secondary">Voltar</a>
+  <button type="submit" class="btn btn-success">Salvar</button>
+</div>
+
+</form>
+</div>
+</div>
+
+<!-- Scripts JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+  // Autocomplete simples para nome do cliente
+  $(document).ready(function () {
+    $('#cliente_nome').on('input', function () {
+      const termo = $(this).val();
+      if (termo.length >= 2) {
+        $.get('/autocomplete_cliente', { termo: termo }, function (dados) {
+          let lista = $('#cliente-lista');
+          lista.empty().show();
+          dados.forEach(c => {
+            lista.append(`<div class='item-autocomplete'>${c}</div>`);
+          });
+
+          $('.item-autocomplete').on('click', function () {
+            $('#cliente_nome').val($(this).text());
+            lista.empty().hide();
+          });
+        });
+      } else {
+        $('#cliente-lista').empty().hide();
+      }
+    });
+  });
+</script>
+
 {% endblock %}
+
