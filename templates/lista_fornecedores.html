@@ -5,13 +5,11 @@
   <div class="card shadow-sm p-4">
     <h3 class="mb-4">Lista de Fornecedores</h3>
 
-    <!-- Botões -->
     <div class="mb-3 d-flex justify-content-between">
       <a href="{{ url_for('novo_fornecedor') }}" class="btn btn-success">Novo Fornecedor</a>
       <a href="{{ url_for('exportar_fornecedores_excel') }}" class="btn btn-outline-primary">Exportar Excel</a>
     </div>
 
-    <!-- Tabela de Fornecedores -->
     <div class="table-responsive">
       <table class="table table-bordered table-hover">
         <thead class="table-dark">
@@ -35,7 +33,7 @@
             <td>
               <a href="{{ url_for('editar_fornecedor', id=fornecedor.id) }}" class="btn btn-sm btn-warning">Editar</a>
               <a href="{{ url_for('excluir_fornecedor', id=fornecedor.id) }}" class="btn btn-sm btn-danger"
-                 onclick="return confirm('Tem certeza que deseja excluir este fornecedor?');">Excluir</a>
+                 onclick="return confirm('Deseja excluir este fornecedor?');">Excluir</a>
             </td>
           </tr>
           {% endfor %}
