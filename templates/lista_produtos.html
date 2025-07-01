@@ -5,13 +5,11 @@
   <div class="card shadow-sm p-4">
     <h3 class="mb-4">Lista de Produtos</h3>
 
-    <!-- Botões -->
     <div class="mb-3 d-flex justify-content-between">
       <a href="{{ url_for('novo_produto') }}" class="btn btn-success">Novo Produto</a>
       <a href="{{ url_for('exportar_produtos_excel') }}" class="btn btn-outline-primary">Exportar Excel</a>
     </div>
 
-    <!-- Tabela de Produtos -->
     <div class="table-responsive">
       <table class="table table-bordered table-hover">
         <thead class="table-dark">
@@ -39,7 +37,7 @@
             <td>
               <a href="{{ url_for('editar_produto', id=produto.id) }}" class="btn btn-sm btn-warning">Editar</a>
               <a href="{{ url_for('excluir_produto', id=produto.id) }}" class="btn btn-sm btn-danger"
-                 onclick="return confirm('Deseja realmente excluir este produto?');">Excluir</a>
+                 onclick="return confirm('Deseja excluir este produto?');">Excluir</a>
             </td>
           </tr>
           {% endfor %}
