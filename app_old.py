@@ -13,8 +13,10 @@ import json
 from flask_migrate import Migrate
 
 app = Flask(__name__)
-app.secret_key = 'chave_secreta'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///erp_jsp.db'
+app.secret_key = 'chave-secreta'
+
+# Configurando o banco de dados
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///banco.db'
 db.init_app(app)
 Migrate(app, db)
 
