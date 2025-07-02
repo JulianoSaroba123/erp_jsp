@@ -109,8 +109,11 @@ def excluir(id):
 # PRODUTOS
 @app.route('/produtos')
 def listar_produtos():
-    produtos = Produto.query.all()
-    return render_template('lista_produtos.html', produtos=produtos)
+    try:
+        produtos = Produto.query.all()
+        return render_template('lista_produtos.html', produtos=produtos)
+    except Exception as e:
+        return f"<h1>Erro ao carregar produtos</h1><p>{str(e)}</p>"
 
 @app.route('/produto/novo', methods=['GET', 'POST'], endpoint='cadastrar_produto')
 @app.route('/produto/editar/<int:id>', methods=['GET', 'POST'])
