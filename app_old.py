@@ -1,13 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///erp_jsp.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
 from flask import Flask, render_template, request, redirect, send_file, session, url_for, jsonify
-#from models import db ---> Eu coloquei como comentario , serve?
-import sqlite3
-conn = sqlite3.connect('erp_jsp.db')
-cursor = conn.cursor
+from models import db
 from models.cliente_model import Cliente
 from models.produto_model import Produto
 from models.servico_model import Servico
@@ -18,6 +10,17 @@ import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
 import json
+from flask_migrate import Migrate
+
+app = Flask(__name__)
+app.secret_key = 'chave_secreta'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///erp_jsp.db'
+db.init_app(app)
+Migrate(app, db)
+
+@app.route('/')
+def index():
+    return redirect(url_for('listar_produtos'))
 
 # Função para gerar códigos automáticos (CLT/PRD/SRV/FRN/OSV)
 def gerar_codigo(model, prefixo, inicio=1):
