@@ -128,7 +128,7 @@ def cadastrar_produto(id=None):
         data['valor_venda'] = float(data.get('valor_venda', 0))
         data['valor_compra'] = float(data.get('valor_compra', 0))
         data['estoque'] = int(data.get('estoque', 0))
-        data['lucro'] = float(data.get('lucro', 0))
+        data['lucro_percentual'] = float(data.get('lucro', 0))
         if produto:
             for key, value in data.items():
                 setattr(produto, key, value)
