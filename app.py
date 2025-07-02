@@ -12,30 +12,6 @@ from datetime import datetime
 import json
 from flask_migrate import Migrate
 
-# Função para gerar códigos automáticos (CLT/PRD/SRV/FRN/OSV)
-def gerar_codigo(model, prefixo, inicio=1):
-    ultimo = model.query.order_by(model.id.desc()).first()
-    if ultimo and ultimo.codigo and ultimo.codigo.startswith(prefixo):
-        try:
-            num = int(ultimo.codigo.replace(prefixo, ''))
-        except Exception:
-            num = inicio
-        novo_num = num + 1
-    else:
-        novo_num = inicio
-    return f"{prefixo}{novo_num:05d}"
-
-# Configuração Flask
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://erp_jsp_user:a73YgFQtqCxlCVTrrCYXkNxnbanW3ASg@dpg-d1hlfnbuibrs73fe0h10-a.oregon-postgres.render.com/erp_jsp'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = 'chave-secreta-jsp'
-db.init_app(app)
-migrate = Migrate(app, db)
-
-with app.app_context():
-    db.create_all()
-
 # Proteção de Rotas
 @app.before_request
 def proteger_rotas():
@@ -109,13 +85,10 @@ def excluir(id):
 # PRODUTOS
 @app.route('/produtos')
 def listar_produtos():
-    try:
-        produtos = Produto.query.all()
-        return render_template('lista_produtos.html', produtos=produtos)
-    except Exception as e:
-        return f"<h1>Erro ao carregar produtos</h1><p>{str(e)}</p>"
+    produtos = Produto.query.all()
+    return render_template('lista_produtos.html', produtos=produtos)
 
-@app.route('/produto/novo', methods=['GET', 'POST'], endpoint='cadastrar_produto')
+@app.route('/produto/novo', methods=['GET', 'POST'])
 @app.route('/produto/editar/<int:id>', methods=['GET', 'POST'])
 def cadastrar_produto(id=None):
     produto = Produto.query.get(id) if id else None
@@ -179,19 +152,6 @@ def excluir_servico(id):
     db.session.delete(servico)
     db.session.commit()
     return redirect('/servicos')
-    
-@app.route('/produto/salvar', methods=['POST'])
-def salvar_produto():
-    try:
-        nome = request.form['nome']
-        # outros campos...
-        novo_produto = Produto(nome=nome, ...)
-        db.session.add(novo_produto)
-        db.session.commit()
-        return redirect(url_for('listar_produtos'))
-    except Exception as e:
-        print("Erro ao salvar produto:", e)
-        return "Erro ao salvar produto", 500
 
 # FORNECEDORES
 @app.route('/fornecedores')
@@ -410,87 +370,11 @@ def exportar_pdf():
     nome_arquivo = f"Clientes_JSP_{datetime.now().strftime('%Y-%m-%d')}.pdf"
     return send_file(caminho, as_attachment=True, download_name=nome_arquivo)
     
-@app.route('/ordem_servico/<int:os_id>/relatorio')
-def relatorio_ordem_servico(os_id):
+    # Rota para visualizar e imprimir a OS em HTML (visualização bonita p/ impressão)
+@app.route('/ordem_servico/<int:os_id>/imprimir')
+def imprimir_os(os_id):
     os = OrdemServico.query.get_or_404(os_id)
-    cliente = Cliente.query.get(os.cliente_id)
-    tipo_servico = TipoServico.query.get(os.tipo_servico_id)
-    produtos = json.loads(os.produtos_json or "[]")
-
-    return render_template('relatorio_ordem_servico.html', os=os, cliente=cliente,
-                           tipo_servico=tipo_servico, produtos=produtos)
-    from fpdf import FPDF
-
-@app.route('/relatorio_os/<int:id>')
-def relatorio_os(id):
-    os = OrdemServico.query.get_or_404(id)
-    cliente = Cliente.query.get(os.cliente_id)
-    produtos = os.produtos  # relacionamento
-    servicos = os.servicos  # relacionamento
-
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", 'B', 16)
-    pdf.cell(0, 10, f'Ordem de Serviço #{os.codigo}', ln=True, align='C')
-
-    pdf.set_font("Arial", '', 12)
-    pdf.ln(10)
-    pdf.cell(0, 10, f"Cliente: {cliente.nome}", ln=True)
-    pdf.cell(0, 10, f"Telefone: {cliente.telefone}", ln=True)
-    pdf.cell(0, 10, f"E-mail: {cliente.email}", ln=True)
-    pdf.cell(0, 10, f"Endereço: {cliente.endereco}", ln=True)
-    pdf.ln(5)
-
-    pdf.cell(0, 10, f"Data de Emissão: {os.data_emissao.strftime('%d/%m/%Y')}", ln=True)
-    pdf.cell(0, 10, f"Tipo de Serviço: {os.tipo_servico}", ln=True)
-    pdf.multi_cell(0, 10, f"Descrição: {os.descricao}", ln=True)
-    pdf.ln(5)
-
-    pdf.set_font("Arial", 'B', 12)
-    pdf.cell(0, 10, "Produtos:", ln=True)
-    pdf.set_font("Arial", '', 12)
-    for item in produtos:
-        pdf.cell(0, 10, f"{item.nome} - {item.quantidade} x R$ {item.valor_unitario:.2f}", ln=True)
-
-    pdf.ln(5)
-    pdf.set_font("Arial", 'B', 12)
-    pdf.cell(0, 10, "Serviços:", ln=True)
-    pdf.set_font("Arial", '', 12)
-    for s in servicos:
-        pdf.cell(0, 10, f"{s.nome} - R$ {s.valor:.2f}", ln=True)
-
-    pdf.ln(5)
-    pdf.set_font("Arial", 'B', 12)
-    pdf.cell(0, 10, "Deslocamento:", ln=True)
-    pdf.set_font("Arial", '', 12)
-    pdf.cell(0, 10, f"KM Inicial: {os.km_inicial}", ln=True)
-    pdf.cell(0, 10, f"KM Final: {os.km_final}", ln=True)
-    pdf.cell(0, 10, f"Total KM: {os.km_total}", ln=True)
-
-    pdf.ln(5)
-    pdf.set_font("Arial", 'B', 12)
-    pdf.cell(0, 10, "Horários:", ln=True)
-    pdf.set_font("Arial", '', 12)
-    pdf.cell(0, 10, f"Partida: {os.hora_partida}", ln=True)
-    pdf.cell(0, 10, f"Chegada: {os.hora_chegada}", ln=True)
-    pdf.cell(0, 10, f"Início Atividade: {os.hora_inicio}", ln=True)
-    pdf.cell(0, 10, f"Fim Atividade: {os.hora_fim}", ln=True)
-
-    pdf.ln(5)
-    pdf.set_font("Arial", 'B', 12)
-    pdf.cell(0, 10, f"Observações:", ln=True)
-    pdf.set_font("Arial", '', 12)
-    pdf.multi_cell(0, 10, os.observacoes or "Não informado")
-
-    pdf.ln(5)
-    pdf.set_font("Arial", 'B', 12)
-    pdf.cell(0, 10, f"Valor Total: R$ {os.valor_total:.2f}", ln=True)
-
-    pdf.output(f"relatorio_os_{id}.pdf")
-    return send_file(f"relatorio_os_{id}.pdf", as_attachment=True)
-
-
-
+    return render_template('impressao_os.html', os=os)
 
 # Rota para gerar PDF da OS (opcional, se quiser PDF direto)
 @app.route('/ordem_servico/<int:os_id>/pdf')
@@ -502,12 +386,6 @@ def pdf_os(os_id):
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = f'inline; filename=os_{os_id}.pdf'
     return response
-    # Registrar filtro 'fromjson' no Jinja2
-@app.template_filter('fromjson')
-def fromjson_filter(value):
-    import json
-    return json.loads(value)
-
 # RODAR SERVIDOR
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
