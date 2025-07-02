@@ -29,11 +29,11 @@
           <tr>
             <td>{{ produto.nome }}</td>
             <td>{{ produto.codigo_barras }}</td>
-            <td>{{ produto.fornecedor.nome if produto.fornecedor else '' }}</td>
+            <td>{{ produto.fornecedor }}</td>
             <td>{{ produto.estoque }}</td>
-            <td>R$ {{ "%.2f"|format(produto.valor_compra) }}</td>
-            <td>R$ {{ "%.2f"|format(produto.valor_venda) }}</td>
-            <td>{{ produto.lucro }}%</td>
+            <td>R$ {{ "%.2f"|format(produto.valor_compra or 0) }}</td>
+            <td>R$ {{ "%.2f"|format(produto.valor_venda or 0) }}</td>
+            <td>{{ produto.lucro_percentual or 0 }}%</td>
             <td>
               <a href="{{ url_for('cadastrar_produto', id=produto.id) }}" class="btn btn-sm btn-warning">Editar</a>
               <a href="{{ url_for('excluir_produto', id=produto.id) }}" class="btn btn-sm btn-danger"
@@ -48,4 +48,3 @@
 </div>
 
 {% endblock %}
-
