@@ -179,6 +179,19 @@ def excluir_servico(id):
     db.session.delete(servico)
     db.session.commit()
     return redirect('/servicos')
+    
+    @app.route('/produto/salvar', methods=['POST'])
+def salvar_produto():
+    try:
+        nome = request.form['nome']
+        # outros campos...
+        novo_produto = Produto(nome=nome, ...)
+        db.session.add(novo_produto)
+        db.session.commit()
+        return redirect(url_for('listar_produtos'))
+    except Exception as e:
+        print("Erro ao salvar produto:", e)
+        return "Erro ao salvar produto", 500
 
 # FORNECEDORES
 @app.route('/fornecedores')
