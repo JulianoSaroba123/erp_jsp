@@ -180,7 +180,7 @@ def excluir_servico(id):
     db.session.commit()
     return redirect('/servicos')
     
-    @app.route('/produto/salvar', methods=['POST'])
+@app.route('/produto/salvar', methods=['POST'])
 def salvar_produto():
     try:
         nome = request.form['nome']
