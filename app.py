@@ -403,6 +403,44 @@ def imprimir_os(os_id):
     os = OrdemServico.query.get_or_404(os_id)
     return render_template('impressao_os.html', os=os)
 
+@app.route('/relatorio_ordens_servico_pdf')
+def relatorio_ordens_servico_pdf():
+    ordens = OrdemServico.query.all()
+    
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 14)
+    pdf.cell(0, 10, "Relatório Completo de Ordens de Serviço", ln=True, align='C')
+    pdf.ln(5)
+    pdf.set_font("Arial", '', 10)
+
+    for os in ordens:
+        pdf.set_fill_color(230, 230, 230)
+        pdf.cell(0, 8, f"OS #{os.id} - {os.cliente} ({os.tipo_servico})", ln=True, fill=True)
+
+        pdf.cell(50, 7, "Data:", 0, 0)
+        pdf.cell(0, 7, os.data.strftime("%d/%m/%Y") if os.data else "-", ln=True)
+
+        pdf.cell(50, 7, "Deslocamento (KM):", 0, 0)
+        deslocamento = f"{os.km_inicial or 0} → {os.km_final or 0} = {os.km_final - os.km_inicial if os.km_inicial and os.km_final else 0} KM"
+        pdf.cell(0, 7, deslocamento, ln=True)
+
+        pdf.cell(50, 7, "Tempo de Deslocamento:", 0, 0)
+        pdf.cell(0, 7, os.tempo_deslocamento or "-", ln=True)
+
+        pdf.cell(50, 7, "Tempo de Execução:", 0, 0)
+        pdf.cell(0, 7, os.tempo_execucao or "-", ln=True)
+
+        pdf.cell(50, 7, "Observações:", 0, 0)
+        pdf.multi_cell(0, 7, os.observacoes or "-", ln=True)
+
+        pdf.ln(4)
+
+    caminho = "relatorio_os_completo.pdf"
+    pdf.output(caminho)
+    return send_file(caminho, as_attachment=True)
+
+
 # Rota para gerar PDF da OS (opcional, se quiser PDF direto)
 @app.route('/ordem_servico/<int:os_id>/pdf')
 def pdf_os(os_id):
