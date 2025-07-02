@@ -112,7 +112,7 @@ def listar_produtos():
     produtos = Produto.query.all()
     return render_template('lista_produtos.html', produtos=produtos)
 
-@app.route('/produto/novo', methods=['GET', 'POST'])
+@app.route('/produto/novo', methods=['GET', 'POST'], endpoint='cadastrar_produto')
 @app.route('/produto/editar/<int:id>', methods=['GET', 'POST'])
 def cadastrar_produto(id=None):
     produto = Produto.query.get(id) if id else None
