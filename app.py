@@ -419,6 +419,76 @@ def relatorio_ordem_servico(os_id):
 
     return render_template('relatorio_ordem_servico.html', os=os, cliente=cliente,
                            tipo_servico=tipo_servico, produtos=produtos)
+    from fpdf import FPDF
+
+@app.route('/relatorio_os/<int:id>')
+def relatorio_os(id):
+    os = OrdemServico.query.get_or_404(id)
+    cliente = Cliente.query.get(os.cliente_id)
+    produtos = os.produtos  # relacionamento
+    servicos = os.servicos  # relacionamento
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(0, 10, f'Ordem de Serviço #{os.codigo}', ln=True, align='C')
+
+    pdf.set_font("Arial", '', 12)
+    pdf.ln(10)
+    pdf.cell(0, 10, f"Cliente: {cliente.nome}", ln=True)
+    pdf.cell(0, 10, f"Telefone: {cliente.telefone}", ln=True)
+    pdf.cell(0, 10, f"E-mail: {cliente.email}", ln=True)
+    pdf.cell(0, 10, f"Endereço: {cliente.endereco}", ln=True)
+    pdf.ln(5)
+
+    pdf.cell(0, 10, f"Data de Emissão: {os.data_emissao.strftime('%d/%m/%Y')}", ln=True)
+    pdf.cell(0, 10, f"Tipo de Serviço: {os.tipo_servico}", ln=True)
+    pdf.multi_cell(0, 10, f"Descrição: {os.descricao}", ln=True)
+    pdf.ln(5)
+
+    pdf.set_font("Arial", 'B', 12)
+    pdf.cell(0, 10, "Produtos:", ln=True)
+    pdf.set_font("Arial", '', 12)
+    for item in produtos:
+        pdf.cell(0, 10, f"{item.nome} - {item.quantidade} x R$ {item.valor_unitario:.2f}", ln=True)
+
+    pdf.ln(5)
+    pdf.set_font("Arial", 'B', 12)
+    pdf.cell(0, 10, "Serviços:", ln=True)
+    pdf.set_font("Arial", '', 12)
+    for s in servicos:
+        pdf.cell(0, 10, f"{s.nome} - R$ {s.valor:.2f}", ln=True)
+
+    pdf.ln(5)
+    pdf.set_font("Arial", 'B', 12)
+    pdf.cell(0, 10, "Deslocamento:", ln=True)
+    pdf.set_font("Arial", '', 12)
+    pdf.cell(0, 10, f"KM Inicial: {os.km_inicial}", ln=True)
+    pdf.cell(0, 10, f"KM Final: {os.km_final}", ln=True)
+    pdf.cell(0, 10, f"Total KM: {os.km_total}", ln=True)
+
+    pdf.ln(5)
+    pdf.set_font("Arial", 'B', 12)
+    pdf.cell(0, 10, "Horários:", ln=True)
+    pdf.set_font("Arial", '', 12)
+    pdf.cell(0, 10, f"Partida: {os.hora_partida}", ln=True)
+    pdf.cell(0, 10, f"Chegada: {os.hora_chegada}", ln=True)
+    pdf.cell(0, 10, f"Início Atividade: {os.hora_inicio}", ln=True)
+    pdf.cell(0, 10, f"Fim Atividade: {os.hora_fim}", ln=True)
+
+    pdf.ln(5)
+    pdf.set_font("Arial", 'B', 12)
+    pdf.cell(0, 10, f"Observações:", ln=True)
+    pdf.set_font("Arial", '', 12)
+    pdf.multi_cell(0, 10, os.observacoes or "Não informado")
+
+    pdf.ln(5)
+    pdf.set_font("Arial", 'B', 12)
+    pdf.cell(0, 10, f"Valor Total: R$ {os.valor_total:.2f}", ln=True)
+
+    pdf.output(f"relatorio_os_{id}.pdf")
+    return send_file(f"relatorio_os_{id}.pdf", as_attachment=True)
+
 
 
 
