@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, send_file, session, url_for, jsonify
+from flask import Flask, render_template, request, redirect, send_file, session, url_for, jsonify, make_response
 from models import db
 from models.cliente_model import Cliente
 from models.produto_model import Produto
@@ -6,11 +6,19 @@ from models.servico_model import Servico
 from models.fornecedor_model import Fornecedor
 from models.os_model import OrdemServico
 from models.tipo_servico_model import TipoServico
+from flask_migrate import Migrate
 import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
 import json
-from flask_migrate import Migrate
+
+# Inicialização do app Flask
+app = Flask(__name__)
+app.secret_key = 'sua_chave_secreta'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///erp_jsp.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
+migrate = Migrate(app, db)
 
 # Proteção de Rotas
 @app.before_request
@@ -18,6 +26,19 @@ def proteger_rotas():
     rotas_livres = ['login', 'static']
     if 'usuario' not in session and request.endpoint not in rotas_livres:
         return redirect(url_for('login'))
+
+# Função para gerar códigos
+def gerar_codigo(model, prefixo, inicio=1):
+    ultimo = model.query.order_by(model.id.desc()).first()
+    if ultimo and ultimo.codigo and ultimo.codigo.startswith(prefixo):
+        try:
+            num = int(ultimo.codigo.replace(prefixo, ''))
+        except Exception:
+            num = inicio
+        novo_num = num + 1
+    else:
+        novo_num = inicio
+    return f"{prefixo}{novo_num:03d}"
 
 # LOGIN
 @app.route('/login', methods=['GET', 'POST'])
@@ -50,7 +71,7 @@ def cadastro():
         cliente = Cliente(
             codigo=codigo,
             nome=request.form['nome'],
-            cpf_cnpj=request.form['cpf_cnpj'],  # Corrigido aqui
+            cpf_cnpj=request.form['cpf_cnpj'],
             telefone=request.form['telefone'],
             email=request.form['email'],
             endereco=request.form['endereco'],
@@ -66,7 +87,7 @@ def editar(id):
     cliente = Cliente.query.get_or_404(id)
     if request.method == 'POST':
         cliente.nome = request.form['nome']
-        cliente.cpf_cnpj = request.form['cpf_cnpj']  # Corrigido aqui
+        cliente.cpf_cnpj = request.form['cpf_cnpj']
         cliente.telefone = request.form['telefone']
         cliente.email = request.form['email']
         cliente.endereco = request.form['endereco']
@@ -200,59 +221,46 @@ def cadastro_ordem_servico(id=None):
     if os and os.produtos:
         try:
             produtos_os = json.loads(os.produtos)
-        except Exception:
+        except:
             produtos_os = []
     if request.method == 'POST':
         if not os:
             codigo = gerar_codigo(OrdemServico, 'OSV')
             os = OrdemServico(codigo=codigo)
             db.session.add(os)
-        # Dados do Cliente
         os.cliente_nome = request.form.get('cliente_nome')
         os.cliente_cpf_cnpj = request.form.get('cliente_cpf_cnpj')
         os.cliente_telefone = request.form.get('cliente_telefone')
         os.cliente_email = request.form.get('cliente_email')
         os.cliente_endereco = request.form.get('cliente_endereco')
-        # Datas
         data_emissao = request.form.get('data_emissao')
         os.data_emissao = datetime.strptime(data_emissao, '%Y-%m-%d') if data_emissao else None
         previsao_conclusao = request.form.get('previsao_conclusao')
         os.previsao_conclusao = datetime.strptime(previsao_conclusao, '%Y-%m-%d') if previsao_conclusao else None
-        # Serviço
         os.tipo_servico = request.form.get('tipo_servico')
         os.servico_nome = request.form.get('servico_nome')
         os.descricao_servico = request.form.get('descricao_servico')
-        os.qtd_servico = request.form.get('qtd_servico')  # pode tratar como int depois
+        os.qtd_servico = request.form.get('qtd_servico')
         os.valor_unit_servico = request.form.get('valor_unit_servico')
-        # Produtos (JSON)
         produtos_json = request.form.get('produtos')
         os.produtos = produtos_json if produtos_json else json.dumps([])
-        # Profissional e horários
         os.tecnico_responsavel = request.form.get('tecnico_responsavel')
         os.hora_inicio = request.form.get('hora_inicio')
         os.hora_termino = request.form.get('hora_termino')
         os.total_horas = request.form.get('total_horas')
         os.atividade_realizada = request.form.get('atividade_realizada')
-        # Deslocamento
         os.km_inicial = request.form.get('km_inicial')
         os.km_final = request.form.get('km_final')
         os.km_total = request.form.get('km_total')
-        # Valores
         os.valor_servicos = float(request.form.get('valor_servicos') or 0)
         os.valor_produtos = float(request.form.get('valor_produtos') or 0)
         os.valor_deslocamento = float(request.form.get('valor_deslocamento') or 0)
         os.total_geral = float(request.form.get('total_geral') or 0)
-        # Outros
         os.condicoes_pagamento = request.form.get('condicoes_pagamento')
         os.observacoes = request.form.get('observacoes')
         db.session.commit()
         return redirect('/ordens_servico')
-    return render_template(
-        'cadastro_ordem_servico.html',
-        os=os,
-        tipos_servico=tipos_servico,
-        produtos_os=produtos_os  # se for utilizar produtos dinâmicos no template
-    )
+    return render_template('cadastro_ordem_servico.html', os=os, tipos_servico=tipos_servico, produtos_os=produtos_os)
 
 @app.route('/ordem_servico/excluir/<int:id>')
 def excluir_ordem_servico(id):
@@ -267,14 +275,8 @@ def buscar_clientes():
     termo = request.args.get('q', '')
     clientes = Cliente.query.filter(Cliente.nome.ilike(f'%{termo}%')).all()
     return jsonify([
-        {
-            "id": c.id,
-            "nome": c.nome,
-            "cpf_cnpj": c.cpf_cnpj,
-            "telefone": c.telefone,
-            "email": c.email,
-            "endereco": c.endereco
-        } for c in clientes
+        {"id": c.id, "nome": c.nome, "cpf_cnpj": c.cpf_cnpj, "telefone": c.telefone, "email": c.email, "endereco": c.endereco}
+        for c in clientes
     ])
 
 @app.route('/buscar_produtos')
@@ -282,11 +284,8 @@ def buscar_produtos():
     termo = request.args.get('q', '')
     produtos = Produto.query.filter(Produto.nome.ilike(f'%{termo}%')).all()
     return jsonify([
-        {
-            "id": p.id,
-            "nome": p.nome,
-            "valor_venda": p.valor_venda
-        } for p in produtos
+        {"id": p.id, "nome": p.nome, "valor_venda": p.valor_venda}
+        for p in produtos
     ])
 
 @app.route('/buscar_servicos')
@@ -294,12 +293,8 @@ def buscar_servicos():
     termo = request.args.get('q', '')
     servicos = Servico.query.filter(Servico.nome.ilike(f'%{termo}%')).all()
     return jsonify([
-        {
-            "id": s.id,
-            "nome": s.nome,
-            "descricao": getattr(s, 'descricao', ''),
-            "valor": float(s.valor)
-        } for s in servicos
+        {"id": s.id, "nome": s.nome, "descricao": getattr(s, 'descricao', ''), "valor": float(s.valor)}
+        for s in servicos
     ])
 
 @app.route('/buscar_tipos_servico')
@@ -307,7 +302,7 @@ def buscar_tipos_servico():
     termos = TipoServico.query.all()
     return jsonify([{'id': t.id, 'text': t.nome} for t in termos])
 
-# CRUD Tipos de Serviço (corrigido)
+# CRUD Tipos de Serviço
 @app.route('/tipos_servico')
 def lista_tipos_servico():
     tipos = TipoServico.query.all()
@@ -369,23 +364,22 @@ def exportar_pdf():
     pdf.output(caminho)
     nome_arquivo = f"Clientes_JSP_{datetime.now().strftime('%Y-%m-%d')}.pdf"
     return send_file(caminho, as_attachment=True, download_name=nome_arquivo)
-    
-    # Rota para visualizar e imprimir a OS em HTML (visualização bonita p/ impressão)
+
 @app.route('/ordem_servico/<int:os_id>/imprimir')
 def imprimir_os(os_id):
     os = OrdemServico.query.get_or_404(os_id)
     return render_template('impressao_os.html', os=os)
 
-# Rota para gerar PDF da OS (opcional, se quiser PDF direto)
 @app.route('/ordem_servico/<int:os_id>/pdf')
 def pdf_os(os_id):
     os = OrdemServico.query.get_or_404(os_id)
     rendered = render_template('impressao_os.html', os=os)
-    pdf = gerar_pdf(rendered)  # Função usando pdfkit/weasyprint
+    pdf = gerar_pdf(rendered)  # função ainda precisa ser criada
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = f'inline; filename=os_{os_id}.pdf'
     return response
-# RODAR SERVIDOR
+
+# EXECUTAR
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
