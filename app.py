@@ -11,6 +11,8 @@ import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
 import json
+import os
+
 
 # Inicialização do app Flask
 app = Flask(__name__)
