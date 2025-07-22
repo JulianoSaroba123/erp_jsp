@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block conteudo %}
+
+<style>
+@media print {
+  .print-hide {
+    display: none !important;
+  }
+}
+</style>
+
+<div class="container mt-4">
+  <div class="row align-items-center mb-4">
+    <div class="col-md-2 text-center">
+      <img src="{{ url_for('static', filename='Logotipo JSP (1).png') }}" alt="Logo" style="max-width: 100%; height: auto;">
+    </div>
+    <div class="col-md-10">
+      <h4 class="mb-1">JSP ELÉTRICA, INDUSTRIAL E SOLAR</h4>
+      <p class="mb-0">Rua Indalécio Costa, 890 - Bairro Barra Funda - Tietê/SP</p>
+      <p class="mb-0">Contato: (15) 99670-2036</p>
+    </div>
+  </div>
+
+  <h2 class="mb-4">Resumo da Ordem de Serviço</h2>
+
+  <div class="d-flex justify-content-between mb-3 print-hide">
+    <a href="{{ url_for('listar_ordens_servico') }}" class="btn btn-secondary">Voltar</a>
+    <button class="btn btn-primary" onclick="window.print()">Imprimir</button>
+  </div>
+
+  <h5 class="text-primary">Dados do Cliente</h5>
+  <div class="row mb-2">
+    <div class="col-md-6"><strong>Cliente:</strong> {{ os.cliente.nome }}</div>
+    <div class="col-md-6"><strong>CPF/CNPJ:</strong> {{ os.cliente.cpf_cnpj }}</div>
+  </div>
+  <div class="row mb-2">
+    <div class="col-md-6"><strong>Data:</strong> {{ os.data_emissao.strftime('%d/%m/%Y') }}</div>
+    <div class="col-md-6"><strong>Código OS:</strong> {{ os.codigo }}</div>
+  </div>
+
+  <h5 class="text-primary mt-4">Serviços Realizados</h5>
+  <ul>
+    {% for s in os.servicos_realizados %}
+      <li>{{ s.nome }}{% if s.qtd %} (Qtd: {{ s.qtd }}){% endif %}</li>
+    {% else %}
+      <li>Nenhum serviço informado.</li>
+    {% endfor %}
+  </ul>
+
+  <h5 class="text-primary mt-4">Produtos Utilizados</h5>
+  <ul>
+    {% for p in os.produtos_utilizados %}
+      <li>{{ p.nome }}{% if p.qtd %} (Qtd: {{ p.qtd }}){% endif %}</li>
+    {% else %}
+      <li>Nenhum produto informado.</li>
+    {% endfor %}
+  </ul>
+
+  <h5 class="text-primary mt-4">Valores</h5>
+  <div class="row">
+    <div class="col-md-6"><strong>Total:</strong> R$ {{ '%.2f'|format(os.valor_total | default(0)) }}</div>
+  </div>
+
+  {% if os.observacoes %}
+    <h5 class="text-primary mt-3">Observações</h5>
+    <p>{{ os.observacoes }}</p>
+  {% endif %}
+
+  <div class="row mt-5">
+    <div class="col-md-6 text-center">
+      <hr><p>Assinatura do Técnico</p>
+    </div>
+    <div class="col-md-6 text-center">
+      <hr><p>Assinatura do Cliente</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
