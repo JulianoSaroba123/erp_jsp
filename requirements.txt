@@ -4,3 +4,4 @@ pandas
 openpyxl
 fpdf
 psycopg2-binary
+gunicorn
