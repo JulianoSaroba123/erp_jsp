@@ -3,11 +3,15 @@ from datetime import datetime
 
 
 class Fornecedor(db.Model):
-    __tablename__ = 'fornecedores'
-
+    __tablename__ = 'fornecedores'  # <- ESSENCIAL! Nome da tabela
     id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100), nullable=False)
 
-    # Código identificador do fornecedor
+    def __repr__(self):
+        return f"<Fornecedor {self.nome}>"
+
+
+       # Código identificador do fornecedor
     codigo = db.Column(db.String(20), unique=True)
 
     # Nome ou razão social do fornecedor
@@ -21,6 +25,9 @@ class Fornecedor(db.Model):
 
     # E-mail
     email = db.Column(db.String(100))
+
+    # E-mail
+    cep = db.Column(db.String(9))
 
     # Endereço completo
     endereco = db.Column(db.String(150))

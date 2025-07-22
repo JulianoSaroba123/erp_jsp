@@ -1,51 +1,36 @@
 from models.db_config import db
 from datetime import datetime
 
-
 class Produto(db.Model):
     __tablename__ = 'produtos'
 
     id = db.Column(db.Integer, primary_key=True)
 
-    # Código de barras do produto
-    codigo_barras = db.Column(db.String(50), unique=True)
+    # Código do produto (ex: PRD0001), gerado automaticamente
+    codigo = db.Column(db.String(20), unique=True)
 
-    # Nome do produto
+    # Nome do produto (obrigatório)
     nome = db.Column(db.String(100), nullable=False)
 
-    # Data de cadastro
-    data = db.Column(db.Date, default=datetime.utcnow)
+    # Fornecedor vinculado (relacionamento externo)
+    fornecedor_id = db.Column(db.Integer, db.ForeignKey('fornecedores.id'))
+    fornecedor = db.relationship('Fornecedor', backref='produtos')
 
-    # Fornecedor (relacionamento opcional, se quiser fazer depois)
-    fornecedor = db.Column(db.String(100))
-
-    # Unidade de medida (ex: UN, KG, PÇ)
-    unidade = db.Column(db.String(10))
-
-    # Classificação do produto (categoria)
+    # Dados de estoque e financeiro
+    unidade = db.Column(db.String(20))
     classificacao = db.Column(db.String(50))
-
-    # Localização física (ex: prateleira A2)
     localizacao = db.Column(db.String(50))
+    situacao = db.Column(db.String(20))
+    valor_compra = db.Column(db.Float, default=0.0)
+    valor_venda = db.Column(db.Float, default=0.0)
+    markup_percentual = db.Column(db.Float, default=0.0)
+    lucro_percentual = db.Column(db.Float, default=0.0)
+    estoque = db.Column(db.Integer, default=0)
 
-    # Situação: Ativo ou Inativo
-    situacao = db.Column(db.String(20), default='Ativo')
-
-    # Valores de venda e compra
-    valor_venda = db.Column(db.Float)
-    valor_compra = db.Column(db.Float)
-
-    # Estoque atual
-    estoque = db.Column(db.Integer)
-
-    # Percentual de lucro
-    lucro_percentual = db.Column(db.Float)
-
-    # Fabricante
+    # Informações adicionais
     fabricante = db.Column(db.String(100))
+    numero_serie = db.Column(db.String(50))
 
-    # Número de série do produto (caso aplicável)
-    numero_serie = db.Column(db.String(100))
-
+    
     def __repr__(self):
-        return f'<Produto {self.nome}>'
+        return f"<Produto {self.codigo} - {self.nome}>"
