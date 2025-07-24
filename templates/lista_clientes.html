@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+.tabela-clientes {
+  overflow-x: auto;
+}
+.sticky-header thead th {
+  position: sticky;
+  top: 0;
+  background: #212529;
+  color: #fff;
+  z-index: 2;
+}
+</style>
+
+<div class="container mt-4">
+  <div class="card shadow-sm p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="mb-0"><i class="bi bi-people"></i> Lista de Clientes</h3>
+      <a href="{{ url_for('cadastro') }}" class="btn btn-primary">
+        <i class="bi bi-person-plus"></i> Novo Cliente
+      </a>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-body tabela-clientes" style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-striped table-hover table-bordered align-middle sticky-header">
+          <thead class="table-dark">
+            <tr>
+              <th>Código</th>
+              <th>Nome</th>
+              <th>CPF/CNPJ</th>
+              <th>Telefone</th>
+              <th>Email</th>
+              <th>Endereço</th>
+              <th class="text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in clientes %}
+            <tr>
+              <td>{{ c.codigo }}</td>
+              <td>{{ c.nome }}</td>
+              <td>{{ c.cpf_cnpj }}</td>
+              <td>{{ c.telefone }}</td>
+              <td>{{ c.email }}</td>
+              <td>{{ c.endereco }}, Nº {{ c.numero }}</td>
+              <td class="text-center">
+                <a href="{{ url_for('editar', id=c.id) }}" class="btn btn-warning btn-sm me-1" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <a href="{{ url_for('excluir', id=c.id) }}" class="btn btn-danger btn-sm" title="Excluir"
+                   onclick="return confirm('Tem certeza que deseja excluir?')">
+                  <i class="bi bi-trash"></i>
+                </a>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="7" class="text-center text-muted">Nenhum cliente cadastrado.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<div class="container mt-4">
+  <div class="card shadow-sm p-4" style="max-width: 600px; margin:auto;">
+    <h3 class="mb-4"><i class="bi bi-gear"></i> {{ 'Editar Serviço' if servico else 'Cadastro de Serviço' }}</h3>
+    <form method="POST" autocomplete="off">
+      <div class="mb-3">
+        <label for="codigo" class="form-label">Código</label>
+        <input type="text" class="form-control" id="codigo" name="codigo" value="{{ servico.codigo if servico else codigo_gerado }}" readonly>
+      </div>
+      <div class="mb-3">
+        <label for="nome" class="form-label">Nome <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="nome" name="nome" required value="{{ servico.nome if servico else '' }}">
+      </div>
+      
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="unidade" class="form-label">Unidade <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="unidade" name="unidade" value="{{ servico.unidade if servico else '' }}" required>
+        </div>
+        <div class="col-md-6">
+          <label for="valor" class="form-label">Valor (R$) <span class="text-danger">*</span></label>
+          <input type="number" step="0.01" min="0" class="form-control" id="valor" name="valor" value="{{ servico.valor if servico else '' }}" required>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="situacao" class="form-label">Situação</label>
+        <select class="form-select" id="situacao" name="situacao" required>
+          <option value="Ativo" {{ 'selected' if servico and servico.situacao == 'Ativo' else '' }}>Ativo</option>
+          <option value="Inativo" {{ 'selected' if servico and servico.situacao == 'Inativo' else '' }}>Inativo</option>
+        </select>
+      </div>
+      <div class="d-flex justify-content-between mt-4">
+        <a href="{{ url_for('cadastrar_servico') }}" class="btn btn-primary">
+          <i class="bi bi-plus-circle"></i> Novo Serviço
+        </a>
+        <a href="{{ url_for('listar_servicos') }}" class="btn btn-secondary">
+          <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+        {% if servico %}
+          <a href="{{ url_for('limpar_servico', id=servico.id) }}" class="btn btn-info">
+            <i class="bi bi-eraser"></i> Limpar
+          </a>
+        {% else %}
+          <a class="btn btn-info disabled" style="pointer-events:none;opacity:0.5;">
+            <i class="bi bi-eraser"></i> Limpar
+          </a>
+        {% endif %}
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-save"></i> {{ 'Atualizar' if servico else 'Salvar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

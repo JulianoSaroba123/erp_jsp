@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+  .tabela-OS { overflow-x: auto; }
+  .sticky-header thead th {
+    position: sticky;
+    top: 0;
+    background: #212529;
+    color: #fff;
+    z-index: 2;
+  }
+</style>
+
+<div class="container mt-4">
+  <div class="card shadow-sm p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="mb-0"><i class="bi bi-clipboard-data"></i> Ordens de Serviço</h2>
+      <a href="{{ url_for('cadastro_ordem_servico') }}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Nova OS
+      </a>
+    </div>
+
+    {% for category, msg in get_flashed_messages(with_categories=true) %}
+      <div class="alert alert-{{ category }}">{{ msg }}</div>
+    {% endfor %}
+
+    {% if ordens %}
+      <div class="tabela-OS" style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-striped table-hover table-bordered align-middle sticky-header">
+          <thead class="table-dark">
+            <tr>
+              <th>Código</th>
+              <th>Cliente</th>
+              <th>Emissão</th>
+              <th>Conclusão</th>
+              <th class="text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for os in ordens %}
+              <tr>
+                <td>{{ os.codigo }}</td>
+                <td>{{ os.cliente.nome }}</td>
+                <td>{{ os.data_emissao.strftime('%d/%m/%Y') }}</td>
+                <td>{{ os.previsao_conclusao.strftime('%d/%m/%Y') if os.previsao_conclusao else '-' }}</td>
+                <td class="text-center">
+                  <div class="d-flex justify-content-center">
+                    <a href="{{ url_for('cadastro_ordem_servico', id=os.id) }}" class="btn btn-warning btn-sm me-1" title="Editar">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <form method="post" action="{{ url_for('excluir_ordem_servico', id=os.id) }}" class="d-inline me-1">
+                      <button type="submit" class="btn btn-danger btn-sm" title="Excluir"
+                        onclick="return confirm('Confirmar exclusão?')">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </form>
+                    <a href="{{ url_for('imprimir_os', os_id=os.id) }}" class="btn btn-primary btn-sm me-1" target="_blank" title="Relatório Técnico">
+                      <i class="bi bi-file-earmark-text"></i>
+                    </a>
+                    <a href="{{ url_for('relatorio_cliente', os_id=os.id) }}" class="btn btn-success btn-sm" target="_blank" title="Relatório Cliente">
+                      <i class="bi bi-file-earmark-person"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted">Nenhuma Ordem de Serviço encontrada.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

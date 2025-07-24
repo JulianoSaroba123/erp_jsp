@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+.tabela-produtos {
+  overflow-x: auto;
+}
+.sticky-header thead th {
+  position: sticky;
+  top: 0;
+  background: #212529;
+  color: #fff;
+  z-index: 2;
+}
+.badge-estoque-baixo {
+  background: #dc3545;
+  color: #fff;
+}
+.badge-estoque-ok {
+  background: #198754;
+  color: #fff;
+}
+.table td, .table th {
+  vertical-align: middle;
+}
+</style>
+<div class="container mt-4">
+  <div class="card shadow-sm p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="mb-0"><i class="bi bi-box-seam"></i> Lista de Produtos</h3>
+      <a href="{{ url_for('cadastrar_produto') }}" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Novo Produto
+      </a>
+    </div>
+    <div class="card shadow-sm">
+      <div class="card-body tabela-produtos" style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-striped table-hover table-bordered align-middle sticky-header">
+          <thead class="table-dark">
+            <tr>
+              <th>Código</th>
+              <th>Nome</th>
+              <th>Fornecedor</th>
+              <th>Estoque</th>
+              <th>Compra (R$)</th>
+              <th>Venda (R$)</th>
+              <th>
+                <span data-bs-toggle="tooltip" title="Lucro percentual sobre o valor de compra">
+                  Lucro (%) <i class="bi bi-info-circle"></i>
+                </span>
+              </th>
+              <th class="text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for produto in produtos %}
+            <tr>
+              <td>{{ produto.codigo }}</td>
+              <td>
+                <span class="fw-semibold">{{ produto.nome }}</span>
+                {% if produto.descricao %}
+                  <i class="bi bi-info-circle text-secondary ms-1" data-bs-toggle="tooltip" title="{{ produto.descricao }}"></i>
+                {% endif %}
+              </td>
+              <td>{{ produto.fornecedor.nome if produto.fornecedor else '-' }}</td>
+              <td>
+                {% set estoque_baixo = produto.estoque is not none and produto.estoque <= 5 %}
+                <span class="badge {{ 'badge-estoque-baixo' if estoque_baixo else 'badge-estoque-ok' }}">
+                  <i class="bi bi-box"></i> {{ produto.estoque }}
+                </span>
+                {% if estoque_baixo %}
+                  <i class="bi bi-exclamation-triangle-fill text-danger ms-1" data-bs-toggle="tooltip" title="Estoque baixo!"></i>
+                {% endif %}
+              </td>
+              <td>R$ {{ "%.2f"|format(produto.valor_compra or 0) }}</td>
+              <td>R$ {{ "%.2f"|format(produto.valor_venda or 0) }}</td>
+              <td>
+                {% set lucro = produto.lucro_percentual or 0 %}
+                <span class="fw-bold {{ 'text-success' if lucro >= 30 else 'text-warning' if lucro >= 10 else 'text-danger' }}">
+                  {{ "%.2f"|format(lucro) }}%
+                </span>
+              </td>
+              <td class="text-center">
+                <a href="{{ url_for('cadastrar_produto', id=produto.id) }}" class="btn btn-warning btn-sm me-1" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                
+                <a href="{{ url_for('excluir_produto', id=produto.id) }}" class="btn btn-danger btn-sm" title="Excluir" onclick="return confirm('Deseja excluir este produto?');">
+                  <i class="bi bi-trash"></i>
+                </a>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="8" class="text-center text-muted">Nenhum produto cadastrado.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  // Ativa tooltips do Bootstrap 5
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+    new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+</script>
+{% endblock %}

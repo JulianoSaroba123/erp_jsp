@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - JSP ERP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Estilo customizado -->
+  <style>
+    body {
+      background: url("{{ url_for('static', filename='Fundo_login.jpg') }}") no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', sans-serif;
+
+      .btn-login {
+  transition: all 0.3s ease-in-out;
+}
+.btn-login:hover {
+  transform: scale(1.03);
+}
+
+    }
+
+    .login-box {
+      background-color: rgba(0, 0, 0, 0.85); /* fundo escuro com transparência */
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .login-box h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #0d6efd;
+    }
+
+    .form-control {
+      background-color: #1f1f1f;
+      color: #fff;
+      border: 1px solid #444;
+      border-radius: 10px;
+    }
+
+    .form-control:focus {
+      background-color: #2c2c2c;
+      color: #fff;
+      box-shadow: none;
+    }
+
+    .btn-login {
+      border-radius: 10px;
+      background-color: #0d6efd;
+      border: none;
+    }
+
+    .btn-login:hover {
+      background-color: #0b5ed7;
+    }
+
+    .logo {
+      width: 100px;
+      display: block;
+      margin: 0 auto 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-box">
+    
+    <h2>Bem-vindo ao ERP JSP</h2>
+
+    <form method="POST" action="{{ url_for('login') }}">
+      <div class="mb-3">
+        <label for="usuario" class="form-label">Usuário</label>
+        <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Digite seu usuário" required>
+      </div>
+      <div class="mb-3">
+        <label for="senha" class="form-label">Senha</label>
+        <input type="password" class="form-control" id="senha" name="senha" placeholder="Digite sua senha" required>
+      </div>
+      <div class="d-grid">
+        <button class="btn btn-primary w-100">
+  <i class="bi bi-box-arrow-in-right"></i> Entrar
+</button>
+
+      </div>
+    </form>
+  </div>
+
+  {% if erro %}
+  <div class="alert alert-danger" role="alert">
+    {{ erro }}
+  </div>
+  {% endif %}
+
+</body>
+</html>

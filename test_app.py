@@ -1,0 +1,1 @@
+return render_template('cadastro_servico.html', servico=servico)

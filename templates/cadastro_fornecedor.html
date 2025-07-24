@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<div class="container mt-4">
+  <div class="card shadow-sm p-4" style="max-width: 700px; margin:auto;">
+    <h3 class="mb-4"><i class="bi bi-truck"></i> {{ 'Editar Fornecedor' if fornecedor else 'Cadastro de Fornecedor' }}</h3>
+    <form method="POST" autocomplete="off">
+      <div class="row mb-3">
+        <div class="col-md-2">
+          <label class="form-label">Código</label>
+          <input type="text" class="form-control" name="codigo" placeholder="Automático" value="{{ fornecedor.codigo if fornecedor else '' }}" readonly>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Nome/Razão Social <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="nome" id="nome" placeholder="Digite o nome" value="{{ fornecedor.nome if fornecedor else '' }}" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">CNPJ <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="cnpj" name="cnpj" placeholder="00.000.000/0000-00" maxlength="18" value="{{ fornecedor.cnpj if fornecedor else '' }}" required>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <label class="form-label">Telefone</label>
+          <input type="text" class="form-control" id="telefone" name="telefone" placeholder="(00) 00000-0000" maxlength="15" value="{{ fornecedor.telefone if fornecedor else '' }}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">CEP</label>
+          <input type="text" class="form-control" id="cep" name="cep" placeholder="00000-000" maxlength="9" value="{{ fornecedor.cep if fornecedor else '' }}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Cidade</label>
+          <input type="text" class="form-control" id="cidade" name="cidade" placeholder="Automático" value="{{ fornecedor.cidade if fornecedor else '' }}">
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-md-12">
+          <label class="form-label">Endereço</label>
+          <input type="text" class="form-control" id="endereco" name="endereco" placeholder="Automático" value="{{ fornecedor.endereco if fornecedor else '' }}">
+        </div>
+      </div>
+      <div class="d-flex justify-content-between mt-4">
+        <a href="{{ url_for('cadastrar_fornecedor') }}" class="btn btn-primary">
+          <i class="bi bi-plus-circle"></i> Novo Fornecedor
+        </a>
+        <a href="{{ url_for('listar_fornecedores') }}" class="btn btn-secondary">
+          <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+        {% if fornecedor %}
+          <a href="{{ url_for('limpar_fornecedor', id=fornecedor.id) }}" class="btn btn-info">
+            <i class="bi bi-eraser"></i> Limpar
+          </a>
+        {% else %}
+          <a class="btn btn-info disabled" style="pointer-events:none;opacity:0.5;">
+            <i class="bi bi-eraser"></i> Limpar
+          </a>
+        {% endif %}
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-save"></i> {{ 'Atualizar' if fornecedor else 'Salvar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- Máscaras e auto-preenchimento -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script>
+  $(function () {
+    $('#cnpj').mask('00.000.000/0000-00');
+    $('#telefone').mask('(00) 00000-0000');
+    $('#cep').mask('00000-000');
+    // Busca CEP via ViaCEP
+    $('#cep').on('blur', function () {
+      let cep = $(this).val().replace(/\D/g, '');
+      if (cep.length === 8) {
+        $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function (data) {
+          if (!data.erro) {
+            $('#endereco').val(data.logradouro);
+            $('#cidade').val(data.localidade);
+          }
+        });
+      }
+    });
+    // Busca CNPJ via BrasilAPI
+    $('#cnpj').on('blur', function () {
+      let cnpj = $(this).val().replace(/\D/g, '');
+      if (cnpj.length === 14) {
+        $.getJSON(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`, function (data) {
+          if (!data.message && data.razao_social) {
+            $('#nome').val(data.razao_social);
+            if (data.telefone) $('#telefone').val(data.telefone);
+            if (data.cep) $('#cep').val(data.cep);
+            if (data.municipio) $('#cidade').val(data.municipio);
+            if (data.logradouro) $('#endereco').val(data.logradouro);
+          }
+        });
+      }
+    });
+  });
+</script>
+{% endblock %}

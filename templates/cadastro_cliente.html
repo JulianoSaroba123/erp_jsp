@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card p-4 mt-4 shadow-lg" style="max-width: 700px; margin: auto;">
+  <h3 class="mb-4">
+    <i class="bi bi-person-lines-fill"></i>
+    {{ 'Editar' if cliente else 'Cadastro de' }} Cliente
+  </h3>
+  <form method="POST" id="form_cliente" autocomplete="off">
+    {% if cliente %}
+      <input type="hidden" name="id" value="{{ cliente.id }}">
+    {% endif %}
+
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label for="codigo" class="form-label">Código do Cliente</label>
+        <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Automático" value="{{ cliente.codigo if cliente else '' }}" readonly>
+      </div>
+      <div class="col-md-8">
+        <label for="nome" class="form-label">Nome <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite o nome" value="{{ cliente.nome if cliente else '' }}" required>
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label for="cpf_cnpj" class="form-label">CPF/CNPJ <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="cpf_cnpj" name="cpf_cnpj" placeholder="000.000.000-00" value="{{ cliente.cpf_cnpj if cliente else '' }}" required>
+      </div>
+      <div class="col-md-4">
+        <label for="telefone" class="form-label">Telefone</label>
+        <input type="text" class="form-control" id="telefone" name="telefone" placeholder="(00) 00000-0000" value="{{ cliente.telefone if cliente else '' }}">
+      </div>
+      <div class="col-md-4">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="Digite o e-mail" value="{{ cliente.email if cliente else '' }}">
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <label for="cep" class="form-label">CEP</label>
+        <input type="text" class="form-control" id="cep" name="cep" maxlength="9" placeholder="00000-000" value="{{ cliente.cep if cliente else '' }}">
+      </div>
+      <div class="col-md-7">
+        <label for="endereco" class="form-label">Endereço</label>
+        <input type="text" class="form-control" id="endereco" name="endereco" placeholder="Digite o endereço" value="{{ cliente.endereco if cliente else '' }}">
+      </div>
+      <div class="col-md-2">
+        <label for="numero" class="form-label">Número</label>
+        <input type="text" class="form-control" id="numero" name="numero" placeholder="Nº" value="{{ cliente.numero if cliente else '' }}">
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+      <a href="{{ url_for('cadastro') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Novo Cliente
+      </a>
+      <a href="{{ url_for('index') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Voltar
+      </a>
+      {% if cliente %}
+        <a href="{{ url_for('limpar_cliente', id=cliente.id) }}" class="btn btn-info">
+          <i class="bi bi-eraser"></i> Limpar
+        </a>
+      {% else %}
+        <a class="btn btn-info disabled" style="pointer-events:none;opacity:0.5;">
+          <i class="bi bi-eraser"></i> Limpar
+        </a>
+      {% endif %}
+      <button type="submit" class="btn btn-success">
+        <i class="bi bi-save"></i> {{ 'Atualizar' if cliente else 'Salvar' }}
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Scripts de formatação -->
+<script>
+  // Máscara CPF/CNPJ
+  document.getElementById('cpf_cnpj').addEventListener('input', function () {
+    let v = this.value.replace(/\D/g, '');
+    if (v.length <= 11) {
+      v = v.replace(/(\d{3})(\d)/, '$1.$2');
+      v = v.replace(/(\d{3})(\d)/, '$1.$2');
+      v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    } else {
+      v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+      v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+      v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+      v = v.replace(/(\d{4})(\d)/, "$1-$2");
+    }
+    this.value = v;
+  });
+
+  // Máscara telefone
+  document.getElementById('telefone').addEventListener('input', function () {
+    let v = this.value.replace(/\D/g, '');
+    if (v.length > 10) {
+      v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+    } else if (v.length > 5) {
+      v = v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
+    } else if (v.length > 2) {
+      v = v.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
+    } else {
+      v = v.replace(/^(\d*)$/, "($1");
+    }
+    this.value = v;
+  });
+
+  // Busca endereço pelo CEP
+  document.getElementById('cep').addEventListener('blur', function () {
+    let cep = this.value.replace(/\D/g, '');
+    if (cep.length === 8) {
+      fetch('https://viacep.com.br/ws/' + cep + '/json/')
+        .then(response => response.json())
+        .then(data => {
+          if (!data.erro) {
+            document.getElementById('endereco').value = data.logradouro + (data.bairro ? ', ' + data.bairro : '') + (data.localidade ? ' - ' + data.localidade : '');
+          }
+        });
+    }
+  });
+
+  // Busca dados pelo CNPJ usando BrasilAPI
+  document.getElementById('cpf_cnpj').addEventListener('blur', function () {
+    let cnpj = this.value.replace(/\D/g, '');
+    if (cnpj.length === 14) {
+      fetch('https://brasilapi.com.br/api/cnpj/v1/' + cnpj)
+        .then(response => response.json())
+        .then(data => {
+          if (!data.message && data.razao_social) {
+            document.getElementById('nome').value = data.razao_social;
+            if (data.telefone) document.getElementById('telefone').value = data.telefone;
+            if (data.email) document.getElementById('email').value = data.email;
+            if (data.cep) document.getElementById('cep').value = data.cep;
+            if (data.logradouro) document.getElementById('endereco').value = data.logradouro;
+            if (data.numero) document.getElementById('numero').value = data.numero;
+          }
+        });
+    }
+  });
+</script>
+{% endblock %}

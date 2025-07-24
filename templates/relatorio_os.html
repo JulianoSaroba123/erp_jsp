@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+@media print {
+  .print-hide { display: none !important; }
+  .container { margin: 0 !important; max-width: 100% !important; box-shadow: none !important; }
+  .card { box-shadow: none !important; border: none !important; }
+  body { background: #fff !important; }
+}
+.assinatura-hr { margin: 40px 0 5px 0; border-top: 1px solid #333; }
+</style>
+
+<div class="container mt-4">
+  <div class="card shadow-sm p-4">
+    <div class="d-flex justify-content-between mb-3 print-hide">
+      <a href="{{ url_for('lista_ordens_servico') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Voltar
+      </a>
+      <button class="btn btn-primary" onclick="window.print()">
+        <i class="bi bi-printer"></i> Imprimir
+      </button>
+    </div>
+    <h2 class="mb-4 text-center">Relatório Técnico da Ordem de Serviço</h2>
+
+    <h5 class="text-primary">Dados do Cliente</h5>
+    <div class="row mb-2">
+      <div class="col-md-6"><strong>Cliente:</strong> {{ os.cliente.nome if os.cliente else os.cliente_nome }}</div>
+      <div class="col-md-6"><strong>CPF/CNPJ:</strong> {{ os.cliente.cpf_cnpj if os.cliente else os.cliente_cpf_cnpj }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-md-6"><strong>Telefone:</strong> {{ os.cliente.telefone if os.cliente else os.cliente_telefone }}</div>
+      <div class="col-md-6"><strong>Email:</strong> {{ os.cliente.email if os.cliente else os.cliente_email }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-md-12"><strong>Endereço:</strong> {{ os.cliente.endereco if os.cliente else os.cliente_endereco }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-md-6"><strong>Data Emissão:</strong> {{ os.data_emissao.strftime('%d/%m/%Y') if os.data_emissao else '' }}</div>
+      <div class="col-md-6"><strong>Código OS:</strong> {{ os.codigo }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-md-6"><strong>Previsão Conclusão:</strong> {{ os.previsao_conclusao.strftime('%d/%m/%Y') if os.previsao_conclusao else '-' }}</div>
+      <div class="col-md-6"><strong>Tipo de Serviço:</strong> {{ os.tipo_servico }}</div>
+    </div>
+
+    <h5 class="text-primary mt-4">Serviços Realizados</h5>
+    <ul>
+      {% if os.servicos_json %}
+        {% for s in os.servicos_json %}
+          <li>{{ s.nome }}{% if s.qtd %} <span class="text-muted">(Qtd: {{ s.qtd }})</span>{% endif %}</li>
+        {% endfor %}
+      {% else %}
+        <li class="text-muted">Nenhum serviço informado.</li>
+      {% endif %}
+    </ul>
+
+    <h5 class="text-primary mt-4">Produtos Utilizados</h5>
+    <ul>
+      {% if os.produtos_json %}
+        {% for p in os.produtos_json %}
+          <li>{{ p.nome }}{% if p.qtd %} <span class="text-muted">(Qtd: {{ p.qtd }})</span>{% endif %}</li>
+        {% endfor %}
+      {% else %}
+        <li class="text-muted">Nenhum produto informado.</li>
+      {% endif %}
+    </ul>
+
+    <h5 class="text-primary mt-4">Horários e Atividades</h5>
+    <div class="row mb-2">
+      <div class="col-md-3"><strong>Técnico Responsável:</strong> {{ os.tecnico_responsavel or os.tecnico }}</div>
+      <div class="col-md-2"><strong>Hora Início:</strong> {{ os.hora_inicio }}</div>
+      <div class="col-md-2"><strong>Hora Término:</strong> {{ os.hora_termino }}</div>
+      <div class="col-md-2"><strong>Total de Horas:</strong> {{ os.total_horas }}</div>
+      <div class="col-md-3"><strong>Atividade Realizada:</strong> {{ os.atividade_realizada }}</div>
+    </div>
+
+    <h5 class="text-primary mt-4">Quilometragem e Deslocamento</h5>
+    <div class="row mb-2">
+      <div class="col-md-3"><strong>KM Inicial:</strong> {{ os.km_inicial }}</div>
+      <div class="col-md-3"><strong>KM Final:</strong> {{ os.km_final }}</div>
+      <div class="col-md-3"><strong>KM Total:</strong> {{ os.km_total }}</div>
+      <div class="col-md-3"><strong>Valor Deslocamento:</strong> R$ {{ '%.2f'|format(os.valor_deslocamento or 0) }}</div>
+    </div>
+
+    <h5 class="text-primary mt-4">Valores</h5>
+    <div class="row mb-2">
+      <div class="col-md-4"><strong>Valor dos Serviços:</strong> R$ {{ '%.2f'|format(os.valor_servicos or 0) }}</div>
+      <div class="col-md-4"><strong>Valor dos Produtos:</strong> R$ {{ '%.2f'|format(os.valor_produtos or 0) }}</div>
+      <div class="col-md-4"><strong>Total Geral:</strong> R$ {{ '%.2f'|format(os.total_geral or os.valor_total or 0) }}</div>
+    </div>
+    <div class="row mb-2">
+      <div class="col-md-12"><strong>Condições de Pagamento:</strong> {{ os.condicoes_pagamento }}</div>
+    </div>
+
+    {% if os.observacoes %}
+      <h5 class="text-primary mt-3">Observações</h5>
+      <p>{{ os.observacoes }}</p>
+    {% endif %}
+
+    <div class="row mt-5">
+      <div class="col-md-6 text-center">
+        <div class="assinatura-hr"></div>
+        <p>Assinatura do Técnico</p>
+      </div>
+      <div class="col-md-6 text-center">
+        <div class="assinatura-hr"></div>
+        <p>Assinatura do Cliente</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
