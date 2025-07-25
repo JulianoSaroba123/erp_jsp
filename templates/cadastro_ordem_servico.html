@@ -76,7 +76,34 @@
           </select>
         </div>
       </div>
-
+      <!-- Equipamento -->
+       <h5 class="text-primary mt-4">3.Equipamentos</h5>
+      <div class="row">
+  <div class="col-md-6 mb-3">
+    <label>Nome do Equipamento</label>
+    <input type="text" class="form-control" name="equipamento_nome" value="{{ os.equipamento_nome or '' }}">
+  </div>
+  <div class="col-md-6 mb-3">
+    <label>Marca</label>
+    <input type="text" class="form-control" name="equipamento_marca" value="{{ os.equipamento_marca or '' }}">
+  </div>
+  <div class="col-md-6 mb-3">
+    <label>Modelo</label>
+    <input type="text" class="form-control" name="equipamento_modelo" value="{{ os.equipamento_modelo or '' }}">
+  </div>
+  <div class="col-md-6 mb-3">
+    <label>Nº de Série</label>
+    <input type="text" class="form-control" name="equipamento_numero_serie" value="{{ os.equipamento_numero_serie or '' }}">
+  </div>
+  <div class="col-md-12 mb-3">
+    <label>Acessórios</label>
+    <input type="text" class="form-control" name="equipamento_acessorios" value="{{ os.equipamento_acessorios or '' }}">
+  </div>
+  <div class="col-md-12 mb-3">
+    <label>Problema Descrito</label>
+    <textarea class="form-control" name="problema_descrito">{{ os.problema_descrito or '' }}</textarea>
+  </div>
+</div>
       <!-- 3.1 Serviços Realizados -->
       <h5 class="text-primary mt-4">3.1 Serviços Realizados</h5>
       <div class="row g-2 mb-2">
@@ -144,6 +171,13 @@
           <label class="form-label">Técnico Responsável</label>
           <input type="text" name="tecnico" class="form-control" value="{{ os.tecnico if os else '' }}">
         </div>
+
+        <!-- Descrição do Serviço Realizado -->
+      <div class="form-group">
+          <label>Descrição do Serviço Realizado</label>
+          <textarea class="form-control" name="descricao_servico_realizado">{{ os.descricao_servico_realizado or '' }}</textarea>
+        </div>
+      
         <div class="col-md-2">
           <label class="form-label">Hora Início</label>
           <input type="time" name="hora_inicio" id="hora_inicio" class="form-control" value="{{ os.hora_inicio if os else '' }}">
@@ -200,10 +234,115 @@
         <div class="col-md-4"><label class="form-label">Total Geral</label><input type="text" id="valor_total" name="valor_total" class="form-control" readonly value="{{ os.valor_total if os else '' }}"></div>
       </div>
 
-      <!-- 7. Condições e Observações -->
+      <!-- 7. Observações -->
       <h5 class="text-primary mt-4">7. Outras Informações</h5>
-      <div class="mb-3"><label class="form-label">Condições de Pagamento</label><input type="text" name="condicoes_pagamento" class="form-control" value="{{ os.condicoes_pagamento if os else '' }}"></div>
-      <div class="mb-3"><label class="form-label">Observações</label><textarea name="observacoes" class="form-control" rows="3">{{ os.observacoes if os else '' }}</textarea></div>
+          <div class="mb-3"><label class="form-label">Observações</label><textarea name="observacoes" class="form-control" rows="3">{{ os.observacoes if os else '' }}</textarea></div>
+      
+      
+      <!-- Condições de Pagamento -->
+      <h5 class="text-primary mt-4">7. Condições de Pagamento</h5>
+      <div class="form-group">
+        <label>Condições de Pagamento</label>
+        <select class="form-control" name="condicoes_pagamento" id="condicoes_pagamento" onchange="toggleParcelas()">
+          <option value="À vista" {% if os.condicoes_pagamento == 'À vista' %}selected{% endif %}>À vista</option>
+          <option value="Parcelado" {% if os.condicoes_pagamento == 'Parcelado' %}selected{% endif %}>Parcelado</option>
+        </select>
+      </div>
+
+      <!-- Parcelas -->
+      <div id="parcelas-section" style="display: {% if os.condicoes_pagamento == 'Parcelado' %}block{% else %}none{% endif %};">
+  <div class="row align-items-end mb-2">
+    <div class="col-md-3">
+      <label for="qtd_parcelas" class="form-label mb-1">Qtd. Parcelas</label>
+      <input type="number" min="1" class="form-control form-control-sm" id="qtd_parcelas" placeholder="Ex: 3" onchange="gerarParcelasPorQuantidade()">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label mb-1 d-block invisible">.</label>
+      <button type="button" class="btn btn-sm btn-primary w-100" onclick="adicionarParcela()">
+        <i class="bi bi-plus"></i> Adicionar Parcela
+      </button>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm table-bordered mb-2">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 45%;">Data de Vencimento</th>
+          <th style="width: 45%;">Valor (R$)</th>
+          <th style="width: 10%;">Ação</th>
+        </tr>
+      </thead>
+      <tbody id="parcelas-list">
+        <!-- Inputs de parcelas serão inseridos aqui via JS -->
+      </tbody>
+    </table>
+  </div>
+  <input type="hidden" name="parcelas_json" id="parcelas_json">
+  <small class="text-muted">Preencha as datas e valores das parcelas.</small>
+</div>
+<script>
+let parcelas = [];
+function renderParcelas() {
+  const container = document.getElementById('parcelas-list');
+  container.innerHTML = '';
+  parcelas.forEach((p, i) => {
+    container.innerHTML += `
+      <tr>
+        <td>
+          <input type="date" class="form-control form-control-sm" value="${p.data}" onchange="atualizarParcela(${i}, 'data', this.value)">
+        </td>
+        <td>
+          <input type="number" class="form-control form-control-sm" placeholder="Valor" value="${p.valor}" min="0" step="0.01" onchange="atualizarParcela(${i}, 'valor', this.value)">
+        </td>
+        <td class="text-center">
+          <button type="button" class="btn btn-danger btn-sm" onclick="removerParcela(${i})">
+            <i class="bi bi-x"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+  document.getElementById('parcelas_json').value = JSON.stringify(parcelas);
+}
+function adicionarParcela() {
+  parcelas.push({data: '', valor: ''});
+  renderParcelas();
+}
+function removerParcela(i) {
+  parcelas.splice(i, 1);
+  renderParcelas();
+}
+function atualizarParcela(i, campo, valor) {
+  parcelas[i][campo] = valor;
+  renderParcelas();
+}
+function gerarParcelasPorQuantidade() {
+  const qtd = parseInt(document.getElementById('qtd_parcelas').value) || 0;
+  const valorTotal = parseFloat(document.getElementById('valor_total').value.replace(',', '.')) || 0;
+  if (qtd > 0 && valorTotal > 0) {
+    const valorParcela = (valorTotal / qtd).toFixed(2);
+    parcelas = [];
+    for (let i = 0; i < qtd; i++) {
+      parcelas.push({data: '', valor: valorParcela});
+    }
+    renderParcelas();
+  } else if (qtd > 0) {
+    parcelas = [];
+    for (let i = 0; i < qtd; i++) {
+      parcelas.push({data: '', valor: ''});
+    }
+    renderParcelas();
+  }
+}
+// Inicializa com dados existentes, se houver
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    parcelas = JSON.parse(`{{ os.parcelas or '[]' }}`.replace(/&quot;/g,'"')) || [];
+    if (parcelas.length) document.getElementById('qtd_parcelas').value = parcelas.length;
+  } catch { parcelas = []; }
+  renderParcelas();
+});
+</script>
 
       <!-- Botões de ação -->
       <div class="mt-4 d-flex justify-content-end gap-2">
@@ -343,10 +482,21 @@ document.addEventListener('DOMContentLoaded', () => {
   function calcularValores() {
     const vs = listaServicos.reduce((a,i)=>a+i.qtd*i.valor,0);
     const vp = listaProdutos.reduce((a,i)=>a+i.qtd*i.valor,0);
-    document.getElementById('valor_servicos').value = vs.toFixed(2);
-    document.getElementById('valor_produtos').value = vp.toFixed(2);
     const vd = parseFloat(document.getElementById('valor_deslocamento').value)||0;
-    document.getElementById('valor_total').value = (vs+vp+vd).toFixed(2);
+
+    // Cálculo especial para cobrança por hora
+    let valorServicos = vs;
+    if (document.getElementById('cobranca_hora').checked) {
+      const totalHoras = document.getElementById('total_horas').value;
+      if (totalHoras) {
+        const [h, m] = totalHoras.split(':').map(Number);
+        const horas = h + (m/60);
+        valorServicos = (vs * horas) || 0;
+      }
+    }
+    document.getElementById('valor_servicos').value = valorServicos.toFixed(2);
+    document.getElementById('valor_produtos').value = vp.toFixed(2);
+    document.getElementById('valor_total').value = (valorServicos+vp+vd).toFixed(2);
   }
 
   // Toggle table
@@ -376,4 +526,71 @@ document.addEventListener('DOMContentLoaded', () => {
   preencher();
 });
 </script>
+<script>
+function toggleParcelas() {
+  const cond = document.getElementById('condicoes_pagamento').value;
+  document.getElementById('parcelas-section').style.display = cond === 'Parcelado' ? 'block' : 'none';
+}
+// Chama ao carregar a página para garantir o estado correto
+document.addEventListener('DOMContentLoaded', toggleParcelas);
+</script>
+
+<!-- Tipo de cobrança -->
+<div class="row mb-2">
+  <div class="col-md-6">
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="checkbox" id="cobranca_hora" onchange="atualizarTipoCobranca()" checked>
+      <label class="form-check-label" for="cobranca_hora">Cobrança por Hora</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="checkbox" id="cobranca_fechado" onchange="atualizarTipoCobranca()">
+      <label class="form-check-label" for="cobranca_fechado">Serviço Fechado</label>
+    </div>
+  </div>
+</div>
+<input type="hidden" name="tipo_cobranca" id="tipo_cobranca" value="hora">
+<script>
+function atualizarTipoCobranca() {
+  // Permite apenas um selecionado
+  const hora = document.getElementById('cobranca_hora');
+  const fechado = document.getElementById('cobranca_fechado');
+  if (event.target === hora && hora.checked) fechado.checked = false;
+  if (event.target === fechado && fechado.checked) hora.checked = false;
+
+  // Atualiza o campo hidden corretamente
+  document.getElementById('tipo_cobranca').value = hora.checked ? 'hora' : 'fechado';
+
+  calcularValores();
+}
+
+function calcularValores() {
+  const vs = listaServicos.reduce((a,i)=>a+i.qtd*i.valor,0);
+  const vp = listaProdutos.reduce((a,i)=>a+i.qtd*i.valor,0);
+  const vd = parseFloat(document.getElementById('valor_deslocamento').value)||0;
+
+  // Cálculo especial para cobrança por hora
+  let valorServicos = vs;
+  if (document.getElementById('cobranca_hora').checked) {
+    const totalHoras = document.getElementById('total_horas').value;
+    if (totalHoras) {
+      const [h, m] = totalHoras.split(':').map(Number);
+      const horas = h + (m/60);
+      valorServicos = (vs * horas) || 0;
+    }
+  }
+  document.getElementById('valor_servicos').value = valorServicos.toFixed(2);
+  document.getElementById('valor_produtos').value = vp.toFixed(2);
+  document.getElementById('valor_total').value = (valorServicos+vp+vd).toFixed(2);
+}
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Sempre inicia em "hora"
+  document.getElementById('cobranca_hora').checked = true;
+  document.getElementById('cobranca_fechado').checked = false;
+  document.getElementById('tipo_cobranca').value = "hora";
+});
+</script>
+
 {% endblock %}
+

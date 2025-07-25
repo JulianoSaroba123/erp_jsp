@@ -291,74 +291,101 @@ def limpar_fornecedor(id):
 @app.route('/ordens_servico')
 def lista_ordens_servico():
     ordens = OrdemServico.query.all()
-    return render_template('lista_ordens_servico.html', ordens=ordens)
+    # passa os=None para evitar erro de variável indefinida no template
+    return render_template('lista_ordens_servico.html', ordens=ordens, os=None)
 
 @app.route('/ordem_servico/novo', methods=['GET', 'POST'])
 @app.route('/ordem_servico/editar/<int:id>', methods=['GET', 'POST'])
 def cadastro_ordem_servico(id=None):
+    # Recupera ou instancia
     os = OrdemServico.query.get(id) if id else None
+    # Option lists
     clientes = Cliente.query.all()
     tipos_servico = TipoServico.query.all()
     servicos = Servico.query.all()
     produtos = Produto.query.all()
-    # Carregar listas para edição
+
+    # Processa JSON salvos
     servicos_json = []
     produtos_json = []
-
-    if os and os.servicos:
+    parcelas_json = []
+    if os:
         try:
-            servicos_json = json.loads(os.servicos)
-        except Exception:
+            servicos_json = json.loads(os.servicos or '[]')
+        except:
             servicos_json = []
-    if os and os.produtos:
         try:
-            produtos_json = json.loads(os.produtos)
-        except Exception:
+            produtos_json = json.loads(os.produtos or '[]')
+        except:
             produtos_json = []
-
-    # Garante que são listas (mesmo se algo estranho acontecer)
-    if not isinstance(servicos_json, list):
-        servicos_json = []
-    if not isinstance(produtos_json, list):
-        produtos_json = []
+        try:
+            parcelas_json = os.parcelas or []
+        except:
+            parcelas_json = []
+    # Garante listas
+    servicos_json = servicos_json if isinstance(servicos_json, list) else []
+    produtos_json = produtos_json if isinstance(produtos_json, list) else []
+    parcelas_json = parcelas_json if isinstance(parcelas_json, list) else []
 
     if request.method == 'POST':
-        # Atualize os campos principais da OS
+        # Cria nova OS se necessário
         if not os:
             os = OrdemServico()
             os.codigo = request.form.get('codigo') or gerar_codigo_os()
             db.session.add(os)
-        else:
-            os.codigo = request.form.get('codigo', os.codigo)
-
+        # Campos básicos
         os.cliente_id = request.form.get('cliente_id')
-        os.codigo = request.form.get('codigo', '')
-        os.tipo_servico = request.form.get('tipo_servico', '')
-        
-        data_emissao_str = request.form.get('data_emissao')
-        previsao_conclusao_str = request.form.get('previsao_conclusao')
+        os.codigo = request.form.get('codigo', os.codigo)
+        os.tipo_servico = request.form.get('tipo_servico','')
+        # Datas
+        d1 = request.form.get('data_emissao')
+        d2 = request.form.get('previsao_conclusao')
+        os.data_emissao = datetime.strptime(d1,'%Y-%m-%d').date() if d1 else None
+        os.previsao_conclusao = datetime.strptime(d2,'%Y-%m-%d').date() if d2 else None
+        # Técnico
+        os.tecnico = request.form.get('tecnico','')
+        # Horários
+        os.hora_inicio = request.form.get('hora_inicio','')
+        os.hora_termino = request.form.get('hora_termino','')
+        os.total_horas = request.form.get('total_horas','')
+        # Quilometragem
+        os.km_inicial = float(request.form.get('km_inicial') or 0)
+        os.km_final = float(request.form.get('km_final') or 0)
+        os.km_total = float(request.form.get('km_total') or 0)
+        os.valor_deslocamento = float(request.form.get('valor_deslocamento') or 0)
+        # Valores
+        os.valor_servicos = float(request.form.get('valor_servicos') or 0)
+        os.valor_produtos = float(request.form.get('valor_produtos') or 0)
+        os.total_geral = float(request.form.get('valor_total') or 0)
+        # Observações e Outras
+        os.observacoes = request.form.get('observacoes','')
+        os.outras_informacoes = request.form.get('outras_informacoes','')
+        # Equipamento
+        os.equipamento_nome = request.form.get('equipamento_nome','')
+        os.equipamento_marca = request.form.get('equipamento_marca','')
+        os.equipamento_modelo = request.form.get('equipamento_modelo','')
+        os.equipamento_numero_serie = request.form.get('equipamento_numero_serie','')
+        os.equipamento_acessorios = request.form.get('equipamento_acessorios','')
+        os.problema_descrito = request.form.get('problema_descrito','')
+        # Descrição do serviço
+        os.descricao_servico_realizado = request.form.get('descricao_servico_realizado','')
+        # Condições de pagamento e parcelamento
+        os.condicoes_pagamento = request.form.get('condicoes_pagamento','')
+        os.pago_parcelado = (os.condicoes_pagamento == 'Parcelado')
+        try:
+            os.parcelas = json.loads(request.form.get('parcelas_json','[]')) if os.pago_parcelado else []
+        except:
+            os.parcelas = []
+        # Serviços e produtos (listas JSON)
+        os.servicos = request.form.get('servicos_json','[]')
+        os.produtos = request.form.get('produtos_json','[]')
+        tipo_cobranca = request.form.get('tipo_cobranca')
+        os.tipo_cobranca = tipo_cobranca
 
-        os.data_emissao = datetime.strptime(data_emissao_str, '%Y-%m-%d').date() if data_emissao_str else None
-        os.previsao_conclusao = datetime.strptime(previsao_conclusao_str, '%Y-%m-%d').date() if previsao_conclusao_str else None
-
-        os.tecnico = request.form.get('tecnico', '')
-        os.hora_inicio = request.form.get('hora_inicio', '')
-        os.hora_termino = request.form.get('hora_termino', '')
-        os.total_horas = request.form.get('total_horas', '')
-        os.km_inicial = request.form.get('km_inicial', '')
-        os.km_final = request.form.get('km_final', '')
-        os.km_total = request.form.get('km_total', '')
-        os.valor_deslocamento = request.form.get('valor_deslocamento', '')
-        os.valor_servicos = request.form.get('valor_servicos', '')
-        os.valor_produtos = request.form.get('valor_produtos', '')
-        os.valor_total = request.form.get('valor_total', '')
-        os.condicoes_pagamento = request.form.get('condicoes_pagamento', '')
-        os.observacoes = request.form.get('observacoes', '')
-        # Recebe os serviços e produtos como JSON
-        os.servicos = request.form.get('servicos_json', '[]')
-        os.produtos = request.form.get('produtos_json', '[]')
         db.session.commit()
         return redirect(url_for('lista_ordens_servico'))
+
+    # GET → renderiza
     return render_template(
         'cadastro_ordem_servico.html',
         os=os,
@@ -368,10 +395,11 @@ def cadastro_ordem_servico(id=None):
         produtos=produtos,
         servicos_salvos=servicos_json,
         produtos_salvos=produtos_json,
+        parcelas_salvas=parcelas_json,
         codigo_gerado=gerar_codigo_os()
     )
 
-@app.route('/ordem_servico/excluir/<int:id>', methods=['GET', 'POST'])
+@app.route('/ordem_servico/excluir/<int:id>', methods=['POST'])
 def excluir_ordem_servico(id):
     os = OrdemServico.query.get_or_404(id)
     db.session.delete(os)
@@ -381,27 +409,22 @@ def excluir_ordem_servico(id):
 @app.route('/ordem_servico/limpar/<int:id>')
 def limpar_ordem_servico(id):
     os = OrdemServico.query.get_or_404(id)
-    os.codigo = ''
-    os.data_emissao = ''
-    os.previsao_conclusao = ''
-    os.tipo_servico = ''
-    os.tecnico = ''
-    os.hora_inicio = ''
-    os.hora_termino = ''
-    os.total_horas = ''
-    os.km_inicial = ''
-    os.km_final = ''
-    os.km_total = ''
-    os.valor_deslocamento = ''
-    os.valor_servicos = ''
-    os.valor_produtos = ''
-    os.valor_total = ''
-    os.condicoes_pagamento = ''
-    os.observacoes = ''
+    # Limpa somente campos editáveis
+    for field in ['cliente_id','tipo_servico','data_emissao','previsao_conclusao',
+                  'tecnico','hora_inicio','hora_termino','total_horas',
+                  'km_inicial','km_final','km_total','valor_deslocamento',
+                  'valor_servicos','valor_produtos','total_geral',
+                  'observacoes','outras_informacoes',
+                  'equipamento_nome','equipamento_marca','equipamento_modelo',
+                  'equipamento_numero_serie','equipamento_acessorios','problema_descrito',
+                  'descricao_servico_realizado','condicoes_pagamento']:
+        setattr(os, field, None)
+    os.parcelas = []
     os.servicos = '[]'
     os.produtos = '[]'
     db.session.commit()
     return redirect(url_for('cadastro_ordem_servico', id=os.id))
+
 
 
 # AUTOCOMPLETE E BUSCAS
