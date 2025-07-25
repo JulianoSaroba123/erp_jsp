@@ -359,16 +359,14 @@ def cadastro_ordem_servico(id=None):
         os.total_geral = float(request.form.get('valor_total') or 0)
         # Observações e Outras
         os.observacoes = request.form.get('observacoes','')
-        os.outras_informacoes = request.form.get('outras_informacoes','')
+        os.equipamento_problema = request.form.get('problema_descrito','')
+        os.outras_informacoes = request.form.get('observacoes','')
         # Equipamento
         os.equipamento_nome = request.form.get('equipamento_nome','')
         os.equipamento_marca = request.form.get('equipamento_marca','')
         os.equipamento_modelo = request.form.get('equipamento_modelo','')
         os.equipamento_numero_serie = request.form.get('equipamento_numero_serie','')
         os.equipamento_acessorios = request.form.get('equipamento_acessorios','')
-        os.problema_descrito = request.form.get('problema_descrito','')
-        # Descrição do serviço
-        os.descricao_servico_realizado = request.form.get('descricao_servico_realizado','')
         # Condições de pagamento e parcelamento
         os.condicoes_pagamento = request.form.get('condicoes_pagamento','')
         os.pago_parcelado = (os.condicoes_pagamento == 'Parcelado')

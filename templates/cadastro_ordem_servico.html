@@ -101,7 +101,7 @@
   </div>
   <div class="col-md-12 mb-3">
     <label>Problema Descrito</label>
-    <textarea class="form-control" name="problema_descrito">{{ os.problema_descrito or '' }}</textarea>
+    <textarea class="form-control" name="problema_descrito">{{ os.equipamento_problema or '' }}</textarea>
   </div>
 </div>
       <!-- 3.1 Serviços Realizados -->
@@ -236,7 +236,7 @@
 
       <!-- 7. Observações -->
       <h5 class="text-primary mt-4">7. Outras Informações</h5>
-          <div class="mb-3"><label class="form-label">Observações</label><textarea name="observacoes" class="form-control" rows="3">{{ os.observacoes if os else '' }}</textarea></div>
+          <div class="mb-3"><label class="form-label">Observações</label><textarea name="observacoes" class="form-control" rows="3">{{ os.outras_informacoes if os else '' }}</textarea></div>
       
       
       <!-- Condições de Pagamento -->
@@ -590,6 +590,23 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('cobranca_fechado').checked = false;
   document.getElementById('tipo_cobranca').value = "hora";
 });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Supondo que parcelas_salvas é passado como JSON seguro pelo Jinja2
+    var parcelas = {{ parcelas_salvas|tojson|safe }};
+    if (parcelas && parcelas.length > 0) {
+        parcelas.forEach(function(parcela) {
+            // Função que já existe no seu JS para adicionar parcelas
+            adicionarParcela(parcela.data, parcela.valor);
+        });
+    }
+});
+
+function adicionarParcela(data, valor) {
+  parcelas.push({data: data, valor: valor});
+  renderParcelas();
+}
 </script>
 
 {% endblock %}
