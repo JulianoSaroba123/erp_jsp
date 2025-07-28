@@ -43,7 +43,7 @@
               <tr>
                 <td>{{ os.codigo }}</td>
                 <td>{{ os.cliente.nome }}</td>
-                <td>{{ os.data_emissao.strftime('%d/%m/%Y') }}</td>
+                <td>{{ os.data_emissao.strftime('%d/%m/%Y') if os.data_emissao else '-' }}</td>
                 <td>{{ os.previsao_conclusao.strftime('%d/%m/%Y') if os.previsao_conclusao else '-' }}</td>
                 <td class="text-center">
                   <div class="d-flex justify-content-center">
@@ -74,6 +74,5 @@
     {% endif %}
   </div>
 </div>
-
 
 {% endblock %}

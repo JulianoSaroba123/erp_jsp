@@ -66,6 +66,9 @@ class OrdemServico(db.Model):
     outras_informacoes = db.Column(db.Text)
     tipo_cobranca = db.Column(db.String(20))
 
+
+    
+
     def __repr__(self):
         return f"<OrdemServico {self.codigo}>"
 

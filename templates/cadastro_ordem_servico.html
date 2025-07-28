@@ -101,7 +101,7 @@
   </div>
   <div class="col-md-12 mb-3">
     <label>Problema Descrito</label>
-    <textarea class="form-control" name="problema_descrito">{{ os.equipamento_problema or '' }}</textarea>
+    <textarea class="form-control" name="problema_descrito">{{ os.descricao_servico_realizado or '' }}</textarea>
   </div>
 </div>
       <!-- 3.1 Serviços Realizados -->
@@ -169,13 +169,13 @@
       <div class="row g-2 mb-3">
         <div class="col-md-3">
           <label class="form-label">Técnico Responsável</label>
-          <input type="text" name="tecnico" class="form-control" value="{{ os.tecnico if os else '' }}">
+          <input type="text" name="tecnico" class="form-control" value="{{ os.tecnico_responsavel if os else '' }}">
         </div>
 
         <!-- Descrição do Serviço Realizado -->
       <div class="form-group">
           <label>Descrição do Serviço Realizado</label>
-          <textarea class="form-control" name="descricao_servico_realizado">{{ os.descricao_servico_realizado or '' }}</textarea>
+          <textarea class="form-control" name="problema_descrito">{{ os.descrição_servico_realizado or '' }}</textarea>
         </div>
       
         <div class="col-md-2">
@@ -236,7 +236,7 @@
 
       <!-- 7. Observações -->
       <h5 class="text-primary mt-4">7. Outras Informações</h5>
-          <div class="mb-3"><label class="form-label">Observações</label><textarea name="observacoes" class="form-control" rows="3">{{ os.outras_informacoes if os else '' }}</textarea></div>
+          <div class="mb-3"><label class="form-label">Observações</label><textarea name="outras_informacoes" class="form-control" rows="3">{{ os.outras_informacoes if os else '' }}</textarea></div>
       
       
       <!-- Condições de Pagamento -->
@@ -607,6 +607,158 @@ function adicionarParcela(data, valor) {
   parcelas.push({data: data, valor: valor});
   renderParcelas();
 }
+</script>
+<script>
+function calcularValorServicosInstantaneo() {
+  // Serviços já adicionados
+  const listaServicos = JSON.parse(document.getElementById('servicos_json').value || '[]');
+  let somaServicos = listaServicos.reduce((a, i) => a + i.qtd * i.valor, 0);
+
+  // Serviço que está sendo digitado
+  const qtd = parseInt(document.getElementById('servico_qtd').value) || 0;
+  const valor = parseFloat(document.getElementById('servico_valor').value) || 0;
+  const nome = document.getElementById('servico_nome').value;
+  if (nome && qtd > 0 && valor > 0) {
+    somaServicos += qtd * valor;
+  }
+
+  // Lógica de cobrança por hora
+  let valorServicos = somaServicos;
+  if (document.getElementById('cobranca_hora').checked) {
+    const totalHoras = parseFloat(document.getElementById('total_horas').value.replace(',', '.')) || 0;
+    valorServicos = somaServicos * totalHoras;
+  }
+
+  document.getElementById('valor_servicos').value = valorServicos.toFixed(2);
+
+  // Atualiza o total geral também
+  const vp = parseFloat(document.getElementById('valor_produtos').value) || 0;
+  const vd = parseFloat(document.getElementById('valor_deslocamento').value) || 0;
+  document.getElementById('valor_total').value = (valorServicos + vp + vd).toFixed(2);
+}
+
+// Eventos para atualizar em tempo real
+['servico_nome', 'servico_qtd', 'servico_valor', 'total_horas', 'cobranca_hora', 'cobranca_fechado'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', calcularValorServicosInstantaneo);
+  if (el && (id === 'cobranca_hora' || id === 'cobranca_fechado')) el.addEventListener('change', calcularValorServicosInstantaneo);
+});
+</script>
+<script>
+function calcularValoresOS() {
+  // Serviços já adicionados
+  const listaServicos = JSON.parse(document.getElementById('servicos_json').value || '[]');
+  let somaServicos = listaServicos.reduce((a, i) => a + i.qtd * i.valor, 0);
+
+  // Serviço que está sendo digitado (mas ainda não adicionado)
+  const qtd = parseInt(document.getElementById('servico_qtd').value) || 0;
+  const valor = parseFloat(document.getElementById('servico_valor').value) || 0;
+  const nome = document.getElementById('servico_nome').value;
+  if (nome && qtd > 0 && valor > 0) {
+    somaServicos += qtd * valor;
+  }
+
+  // Lógica de cobrança por hora
+  let valorServicos = somaServicos;
+  if (document.getElementById('cobranca_hora').checked) {
+    const totalHoras = parseFloat(document.getElementById('total_horas').value.replace(',', '.')) || 0;
+    valorServicos = somaServicos * totalHoras;
+  }
+
+  document.getElementById('valor_servicos').value = valorServicos.toFixed(2);
+
+  // Produtos e deslocamento
+  const vp = parseFloat(document.getElementById('valor_produtos').value) || 0;
+  const vd = parseFloat(document.getElementById('valor_deslocamento').value) || 0;
+  document.getElementById('valor_total').value = (valorServicos + vp + vd).toFixed(2);
+}
+
+// Atualiza o total de horas em decimal e chama o cálculo
+function calcularTotalHorasDecimal() {
+  const horaInicio = document.getElementById('hora_inicio').value;
+  const horaTermino = document.getElementById('hora_termino').value;
+  if (!horaInicio || !horaTermino) {
+    document.getElementById('total_horas').value = '';
+    calcularValoresOS();
+    return;
+  }
+  const [h1, m1] = horaInicio.split(':').map(Number);
+  const [h2, m2] = horaTermino.split(':').map(Number);
+  if (isNaN(h1) || isNaN(m1) || isNaN(h2) || isNaN(m2)) {
+    document.getElementById('total_horas').value = '';
+    calcularValoresOS();
+    return;
+  }
+  let diff = (h2 * 60 + m2) - (h1 * 60 + m1);
+  diff = diff < 0 ? 0 : diff;
+  const horasDecimais = (diff / 60).toFixed(2);
+  document.getElementById('total_horas').value = horasDecimais;
+  calcularValoresOS();
+}
+
+// Eventos para atualizar em tempo real
+['servico_nome', 'servico_qtd', 'servico_valor', 'total_horas', 'cobranca_hora', 'cobranca_fechado', 'valor_produtos', 'valor_deslocamento'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', calcularValoresOS);
+  if (el && (id === 'cobranca_hora' || id === 'cobranca_fechado')) el.addEventListener('change', calcularValoresOS);
+});
+['hora_inicio','hora_termino'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', calcularTotalHorasDecimal);
+});
+
+// Chame também ao adicionar/remover serviço/produto
+window.atualizarTabelaServicos = function() {
+  const listaServicos = JSON.parse(document.getElementById('servicos_json').value || '[]');
+  const tbody = document.querySelector('#tabela-servicos tbody');
+  tbody.innerHTML = '';
+  listaServicos.forEach((item, idx) => {
+    tbody.insertAdjacentHTML('beforeend', `
+      <tr>
+        <td>${item.nome}</td>
+        <td>${item.qtd}</td>
+        <td>R$ ${item.valor.toFixed(2)}</td>
+        <td>R$ ${(item.qtd*item.valor).toFixed(2)}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="removerServico(${idx})">X</button></td>
+      </tr>`);
+  });
+  document.getElementById('servicos_json').value = JSON.stringify(listaServicos);
+  calcularValoresOS();
+};
+window.atualizarTabelaProdutos = function() {
+  const listaProdutos = JSON.parse(document.getElementById('produtos_json').value || '[]');
+  const tbody = document.querySelector('#tabela-produtos tbody');
+  tbody.innerHTML = '';
+  listaProdutos.forEach((item, idx) => {
+    tbody.insertAdjacentHTML('beforeend', `
+      <tr>
+        <td>${item.nome}</td>
+        <td>${item.qtd}</td>
+        <td>R$ ${item.valor.toFixed(2)}</td>
+        <td>R$ ${(item.qtd*item.valor).toFixed(2)}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="removerProduto(${idx})">X</button></td>
+      </tr>`);
+  });
+  document.getElementById('produtos_json').value = JSON.stringify(listaProdutos);
+  calcularValoresOS();
+};
+
+// Chame ao carregar a página
+document.addEventListener('DOMContentLoaded', calcularValoresOS);
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Se o campo total_horas está no formato HH:MM, converte para decimal
+  const totalHorasInput = document.getElementById('total_horas');
+  if (totalHorasInput && totalHorasInput.value && totalHorasInput.value.includes(':')) {
+    const [h, m] = totalHorasInput.value.split(':').map(Number);
+    if (!isNaN(h) && !isNaN(m)) {
+      totalHorasInput.value = (h + m/60).toFixed(2);
+    }
+  }
+  // Recalcula valores ao carregar
+  if (typeof calcularValoresOS === 'function') calcularValoresOS();
+});
 </script>
 
 {% endblock %}
