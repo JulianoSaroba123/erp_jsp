@@ -175,7 +175,7 @@
         <!-- Descrição do Serviço Realizado -->
       <div class="form-group">
           <label>Descrição do Serviço Realizado</label>
-          <textarea class="form-control" name="problema_descrito">{{ os.descrição_servico_realizado or '' }}</textarea>
+          <textarea class="form-control" name="descricao_servico_realizado">{{ os.descricao_servico_realizado or '' }}</textarea>
         </div>
       
         <div class="col-md-2">
@@ -250,7 +250,7 @@
       </div>
 
       <!-- Parcelas -->
-      <div id="parcelas-section" style="display: {% if os.condicoes_pagamento == 'Parcelado' %}block{% else %}none{% endif %};">
+      <div id="parcelas-section" style="display: '{{ 'block' if os and os.condicoes_pagamento == 'Parcelado' else 'none' }}';">
   <div class="row align-items-end mb-2">
     <div class="col-md-3">
       <label for="qtd_parcelas" class="form-label mb-1">Qtd. Parcelas</label>
@@ -406,7 +406,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const nome = document.getElementById('servico_nome').value;
     const qtd = parseInt(document.getElementById('servico_qtd').value)||1;
     const valor = parseFloat(document.getElementById('servico_valor').value)||0;
-    if(nome) { listaServicos.push({nome,qtd,valor}); atualizarTabelaServicos(); }
+    // Pega o valor de horas, aceita tanto decimal quanto HH:MM
+    const totalHorasStr = document.getElementById('total_horas').value;
+    let qtd_horas = 0;
+    if (totalHorasStr && totalHorasStr.includes(':')) {
+      const [h, m] = totalHorasStr.split(':').map(Number);
+      qtd_horas = h + (m/60);
+    } else {
+      qtd_horas = parseFloat(totalHorasStr.replace(',', '.')) || 0;
+    }
+    if(nome) {
+      listaServicos.push({nome, qtd, valor, qtd_horas});
+      atualizarTabelaServicos();
+    }
     ['servico_nome','servico_qtd','servico_valor'].forEach(id => document.getElementById(id).value = id.includes('qtd')?1:'' );
   }
   function adicionarProduto() {
@@ -472,12 +484,15 @@ document.addEventListener('DOMContentLoaded', () => {
   ['km_inicial','km_final'].forEach(id=>document.getElementById(id).addEventListener('input', () => { calcularKmTotal(); calcularValorDeslocamento(); }));
 
   function calcularValorDeslocamento() {
-    const km = parseFloat(document.getElementById('km_total').value)||0;
-    const faixas = [{max:10,val:25},{max:20,val:44},{max:30,val:66},{max:40,val:88},{max:50,val:110}];
-    let val = faixas.find(f=>km<=f.max)?.val||0;
-    if(km>0&&km<=10&&val<25) val=25;
-    document.getElementById('valor_deslocamento').value = val.toFixed(2);
+  const km = parseFloat(document.getElementById('km_total').value)||0;
+  let val = 0;
+  if (km >= 50) {
+    // Defina o valor desejado para deslocamento acima de 50km
+    // Exemplo: R$2 por km acima de 50km
+    val = (km - 50) * 2;
   }
+  document.getElementById('valor_deslocamento').value = val.toFixed(2);
+}
 
   function calcularValores() {
     const vs = listaServicos.reduce((a,i)=>a+i.qtd*i.valor,0);
@@ -512,43 +527,20 @@ document.addEventListener('DOMContentLoaded', () => {
   atualizarTabelaProdutos();
 });
 </script>
-<script>
-// Preenche dados do cliente ao selecionar
-document.addEventListener('DOMContentLoaded', () => {
-  const sel = document.getElementById('cliente_id');
-  const preencher = () => {
-    const opt = sel.options[sel.selectedIndex] || {};
-    ['cpf','telefone','email','endereco'].forEach(id => {
-      document.getElementById(id).value = opt.dataset[id] || '';
-    });
-  };
-  sel.addEventListener('change', preencher);
-  preencher();
-});
-</script>
-<script>
-function toggleParcelas() {
-  const cond = document.getElementById('condicoes_pagamento').value;
-  document.getElementById('parcelas-section').style.display = cond === 'Parcelado' ? 'block' : 'none';
-}
-// Chama ao carregar a página para garantir o estado correto
-document.addEventListener('DOMContentLoaded', toggleParcelas);
-</script>
-
 <!-- Tipo de cobrança -->
 <div class="row mb-2">
   <div class="col-md-6">
     <div class="form-check form-check-inline">
-      <input class="form-check-input" type="checkbox" id="cobranca_hora" onchange="atualizarTipoCobranca()" checked>
+      <input class="form-check-input" type="checkbox" id="cobranca_hora" onchange="atualizarTipoCobranca()" checked />
       <label class="form-check-label" for="cobranca_hora">Cobrança por Hora</label>
     </div>
     <div class="form-check form-check-inline">
-      <input class="form-check-input" type="checkbox" id="cobranca_fechado" onchange="atualizarTipoCobranca()">
+      <input class="form-check-input" type="checkbox" id="cobranca_fechado" onchange="atualizarTipoCobranca()" />
       <label class="form-check-label" for="cobranca_fechado">Serviço Fechado</label>
     </div>
   </div>
 </div>
-<input type="hidden" name="tipo_cobranca" id="tipo_cobranca" value="hora">
+<input type="hidden" name="tipo_cobranca" id="tipo_cobranca" value="hora" />
 <script>
 function atualizarTipoCobranca() {
   // Permite apenas um selecionado
@@ -594,7 +586,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Supondo que parcelas_salvas é passado como JSON seguro pelo Jinja2
-    var parcelas = {{ parcelas_salvas|tojson|safe }};
+    var parcelas = JSON.parse('{{ parcelas_salvas|default([])|tojson|safe }}');
     if (parcelas && parcelas.length > 0) {
         parcelas.forEach(function(parcela) {
             // Função que já existe no seu JS para adicionar parcelas
@@ -760,6 +752,8 @@ document.addEventListener('DOMContentLoaded', function() {
   if (typeof calcularValoresOS === 'function') calcularValoresOS();
 });
 </script>
-
+<a href="{{ url_for('pdf_os', os_id=os.id) }}" class="btn btn-danger" target="_blank">
+  <i class="bi bi-file-earmark-pdf"></i> Gerar PDF da OS
+</a>
 {% endblock %}
 

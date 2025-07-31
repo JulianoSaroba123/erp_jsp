@@ -1,190 +1,200 @@
-{% extends "base.html" %}
-{% block conteudo %}
+{% extends 'base.html' %}
+{% block content %}
 
 <style>
-@media print {
-  .print-hide { display: none !important; }
-  .container { margin: 0 !important; max-width: 100% !important; box-shadow: none !important; }
-  .card { box-shadow: none !important; border: none !important; }
-  body { background: #fff !important; }
-}
-.assinatura-hr { margin: 40px 0 5px; border-top: 1px solid #333; }
+@media print { .print-hide { display: none !important; } }
+h2 { color: #1976d2; margin-top:1.5em; }
+table { width:100%; border-collapse: collapse; margin-bottom:1em; }
+th, td { border:1px solid #ccc; padding:6px; }
+th { background:#f5f5f5; text-align:left; }
+.summary-item { margin:0.2em 0; }
+.signature { width:45%; display:inline-block; text-align:center; margin-top:3em; }
 </style>
 
 <div class="container mt-4">
-  <div class="card shadow-sm p-4">
-    <!-- Cabeçalho customizado -->
-    <div class="row align-items-center mb-4">
-      <div class="col-md-2 text-center">
-        <img src="{{ url_for('static', filename='Logotipo JSP.png') }}" alt="Logo" style="max-width: 100%; height: auto;">
-      </div>
-      <div class="col-md-10">
-        <h4 class="mb-1">ELETRICA SAROBA & SOLAR</h4>
-        <p class="mb-0">RUA INDALÉCIO COSTA 890 - BARRA FUNDA - TIETÊ/SP CEP: 18530370</p>
-        <p class="mb-0">CNPJ/CPF: 41.280.764/0001-65</p>
-        <p class="mb-0">Contato: (15) 99670-2036 ou 15 99670-2587 - E-mail: atendimento@eletricasaroba.com.br - Site: www.eletricasaroba.com.br</p>
-      </div>
-    </div>
 
-    <h2 class="mb-4 text-center">Resumo da Ordem de Serviço</h2>
+  <!-- cabeçalho -->
+  <div class="text-center mb-4">
+    <img src="{{ url_for('static', filename='Logotipo JSP.png') }}"
+         alt="Logo" style="max-height:80px;">
+    <h4>JSP ELÉTRICA, INDUSTRIAL E SOLAR</h4>
+    <p>Rua Indalécio Costa, 890 – Barra Funda – Tietê/SP | (15) 99670‑2036</p>
+  </div>
 
-    <div class="d-flex justify-content-between mb-3 print-hide">
-      <a href="{{ url_for('lista_ordens_servico') }}" class="btn btn-secondary">
-        <i class="bi bi-arrow-left"></i> Voltar
+<div class="container mt-4">
+  <div class="card p-4">
+
+    <!-- VOLTAR E IMPRIMIR -->
+    <div style="margin-bottom: 20px;" class="print-hide">
+      <a href="{{ url_for('lista_ordens_servico') }}" class="btn btn-secondary" style="margin-right: 8px;">Voltar</a>
+      <a href="{{ url_for('relatorio_cliente_print', os_id=os.id) }}" target="_blank" style="text-decoration: none; margin-right: 8px;">
+        <button type="button" style="
+          background: #1976d2;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          padding: 6px 18px;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: background 0.2s;
+        " onmouseover="this.style.background='#125ea1'" onmouseout="this.style.background='#1976d2'">
+          Imprimir
+        </button>
       </a>
-      <button class="btn btn-primary" onclick="window.print()">
-        <i class="bi bi-printer"></i> Imprimir
-      </button>
+      <a href="{{ url_for('relatorio_cliente_print', os_id=os.id) }}?pdf=1" target="_blank" style="text-decoration: none;">
+        <button type="button" style="
+          background: #e53935;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          padding: 6px 18px;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: background 0.2s;
+        " onmouseover="this.style.background='#c62828'" onmouseout="this.style.background='#e53935'">
+          Gerar Relatório
+        </button>
+      </a>
     </div>
 
-    <!-- Dados Principais -->
-    <h5 class="text-primary">Dados do Cliente</h5>
-    <div class="row mb-2">
-      <div class="col-md-6"><strong>Cliente:</strong> {{ os.cliente.nome }}</div>
-      <div class="col-md-6"><strong>CPF/CNPJ:</strong> {{ os.cliente.cpf_cnpj }}</div>
-    </div>
-    <div class="row mb-2">
-      <div class="col-md-6"><strong>Data:</strong> {{ os.data_emissao.strftime('%d/%m/%Y') }}</div>
-      <div class="col-md-6"><strong>Código OS:</strong> {{ os.codigo }}</div>
-    </div>
+    <!-- DADOS DO CLIENTE -->
+    <h2>Dados do Cliente</h2>
+    <table>
+      <tr><th>Nome</th><td>{{ os.cliente.nome }}</td></tr>
+      <tr><th>CPF/CNPJ</th><td>{{ os.cliente.cpf_cnpj }}</td></tr>
+      <tr><th>Telefone</th><td>{{ os.cliente.telefone }}</td></tr>
+      <tr><th>Email</th><td>{{ os.cliente.email }}</td></tr>
+      <tr><th>Endereço</th><td>{{ os.cliente.endereco }}</td></tr>
+    </table>
 
-    <!-- Serviços -->
-    <h5 class="text-primary mt-4">Serviços Realizados</h5>
-    <table class="table table-bordered table-sm">
-      <thead class="table-light">
+    <!-- SERVIÇOS REALIZADOS -->
+    <h5 class="text-primary">Serviços Realizados</h5>
+    <table class="table">
+      <thead>
         <tr>
           <th>Serviço</th>
-          <th>Qtd</th>
+          <th>Horas</th>
           <th>Valor Unitário</th>
           <th>Valor Total</th>
         </tr>
       </thead>
       <tbody>
-        {% for s in servicos %}
+        {% for s in servicos_realizados %}
           <tr>
             <td>{{ s.nome }}</td>
-            <td>{{ s.qtd or 1 }}</td>
-            <td>
-              {% if s.valor is defined %}
-                R$ {{ '%.2f'|format(s.valor) }}
-              {% else %}
-                -
-              {% endif %}
-            </td>
-            <td>
-              {% if s.valor is defined and s.qtd is defined %}
-                R$ {{ '%.2f'|format(s.valor * s.qtd) }}
-              {% elif s.valor is defined %}
-                R$ {{ '%.2f'|format(s.valor) }}
-              {% else %}
-                -
-              {% endif %}
-            </td>
+            <td>{{ s.qtd_horas }}</td>
+            <td>R$ {{ '%.2f'|format(s.valor) }}</td>
+            <td>R$ {{ '%.2f'|format(s.qtd_horas * s.valor) }}</td>
           </tr>
-        {% else %}
-          <tr><td colspan="4" class="text-muted text-center">Nenhum serviço informado.</td></tr>
         {% endfor %}
       </tbody>
+    
     </table>
 
-    <!-- Produtos -->
+    <!-- PRODUTOS UTILIZADOS -->
     <h5 class="text-primary mt-4">Produtos Utilizados</h5>
-    <table class="table table-bordered table-sm">
-      <thead class="table-light">
+    <table class="table">
+      <thead>
         <tr>
           <th>Produto</th>
-          <th>Qtd</th>
-          <th>Valor Unitário</th>
+          <th>Quant</th>
+          <th>Valor Unit</th>
           <th>Valor Total</th>
         </tr>
       </thead>
       <tbody>
-        {% for p in produtos %}
+        {% for p in produtos_utilizados %}
           <tr>
             <td>{{ p.nome }}</td>
-            <td>{{ p.qtd or 1 }}</td>
-            <td>
-              {% if p.valor is defined %}
-                R$ {{ '%.2f'|format(p.valor) }}
-              {% else %}
-                -
-              {% endif %}
-            </td>
-            <td>
-              {% if p.valor is defined and p.qtd is defined %}
-                R$ {{ '%.2f'|format(p.valor * p.qtd) }}
-              {% elif p.valor is defined %}
-                R$ {{ '%.2f'|format(p.valor) }}
-              {% else %}
-                -
-              {% endif %}
-            </td>
+            <td>{{ p.qtd }}</td>
+            <td>R$ {{ '%.2f'|format(p.valor) }}</td>
+            <td>R$ {{ '%.2f'|format(p.qtd * p.valor) }}</td>
           </tr>
-        {% else %}
-          <tr><td colspan="4" class="text-muted text-center">Nenhum produto informado.</td></tr>
         {% endfor %}
       </tbody>
     </table>
 
-    <!-- Totais alinhados à direita, estilo modelo da imagem -->
-    <div class="row">
-      <div class="col-12">
-        <table style="width: 300px; float: right; font-size: 1rem;">
-          <tr>
-            <td style="text-align: right;">Total Produtos (R$):</td>
-            <td style="text-align: right;">{{ '%.2f'|format(os.total_produtos|default(0)) }}</td>
-          </tr>
-          <tr>
-            <td style="text-align: right;">Total Serviços (R$):</td>
-            <td style="text-align: right;">{{ '%.2f'|format(os.total_servicos|default(0)) }}</td>
-          </tr>
-          <tr>
-            <td style="text-align: right;">Acréscimo (R$):</td>
-            <td style="text-align: right;">{{ '%.2f'|format(os.valor_deslocamento|default(0)) }}</td>
-          </tr>
-          <tr>
-            <td style="text-align: right;">Desconto (R$):</td>
-            <td style="text-align: right;">{{ '%.2f'|format(os.desconto|default(0)) }}</td>
-          </tr>
-          <tr>
-            <td style="text-align: right; font-weight: bold; color: #0056b3;">Valor Total (R$):</td>
-            <td style="text-align: right; font-weight: bold; color: #0056b3;">
-              {{
-                (
-                  (servicos | map(attribute='valor') | sum if servicos else 0)
-                  +
-                  (produtos | map(attribute='valor') | sum if produtos else 0)
-                  +
-                  (os.valor_deslocamento|default(0))
-                  -
-                  (os.desconto|default(0))
-                ) | float | round(2)
-              }}
-            </td>
-          </tr>
-        </table>
-      </div>
+        <!-- EQUIPAMENTOS -->
+    <h2>Equipamento</h2>
+    <table>
+      <tr>
+        <th>Equipamento</th>
+        <th>Marca</th>
+        <th>Modelo</th>
+        <th>Nº de Série</th>
+      </tr>
+      <tr>
+        <td>{{ os.equipamento_nome }}</td>
+        <td>{{ os.equipamento_marca }}</td>
+        <td>{{ os.equipamento_modelo }}</td>
+        <td>{{ os.equipamento_numero_serie }}</td>
+      </tr>
+      <tr>
+        <th colspan="1">Acessórios</th>
+        <td colspan="3">{{ os.equipamento_acessorios }}</td>
+      </tr>
+    </table>
+
+    <h2>Técnico Responsável</h2>
+    <p>{{ os.tecnico_responsavel }}</p>
+
+    <h2>Problema Descrito</h2>
+    <p>{{ os.problema_descrito or os.descricao_servico_realizado }}</p>
+
+    <h2>Descrição do Serviço Realizado</h2>
+    <p>{{ os.descricao_servico_realizado }}</p>
+
+    <h5 class="text-primary mt-4">Resumo Financeiro</h5>
+    <ul>
+      <li>Total Serviços: R$ {{ '%.2f'|format(total_servicos) }}</li>
+      <li>Total Produtos: R$ {{ '%.2f'|format(total_produtos) }}</li>
+      <li><strong>Valor Total:</strong> R$ {{ '%.2f'|format(valor_total) }}</li>
+    </ul>
+    
+    <!-- Parcelas -->
+    <div id="parcelas-section" style="display: '{% if os and os.condicoes_pagamento == 'Parcelado' %}block{% else %}none{% endif %}';">
+      {% if parcelas_salvas %}
+      <h2>Parcelas do Pagamento</h2>
+      <table>
+        <tr>
+          <th>Vencimento</th><th>Valor Total (R$)</th><th>Situação</th>
+        </tr>
+        {% for parcelas_json in parcelas_salvas %}
+        <tr>
+          <td>
+            {%- set venc = parcelas_json.vencimento or parcelas_json.data or '' -%}
+            {%- if venc %}
+              {%- if venc.__class__.__name__ == 'date' -%}
+                {{ venc.strftime('%d/%m/%Y') }}
+              {%- elif '-' in venc -%}
+                {{ venc.split('T')[0].split(' ')[0].split('-')|reverse|join('/') }}
+              {%- else -%}
+                {{ venc }}
+              {%- endif -%}
+            {%- endif %}
+          </td>
+          <td>R$ {{ "%.2f"|format(parcelas_json.valor|float) }}</td>
+          <td>{{ parcelas_json.situacao or 'Em aberto' }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% endif %}
     </div>
 
-    <!-- Observações -->
-    {% if os.observacoes %}
-      <h5 class="text-primary mt-3">Observações</h5>
-      <p>{{ os.observacoes }}</p>
-    {% endif %}
-
-    <!-- Assinaturas -->
-    <div class="row mt-5">
-      <div class="col-md-6 text-center">
-        <div class="assinatura-hr"></div>
-        <p>Assinatura do Técnico</p>
-      </div>
-      <div class="col-md-6 text-center">
-        <div class="assinatura-hr"></div>
-        <p>Assinatura do Cliente</p>
-      </div>
-    </div>
-
+    <table class="assinaturas" width="100%">
+      <tr>
+        <td>_________________________<br>Assinatura do Técnico</td>
+        <td>_________________________<br>Assinatura do Cliente</td>
+      </tr>
+    </table>
   </div>
 </div>
+
+<script>
+const valorServicos = {{ total_servicos }};
+const vp = parseFloat(document.getElementById('valor_pedido').value) || 0;
+const vd = parseFloat(document.getElementById('valor_deslocamento').value)||0;
+document.getElementById('valor_total').value = (valorServicos+vp+vd).toFixed(2);
+</script>
 
 {% endblock %}

@@ -519,10 +519,6 @@ def exportar_pdf():
     nome_arquivo = f"Clientes_JSP_{datetime.now().strftime('%Y-%m-%d')}.pdf"
     return send_file(caminho, as_attachment=True, download_name=nome_arquivo)
 
-@app.route('/ordem_servico/<int:os_id>/imprimir')
-def imprimir_os(os_id):
-    os = OrdemServico.query.get_or_404(os_id)
-    return render_template('impressao_os.html', os=os)
 
 @app.route('/ordem_servico/<int:os_id>/pdf')
 def pdf_os(os_id):
@@ -554,53 +550,128 @@ def gerar_pdf(html_content):
 @app.route('/ordem_servico/<int:os_id>/relatorio_cliente')
 def relatorio_cliente(os_id):
     os = OrdemServico.query.get_or_404(os_id)
-    # Parse dos serviços e produtos
-    try:
-        servicos = json.loads(os.servicos) if os.servicos else []
-    except Exception:
-        servicos = []
-    try:
-        produtos = json.loads(os.produtos) if os.produtos else []
-    except Exception:
-        produtos = []
+    servicos_realizados = json.loads(os.servicos or '[]')
+    produtos_utilizados = json.loads(os.produtos or '[]')
+    parcelas_salvas = os.parcelas if isinstance(os.parcelas, list) else json.loads(os.parcelas or '[]')
+
+    for s in servicos_realizados:
+        s['valor'] = float(s.get('valor') or 0)
+        try:
+            s['qtd_horas'] = float(s.get('qtd_horas')) if s.get('qtd_horas') not in [None, '', 'null'] else 0.0
+        except Exception:
+            s['qtd_horas'] = 0.0
+    for p in produtos_utilizados:
+        p['valor'] = float(p.get('valor') or 0)
+        p['qtd'] = float(p.get('qtd') or 0)
+
+    total_servicos = sum(s['qtd_horas'] * s['valor'] for s in servicos_realizados)
+    total_produtos = sum(p['qtd'] * p['valor'] for p in produtos_utilizados)
+
+    # AJUSTE: valor_total = soma das parcelas, se existirem
+    if parcelas_salvas:
+        valor_total = sum(float(p['valor']) for p in parcelas_salvas)
+    else:
+        valor_total = total_servicos + total_produtos
+
     return render_template(
         'relatorio_cliente.html',
         os=os,
-        servicos=servicos,
-        produtos=produtos
+        servicos_realizados=servicos_realizados,
+        produtos_utilizados=produtos_utilizados,
+        total_servicos=total_servicos,
+        total_produtos=total_produtos,
+        valor_total=valor_total,
+        parcelas_salvas=parcelas_salvas or []
     )
 
-# Relatório Técnico Completo (igual cadastro_ordem_servico)
-@app.route('/ordem_servico/<int:os_id>/relatorio_os')
-def relatorio_os(os_id):
+@app.route('/ordem_servico/<int:os_id>/relatorio_cliente_print')
+def relatorio_cliente_print(os_id):
     os = OrdemServico.query.get_or_404(os_id)
-    clientes = Cliente.query.all()
-    tipos_servico = TipoServico.query.all()
-    servicos_os = []
-    produtos_os = []
-    if os and os.servicos:
-        try:
-            servicos_os = json.loads(os.servicos)
-        except Exception:
-            servicos_os = []
-    if os and os.produtos:
-        try:
-            produtos_os = json.loads(os.produtos)
-        except Exception:
-            produtos_os = []
-    servicos = Servico.query.all()
-    produtos = Produto.query.all()
+    servicos_realizados = json.loads(os.servicos or '[]')
+    produtos_utilizados = json.loads(os.produtos or '[]')
+    parcelas_salvas = os.parcelas if isinstance(os.parcelas, list) else json.loads(os.parcelas or '[]')
+
+    for s in servicos_realizados:
+        s['valor'] = float(s.get('valor') or 0)
+        s['qtd_horas'] = float(s.get('qtd_horas') or s.get('qtd') or 0)
+    for p in produtos_utilizados:
+        p['valor'] = float(p.get('valor') or 0)
+        p['qtd'] = float(p.get('qtd') or 0)
+
+    total_servicos = sum(s['qtd_horas'] * s['valor'] for s in servicos_realizados)
+    total_produtos = sum(p['qtd'] * p['valor'] for p in produtos_utilizados)
+
+    if parcelas_salvas:
+        valor_total = sum(float(p['valor']) for p in parcelas_salvas)
+    else:
+        valor_total = total_servicos + total_produtos
+
+    # --- PDF GERAR ---
+    if request.args.get('pdf') == '1':
+        rendered = render_template(
+            'relatorio_cliente_print.html',
+            os=os,
+            servicos_realizados=servicos_realizados,
+            produtos_utilizados=produtos_utilizados,
+            total_servicos=total_servicos,
+            total_produtos=total_produtos,
+            valor_total=valor_total,
+            parcelas_salvas=parcelas_salvas or []
+        )
+        from weasyprint import HTML
+        import io
+        pdf_file = io.BytesIO()
+        HTML(string=rendered).write_pdf(pdf_file)
+        pdf_file.seek(0)
+        # Nome do arquivo: OS{codigo}_{data}.pdf
+        data_str = os.data_emissao.strftime('%d-%m-%Y') if os.data_emissao else datetime.now().strftime('%d-%m-%Y')
+        filename = f"OS{os.codigo}_{data_str}.pdf"
+        return send_file(pdf_file, as_attachment=True, download_name=filename, mimetype='application/pdf')
+
+    # --- HTML NORMAL ---
     return render_template(
-        'cadastro_ordem_servico.html',
+        'relatorio_cliente_print.html',
         os=os,
-        clientes=clientes,
-        tipos_servico=tipos_servico,
-        produtos_os=produtos_os,
-        servicos_os=servicos_os,  # <-- Adicione isso!
-        servicos=servicos,
-        produtos=produtos,
-        relatorio=True  # Use esta flag no template para modo somente leitura, se desejar
+        servicos_realizados=servicos_realizados,
+        produtos_utilizados=produtos_utilizados,
+        total_servicos=total_servicos,
+        total_produtos=total_produtos,
+        valor_total=valor_total,
+        parcelas_salvas=parcelas_salvas or []
     )
+
+
+# Relatório Técnico Completo (igual cadastro_ordem_servico)
+# @app.route('/ordem_servico/<int:os_id>/relatorio_os')
+# def relatorio_os(os_id):
+#     os = OrdemServico.query.get_or_404(os_id)
+#     clientes = Cliente.query.all()
+#     tipos_servico = TipoServico.query.all()
+#     servicos_os = []
+#     produtos_os = []
+#     if os and os.servicos:
+#         try:
+#             servicos_os = json.loads(os.servicos)
+#         except Exception:
+#             servicos_os = []
+#     if os and os.produtos:
+#         try:
+#             produtos_os = json.loads(os.produtos)
+#         except Exception:
+#             produtos_os = []
+#     servicos = Servico.query.all()
+#     produtos = Produto.query.all()
+#     return render_template(
+#         'cadastro_ordem_servico.html',
+#         os=os,
+#         clientes=clientes,
+#         tipos_servico=tipos_servico,
+#         produtos_os=produtos_os,
+#         servicos_os=servicos_os,
+#         servicos=servicos,
+#         produtos=produtos,
+#         relatorio=True
+#     )
 
 def ordem_servico_to_dict(os):
     if not os:

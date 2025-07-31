@@ -72,3 +72,4 @@ class OrdemServico(db.Model):
     def __repr__(self):
         return f"<OrdemServico {self.codigo}>"
 
+   
