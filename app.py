@@ -597,15 +597,9 @@ def relatorio_cliente_print(os_id):
     produtos_utilizados = json.loads(os.produtos or '[]')
     parcelas_salvas = os.parcelas if isinstance(os.parcelas, list) else json.loads(os.parcelas or '[]')
 
-    for s in servicos_realizados:
-        s['valor'] = float(s.get('valor') or 0)
-        s['qtd_horas'] = float(s.get('qtd_horas') or s.get('qtd') or 0)
-    for p in produtos_utilizados:
-        p['valor'] = float(p.get('valor') or 0)
-        p['qtd'] = float(p.get('qtd') or 0)
-
-    total_servicos = sum(s['qtd_horas'] * s['valor'] for s in servicos_realizados)
-    total_produtos = sum(p['qtd'] * p['valor'] for p in produtos_utilizados)
+    # Use o valor salvo na OS
+    total_servicos = os.valor_servicos or 0
+    total_produtos = os.valor_produtos or 0
 
     if parcelas_salvas:
         valor_total = sum(float(p['valor']) for p in parcelas_salvas)
