@@ -376,6 +376,25 @@ def cadastro_ordem_servico(id=None):
         os.servicos = request.form.get('servicos_json','[]')
         os.produtos = request.form.get('produtos_json','[]')
         os.tipo_cobranca = request.form.get('tipo_cobranca')
+
+        # Calcular total dos serviços e produtos a partir dos itens salvos
+        try:
+            servicos_json_salvos = json.loads(request.form.get('servicos_json', '[]'))
+            produtos_json_salvos = json.loads(request.form.get('produtos_json', '[]'))
+        except Exception:
+            servicos_json_salvos = []
+            produtos_json_salvos = []
+
+        os.valor_servicos = sum(
+            float(s.get('qtd_horas', s.get('qtd', 0)) or 0) * float(s.get('valor', 0) or 0)
+            for s in servicos_json_salvos
+        )
+        os.valor_produtos = sum(
+            float(p.get('qtd', 0) or 0) * float(p.get('valor', 0) or 0)
+            for p in produtos_json_salvos
+        )
+        os.total_geral = os.valor_servicos + os.valor_produtos + float(request.form.get('valor_deslocamento') or 0)
+
         db.session.commit()
         return redirect(url_for('lista_ordens_servico'))
 
