@@ -2,6 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ordem de Serviço OS {{ os.codigo }}</title>
   <style>
     @page { size: A4 portrait; margin: 18mm 15mm 18mm 15mm; }
@@ -112,13 +113,22 @@
         print-color-adjust: exact;
       }
     }
+    .table-responsive table {
+      width: 100%;
+      table-layout: fixed;
+    }
+    .table-responsive th,
+    .table-responsive td {
+      word-wrap: break-word;
+      white-space: normal;
+    }
   </style>
 </head>
 <body>
 
   <div class="header">
     <div class="header-left">
-      <img src="{{ url_for('static', filename='Logotipo JSP.png') }}" alt="Logo" />
+      <img src="{{ url_for('static', filename='Logotipo JSP.png', _external=True) }}" alt="Logo JSP">
       <div>
         <span class="company-info">JSP ELÉTRICA INDUSTRIAL &amp; <span class="solar">SOLAR</span></span><br>
         <span>CNPJ: 41.280.764/0001-65</span><br>
@@ -155,6 +165,7 @@
 
     <!-- SERVIÇOS REALIZADOS -->
     <h5 class="text-primary">Serviços Realizados</h5>
+    <div class="table-responsive">
     <table class="table">
       <thead>
         <tr>
@@ -174,11 +185,12 @@
           </tr>
         {% endfor %}
       </tbody>
-    
     </table>
+    </div>
 
     <!-- PRODUTOS UTILIZADOS -->
     <h5 class="text-primary mt-4">Produtos Utilizados</h5>
+    <div class="table-responsive">
     <table class="table">
       <thead>
         <tr>
@@ -199,6 +211,7 @@
         {% endfor %}
       </tbody>
     </table>
+    </div>
 
 
     <h2>Equipamento</h2>
@@ -232,11 +245,31 @@
 
 
   <h2>Resumo Financeiro</h2>
-  <ul>
-    <li>Total Serviços: R$ {{ '%.2f'|format(total_servicos) }}</li>
-    <li>Total Produtos: R$ {{ '%.2f'|format(total_produtos) }}</li>
-    <li><strong>Valor Total:</strong> R$ {{ '%.2f'|format(valor_total) }}</li>
-  </ul>
+  <!-- Resumo Financeiro + Dados Bancários lado a lado (dados bancários à esquerda) -->
+<table style="width:100%; margin-top:10px; margin-bottom:10px;">
+  <tr>
+    <!-- Dados Bancários à esquerda -->
+    <td style="vertical-align:top; width:45%;">
+      <div style="border:1px solid #b3c6e7; padding:8px; border-radius:6px; display:inline-block; min-width:220px;">
+        <strong>Dados para transferência</strong><br>
+        Ag: 0001<br>
+        Instituição: 403 - Cora SCFI.<br>
+        Cc: 4633457-0<br>
+        Saroba Solar<br>
+        CNPJ: 41.280.764/0001-65<br>
+        Pix: 41.280.764/0001-65<br>
+      </div>
+    </td>
+    <!-- Resumo Financeiro à direita -->
+    <td style="vertical-align:top; width:55%; text-align:right;">
+      <ul style="display:inline-block; text-align:left;">
+        <li>Total Serviços: R$ {{ '%.2f'|format(total_servicos) }}</li>
+        <li>Total Produtos: R$ {{ '%.2f'|format(total_produtos) }}</li>
+        <li><strong>Valor Total:</strong> R$ {{ '%.2f'|format(valor_total) }}</li>
+      </ul>
+    </td>
+  </tr>
+</table>
 
 
   <!-- Parcelas -->
@@ -281,7 +314,7 @@
 
 
 <script>
-  const valorServicos = {{ total_servicos|default(0)|float }};
+  const valorServicos = parseFloat("{{ total_servicos|default(0)|float }}") || 0;
   // If you want to ensure it's always a number, use:
   // const valorServicos = Number("{{ total_servicos|default(0)|float }}");
   // Or, if you want to be extra safe with localization:

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
-
 {% block content %}
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <div class="container mt-4">
   <div class="card shadow-sm p-4">
@@ -13,11 +13,13 @@
         </div>
         <div class="col-md-4">
           <label for="nome" class="form-label">Nome</label>
-          <input type="text" class="form-control" id="nome" name="nome" value="{{ produto.nome if produto else '' }}" required>
+          <input type="text" class="form-control" id="nome" name="nome" value="{% if produto and produto.nome and produto.nome != 'None' %}{{ produto.nome }}{% else %}{% endif %}" required>
         </div>
         <div class="col-md-4">
           <label for="data" class="form-label">Data</label>
-          <input type="date" class="form-control" id="data" name="data" value="{{ produto.data.strftime('%Y-%m-%d') if produto and produto.data else '' }}">
+          <input type="text" name="data" class="form-control"
+    value="{{ produto.data.strftime('%d/%m/%Y') if produto and produto.data else '' }}"
+    placeholder="dd/mm/aaaa">
         </div>
       </div>
 
@@ -34,7 +36,8 @@
         
         <div class="col-md-4">
           <label for="fabricante" class="form-label">Fabricante</label>
-          <input type="text" class="form-control" id="fabricante" name="fabricante" value="{{ produto.fabricante if produto else '' }}">
+          <input type="text" class="form-control" id="fabricante" name="fabricante" placeholder="Digite o fabricante"
+  value="{% if produto and produto.fabricante and produto.fabricante != 'None' %}{{ produto.fabricante }}{% else %}{% endif %}">
         </div>
       </div>
 
@@ -42,11 +45,11 @@
         
         <div class="col-md-4">
           <label for="classificacao" class="form-label">Classificação</label>
-          <input type="text" class="form-control" id="classificacao" name="classificacao" value="{{ produto.classificacao if produto else '' }}">
+          <input type="text" class="form-control" id="classificacao" name="classificacao" value="{% if produto and produto.classificacao and produto.classificacao != 'None' %}{{ produto.classificacao }}{% else %}{% endif %}">
         </div>
         <div class="col-md-4">
           <label for="localizacao" class="form-label">Localização</label>
-          <input type="text" class="form-control" id="localizacao" name="localizacao" value="{{ produto.localizacao if produto else '' }}">
+          <input type="text" class="form-control" id="localizacao" name="localizacao" value="{% if produto and produto.localizacao and produto.localizacao != 'None' %}{{ produto.localizacao }}{% else %}{% endif %}">
         </div>
       </div>
 
@@ -60,7 +63,7 @@
         </div>
         <div class="col-md-4">
           <label for="unidade" class="form-label">Unidade</label>
-          <input type="text" class="form-control" id="unidade" name="unidade" value="{{ produto.unidade if produto else '' }}">
+          <input type="text" class="form-control" id="unidade" name="unidade" value="{% if produto and produto.unidade and produto.unidade != 'None' %}{{ produto.unidade }}{% else %}{% endif %}">
         </div>
         
       </div>
@@ -106,9 +109,7 @@
       </div>
 
       <div class="d-flex justify-content-between mt-4">
-        <a href="{{ url_for('cadastrar_produto') }}" class="btn btn-primary">
-          <i class="bi bi-plus-circle"></i> Novo Produto
-        </a>
+        
         <a href="{{ url_for('listar_produtos') }}" class="btn btn-secondary">
           <i class="bi bi-arrow-left"></i> Voltar
         </a>
@@ -128,6 +129,18 @@
     </form>
   </div>
 </div>
+
+<style>
+.table-responsive table {
+  width: 100%;
+  table-layout: fixed;
+}
+.table-responsive th,
+.table-responsive td {
+  word-wrap: break-word;
+  white-space: normal;
+}
+</style>
 
 <script>
 // Função para calcular preço de venda e lucro

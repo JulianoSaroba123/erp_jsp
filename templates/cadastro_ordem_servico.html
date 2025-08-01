@@ -1,7 +1,17 @@
 {% extends 'base.html' %}
-{% block conteudo %}
+{% block content %}
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   .tabela-OS { overflow-x: auto; }
+.table-responsive table {
+  width: 100%;
+  table-layout: fixed;
+}
+.table-responsive th,
+.table-responsive td {
+  word-wrap: break-word;
+  white-space: normal;
+}
 </style>
 
 <div class="container mt-4">
@@ -752,8 +762,27 @@ document.addEventListener('DOMContentLoaded', function() {
   if (typeof calcularValoresOS === 'function') calcularValoresOS();
 });
 </script>
+{% if os %}
 <a href="{{ url_for('pdf_os', os_id=os.id) }}" class="btn btn-danger" target="_blank">
   <i class="bi bi-file-earmark-pdf"></i> Gerar PDF da OS
 </a>
+{% endif %}
+<script>
+// Supondo que você use um <select> para clientes
+document.querySelector('select[name="cliente_id"]').addEventListener('change', function() {
+    var clienteId = this.value;
+    fetch('/buscar_clientes?q=' + encodeURIComponent(clienteId))
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                var cliente = data[0];
+                document.querySelector('input[name="cpf_cnpj"]').value = cliente.cpf_cnpj || '';
+                document.querySelector('input[name="telefone"]').value = cliente.telefone || '';
+                document.querySelector('input[name="email"]').value = cliente.email || '';
+                document.querySelector('input[name="endereco"]').value = cliente.endereco || '';
+            }
+        });
+});
+</script>
 {% endblock %}
 

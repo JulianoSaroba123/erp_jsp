@@ -163,17 +163,23 @@ def cadastrar_produto(id=None):
         data_produto['lucro_percentual'] = float(data_form.get('lucro_percentual', 0))
         data_produto['estoque'] = int(data_form.get('estoque', 0))
         data_produto['unidade'] = data_form.get('unidade', '')
-       
         data_produto['situacao'] = data_form.get('situacao', 'Ativo')
 
-        # Data (se existir no modelo)
-        if 'data' in Produto.__table__.columns:
-            data_str = data_form.get('data', '')
-            if data_str:
-                try:
+        # Adicione estes campos:
+        data_produto['fabricante'] = data_form.get('fabricante', '')
+        data_produto['classificacao'] = data_form.get('classificacao', '')
+        data_produto['localizacao'] = data_form.get('localizacao', '')
+
+        # Data (aceita dd/mm/aaaa ou yyyy-mm-dd)
+        data_str = data_form.get('data', '')
+        if data_str:
+            try:
+                if '/' in data_str:
+                    data_produto['data'] = datetime.strptime(data_str, "%d/%m/%Y").date()
+                else:
                     data_produto['data'] = datetime.strptime(data_str, "%Y-%m-%d").date()
-                except:
-                    data_produto['data'] = None
+            except Exception:
+                data_produto['data'] = None
 
         if produto:
             for key, value in data_produto.items():
