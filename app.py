@@ -563,7 +563,7 @@ def relatorio_cliente(os_id):
     for s in servicos_realizados:
         s['valor'] = float(s.get('valor') or 0)
         try:
-            s['qtd_horas'] = float(s.get('qtd_horas')) if s.get('qtd_horas') not in [None, '', 'null'] else 0.0
+            s['qtd_horas'] = float(s.get('qtd_horas') or s.get('qtd') or 0)
         except Exception:
             s['qtd_horas'] = 0.0
     for p in produtos_utilizados:

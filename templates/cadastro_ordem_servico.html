@@ -784,5 +784,19 @@ document.querySelector('select[name="cliente_id"]').addEventListener('change', f
         });
 });
 </script>
+<script>
+// Supondo que servicos_salvos está disponível como variável JS
+const servicos = {{ servicos_salvos|tojson }};
+let totalServicos = 0;
+servicos.forEach(s => {
+  const valor = parseFloat(s.valor || 0);
+  const horas = parseFloat(s.qtd_horas || s.qtd || 0);
+  totalServicos += valor * horas;
+});
+// Preenche o campo de total de serviços, se existir
+if(document.getElementById('valor_servicos')) {
+  document.getElementById('valor_servicos').value = totalServicos.toFixed(2);
+}
+</script>
 {% endblock %}
 
