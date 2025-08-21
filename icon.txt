@@ -1,0 +1,6 @@
+# JSP ELÉTRICA ERP - Ícone
+# Este arquivo pode ser substituído por um arquivo .ico real
+# Para criar um ícone personalizado:
+# 1. Crie uma imagem 256x256 pixels
+# 2. Converta para formato .ico
+# 3. Substitua este arquivo por icon.ico

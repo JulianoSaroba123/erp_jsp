@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4" style="min-height: 100vh;">
+    <!-- Cards de estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stats-card text-center">
+                <i class="fas fa-truck fa-2x mb-2"></i>
+                <h4>{{ total_fornecedores|default(fornecedores|length if fornecedores is defined else 0) }}</h4>
+                <p class="mb-0">Total de Fornecedores</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card text-center">
+                <i class="fas fa-city fa-2x mb-2"></i>
+                <h4>{{ cidades_fornecedores|default('-') }}</h4>
+                <p class="mb-0">Cidades</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card text-center">
+                <i class="fas fa-user-check fa-2x mb-2"></i>
+                <h4>{{ fornecedores_ativos|default('-') }}</h4>
+                <p class="mb-0">Ativos</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-fornecedor">
+            <i class="fas fa-truck"></i> Lista de Fornecedores
+        </h3>
+        <a href="{{ url_for('fornecedor.novo_fornecedor') }}" class="btn btn-fornecedor">
+            <i class="fas fa-plus"></i> Novo Fornecedor
+        </a>
+    </div>
+
+    {% if fornecedores %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead style="background-color: #28a745; color: white;">
+                    <tr>
+                        <th>Código</th>
+                        <th>Nome / Razão Social</th>
+                        <th>Nome Fantasia</th>
+                        <th>CNPJ</th>
+                        <th>Cidade</th>
+                        <th>Telefone</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fornecedor in fornecedores %}
+                    <tr>
+                        <td>{{ fornecedor.codigo }}</td>
+                        <td>{{ fornecedor.nome }}</td>
+                        <td>{{ fornecedor.nome_fantasia or '-' }}</td>
+                        <td>{{ fornecedor.cnpj }}</td>
+                        <td>{{ fornecedor.cidade }}</td>
+                        <td>{{ fornecedor.telefone }}</td>
+                        <td>
+                            <a href="{{ url_for('fornecedor.editar_fornecedor', id=fornecedor.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{{ url_for('fornecedor.excluir_fornecedor', id=fornecedor.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja excluir este fornecedor?');">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            <i class="fas fa-truck fa-3x mb-3"></i>
+            <h4>Nenhum fornecedor cadastrado</h4>
+            <p>Clique em "Novo Fornecedor" para começar.</p>
+        </div>
+    {% endif %}
+
+    <!-- Rodapé -->
+    <div class="text-center mt-4">
+        <small class="text-muted">
+            <i class="fas fa-info-circle"></i>
+            Total de {{ fornecedores|length if fornecedores is defined else 0 }} fornecedores cadastrados
+        </small>
+    </div>
+</div>
+
+<style>
+body {
+    background: radial-gradient(circle at 60% 40%, #4669b3 0%, #19335A 100%) !important;
+    min-height: 100vh;
+}
+.stats-card {
+    background: linear-gradient(135deg, #20c997, #17a2b8);
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+.table th {
+    background-color: #20c997;
+    color: white;
+    border: none;
+}
+.text-fornecedor {
+    color: #20c997 !important;
+}
+.btn-fornecedor {
+    background: linear-gradient(135deg, #20c997, #138d75);
+    color: #fff;
+    border: none;
+    font-weight: 600;
+}
+.btn-fornecedor:hover, .btn-fornecedor:focus {
+    background: linear-gradient(135deg, #138d75, #20c997);
+    color: #fff;
+}
+</style>
+{% endblock %}

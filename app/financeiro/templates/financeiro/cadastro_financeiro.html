@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2 class="text-primary mb-3">Novo Lançamento</h2>
+  <form method="post" class="row g-3">
+    <div class="col-md-3">
+      <label class="form-label">Tipo *</label>
+      <select name="tipo" class="form-select" required>
+        <option value="">Selecione</option>
+        <option value="Receita">Receita</option>
+        <option value="Despesa">Despesa</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Categoria *</label>
+      <input type="text" name="categoria" class="form-control" required>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Descrição *</label>
+      <input type="text" name="descricao" class="form-control" required>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Valor *</label>
+      <input type="number" name="valor" class="form-control" step="0.01" min="0" required>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Data *</label>
+      <input type="date" name="data" class="form-control" required>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Forma de Pagamento</label>
+      <input type="text" name="forma_pagamento" class="form-control">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Status *</label>
+      <select name="status" class="form-select" required>
+        <option value="Pendente">Pendente</option>
+        <option value="Pago">Pago</option>
+        <option value="Atrasado">Atrasado</option>
+      </select>
+    </div>
+    <div class="col-12">
+      <label class="form-label">Observações</label>
+      <textarea name="observacoes" rows="3" class="form-control"></textarea>
+    </div>
+    <div class="col-12 d-flex gap-2">
+      <button class="btn btn-success"><i class="fas fa-save me-1"></i> Salvar</button>
+      <a href="{{ url_for('financeiro.listar') }}" class="btn btn-secondary">Voltar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

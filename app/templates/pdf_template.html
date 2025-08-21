@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            font-size: 11px; 
+            margin: 15px; 
+            color: #333; 
+        }
+        .header { 
+            text-align: right; 
+            margin-bottom: 20px; 
+            font-size: 9px;
+            line-height: 1.2;
+        }
+        .company-name { 
+            font-size: 14px; 
+            font-weight: bold; 
+            color: #4a90e2; 
+            margin-bottom: 5px;
+        }
+        .os-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4a90e2;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .section-title { 
+            background: #e8f4fd; 
+            color: #4a90e2; 
+            padding: 3px 8px; 
+            font-weight: bold;
+            font-size: 11px;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+        .client-info {
+            font-size: 10px;
+            line-height: 1.4;
+        }
+        .client-info strong {
+            display: inline-block;
+            width: 70px;
+        }
+        .services-table, .products-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 8px 0;
+            font-size: 10px;
+        }
+        .services-table th, .products-table th { 
+            background: #e8f4fd; 
+            color: #4a90e2; 
+            padding: 4px; 
+            text-align: center;
+            font-size: 9px;
+            font-weight: bold;
+        }
+        .services-table td, .products-table td { 
+            padding: 4px; 
+            text-align: center; 
+        }
+        .equipment-table {
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 8px 0;
+            font-size: 10px;
+        }
+        .equipment-table th { 
+            background: #e8f4fd; 
+            color: #4a90e2; 
+            padding: 4px; 
+            text-align: center;
+            font-size: 9px;
+            font-weight: bold;
+        }
+        .equipment-table td { 
+            padding: 4px; 
+            text-align: center; 
+        }
+        .financial-summary {
+            margin: 15px 0;
+            font-size: 10px;
+        }
+        .financial-summary ul {
+            list-style: disc;
+            margin-left: 20px;
+        }
+        .payment-table {
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 8px 0;
+            font-size: 10px;
+        }
+        .payment-table th { 
+            background: #e8f4fd; 
+            color: #4a90e2; 
+            padding: 4px; 
+            text-align: center;
+            font-size: 9px;
+            font-weight: bold;
+        }
+        .payment-table td { 
+            padding: 4px; 
+            text-align: center; 
+        }
+        .signatures {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature-box {
+            width: 45%;
+            text-align: center;
+        }
+        .signature-line {
+            border-bottom: 1px solid #000;
+            height: 30px;
+            margin-bottom: 5px;
+        }
+        .text-area {
+            min-height: 30px;
+            font-size: 10px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div>(15)99870-2036 - (15)99802-6861</div>
+    <div>jlimeira@jspeletricasolar.com.br</div>
+    <div>www.jspeletricasolar.com.br</div>
+    <div>Responsável: Juliano Saroba Pereira</div>
+    <div style="margin-top: 10px;">{{ os.data_emissao.strftime('%d/%m/%Y') if os.data_emissao else '' }}</div>
+</div>
+
+<div class="company-name">JSP ELÉTRICA INDUSTRIAL & SOLAR</div>
+<div style="font-size: 9px; margin-bottom: 5px;">CNPJ: 41.280.764/0001-65</div>
+<div style="font-size: 9px; margin-bottom: 20px;">Rua Indalécio Costa, 690 - Bairro Funda<br>Tatuí/SP - CEP: 18532-122</div>
+
+<div class="os-title">ORDEM DE SERVIÇO N° {{ os.codigo or 'OS002' }}</div>
+
+<div class="section-title">Dados do Cliente</div>
+<div class="client-info">
+    <div><strong>Nome</strong> {{ os.cliente.nome if os.cliente else '' }}</div>
+    <div><strong>CPF/CNPJ</strong> {{ os.cliente.cnpj_cpf if os.cliente else '' }}</div>
+    <div><strong>Telefone</strong> {{ os.cliente.telefone if os.cliente else '' }}</div>
+    <div><strong>Email</strong></div>
+    <div><strong>Endereço</strong> {{ os.cliente.endereco if os.cliente else '' }}</div>
+</div>
+
+<div class="section-title">Serviços Realizados</div>
+<table class="services-table">
+    <tr>
+        <th>Serviço</th>
+        <th>Qtd</th>
+        <th>Valor Unit.</th>
+        <th>Total</th>
+    </tr>
+    <tr>
+        <td style="text-align: left;">{{ os.descricao_servico_realizado or 'Instalação Elétrica Industrial' }}</td>
+        <td>1</td>
+        <td>R$ {{ '%.2f'|format(os.valor_servicos|float or 0) }}</td>
+        <td>R$ {{ '%.2f'|format(os.valor_servicos|float or 0) }}</td>
+    </tr>
+</table>
+
+<div class="section-title">Produtos Utilizados</div>
+<table class="products-table">
+    <tr>
+        <th>Produto</th>
+        <th>Qtd</th>
+        <th>Valor Unit.</th>
+        <th>Total</th>
+    </tr>
+    <tr>
+        <td style="text-align: left;">{{ os.descricao_produto or 'Sensor' }}</td>
+        <td>1.0</td>
+        <td>R$ {{ '%.2f'|format(os.valor_produtos|float or 0) }}</td>
+        <td>R$ {{ '%.2f'|format(os.valor_produtos|float or 0) }}</td>
+    </tr>
+</table>
+
+<div class="section-title">Equipamento</div>
+<table class="equipment-table">
+    <tr>
+        <th>Equipamento</th>
+        <th>Marca</th>
+        <th>Modelo</th>
+        <th>N° de Série</th>
+    </tr>
+    <tr>
+        <td>{{ os.equipamento or 'Caldeira Térmica M03' }}</td>
+        <td>{{ os.marca_equipamento or 'Mirandópolis' }}</td>
+        <td>{{ os.modelo_equipamento or 'xxxx' }}</td>
+        <td>{{ os.serie_equipamento or 'xxxx' }}</td>
+    </tr>
+</table>
+<div style="font-size: 10px; margin: 5px 0;"><strong>Acessórios</strong></div>
+<div style="font-size: 10px;">xxxx</div>
+
+<div class="section-title">Técnico Responsável</div>
+<div style="font-size: 10px; margin: 5px 0;">{{ os.tecnico_responsavel or 'Juliano Saroba' }}</div>
+
+<div class="section-title">Problema Descrito</div>
+<div class="text-area">{{ os.problema_descrito or 'teste' }}</div>
+
+<div class="section-title">Descrição do Serviço Realizado</div>
+<div class="text-area">{{ os.descricao_servico_realizado or 'teste' }}</div>
+
+<div class="section-title">Resumo Financeiro</div>
+<div class="financial-summary">
+    <ul>
+        <li>Total Serviços: R$ {{ '%.2f'|format(os.valor_servicos|float or 0) }}</li>
+        <li>Total Produtos: R$ {{ '%.2f'|format(os.valor_produtos|float or 0) }}</li>
+        <li><strong>Valor Total: R$ {{ '%.2f'|format(os.valor_total|float or 0) }}</strong></li>
+    </ul>
+</div>
+
+<div class="section-title">Condições e Forma de Pagamento</div>
+<div style="margin-bottom: 15px;">
+    <strong>Condições:</strong> {{ os.condicoes_pagamento or 'À vista' }} | 
+    <strong>Forma de Pagamento:</strong> {{ os.forma_pagamento or 'A definir' }}
+</div>
+
+<table class="payment-table">
+    <tr>
+        <th>Vencimento</th>
+        <th>Valor (R$)</th>
+        <th>Situação</th>
+    </tr>
+    {% if parcelas and parcelas|length > 0 %}
+        {% for p in parcelas %}
+        <tr>
+            <td>{{ p.data_vencimento or 'À Vista' }}</td>
+            <td>R$ {{ '%.2f'|format(p.valor|float) }}</td>
+            <td>{{ p.status or p.situacao or 'Em aberto' }}</td>
+        </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td>{{ os.data_vencimento.strftime('%d/%m/%Y') if os.data_vencimento else '31/07/2025' }}</td>
+            <td>R$ {{ '%.2f'|format(os.valor_total|float or 0) }}</td>
+            <td>Em aberto</td>
+        </tr>
+    {% endif %}
+</table>
+
+<div class="signatures">
+    <div class="signature-box">
+        <div class="signature-line"></div>
+        <div>Assinatura do Técnico</div>
+    </div>
+    <div class="signature-box">
+        <div class="signature-line"></div>
+        <div>Assinatura do Cliente</div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <style>
+        body {
+            background: radial-gradient(circle at 60% 40%, #4669b3 0%, #19335A 100%) !important;
+            min-height: 100vh;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Clientes - JSP ERP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <span class="navbar-brand"><i class="fas fa-bolt text-warning"></i> JSP ERP</span>
+            <a href="/" class="btn btn-outline-light btn-sm">Dashboard</a>
+        </div>
+    </nav>
+
+
+<div class="container mt-4" style="min-height: 100vh;">
+        <!-- Cards de estatísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <h4>{{ total_clientes|default(clientes|length if clientes is defined else 0) }}</h4>
+                    <p class="mb-0">Total de Clientes</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-user-check fa-2x mb-2"></i>
+                    <h4>{{ clientes_ativos|default('-') }}</h4>
+                    <p class="mb-0">Ativos</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-user-times fa-2x mb-2"></i>
+                    <h4>{{ clientes_inativos|default('-') }}</h4>
+                    <p class="mb-0">Inativos</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-city fa-2x mb-2"></i>
+                    <h4>{{ cidades_clientes|default('-') }}</h4>
+                    <p class="mb-0">Cidades</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cabeçalho -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="text-cliente">
+                <i class="fas fa-users"></i> Lista de Clientes
+            </h3>
+            <a href="{{ url_for('cliente.novo_cliente') }}" class="btn btn-cliente">
+                <i class="fas fa-plus"></i> Novo Cliente
+            </a>
+        </div>
+
+        {% if clientes %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead style="background-color: #0074d9; color: white;">
+                        <tr>
+                            <th>Código</th>
+                            <th>Nome/Razão Social</th>
+                            <th>Nome/fantasia</th>
+                            <th>CPF/CNPJ</th>
+                            <th>Cidade</th>
+                            <th>Telefone</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in clientes %}
+                        <tr>
+                            <td><a href="{{ url_for('cliente.editar_cliente', id=cliente.id) }}" class="fw-bold text-primary">{{ cliente.codigo }}</a></td>
+                            <td><span class="fw-semibold">{{ cliente.nome }}</span></td>
+                            <td>{{ cliente.nome_fantasia or '-' }}</td>
+                            <td>{{ cliente.cpf_cnpj or '-' }}</td>
+                            <td>{{ cliente.cidade or '-' }}</td>
+                            <td>{{ cliente.telefone or '-' }}</td>
+                            <td>
+                                <a href="{{ url_for('cliente.editar_cliente', id=cliente.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('cliente.excluir_cliente', id=cliente.id) }}" style="display: inline;">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Confirma exclusão?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center">
+                <i class="fas fa-users fa-3x mb-3"></i>
+                <h4>Nenhum cliente cadastrado</h4>
+                <p>Clique em "Novo Cliente" para começar.</p>
+            </div>
+        {% endif %}
+
+        <!-- Rodapé -->
+        <div class="text-center mt-4">
+            <small class="text-muted">
+                <i class="fas fa-info-circle"></i>
+                Total de {{ clientes|length if clientes is defined else 0 }} clientes cadastrados
+            </small>
+        </div>
+    </div>
+
+    <style>
+    .stats-card {
+        background: linear-gradient(135deg, #0074d9, #339af0);
+        color: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 12px #0074d933;
+        border: 1.5px solid #0074d9;
+    }
+<style>
+body {
+    background: radial-gradient(circle at 60% 40%, #4669b3 0%, #19335A 100%) !important;
+    min-height: 100vh;
+}
+.stats-card {
+    background: linear-gradient(135deg, #0074d9, #005fa3);
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+.table th {
+    background-color: #0074d9;
+    color: white;
+    border: none;
+}
+.text-cliente {
+    color: #0074d9 !important;
+}
+.btn-cliente {
+    background: linear-gradient(135deg, #0074d9, #005fa3);
+    color: #fff;
+    border: none;
+    font-weight: 600;
+}
+.btn-cliente:hover, .btn-cliente:focus {
+    background: linear-gradient(135deg, #005fa3, #0074d9);
+    color: #fff;
+}
+</style>

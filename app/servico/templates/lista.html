@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <style>
+        body {
+            background: radial-gradient(circle at 60% 40%, #4669b3 0%, #19335A 100%) !important;
+            min-height: 100vh;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Serviços - JSP ERP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .stats-card {
+            background: linear-gradient(135deg, #dc3545, #bd2130);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px #dc354533;
+            border: 1.5px solid #dc3545;
+        }
+        .table th {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+        }
+        .table, .table td, .table tr {
+            border-color: #dc3545 !important;
+        }
+        
+        .badge-unidade {
+            background-color: #6c757d;
+            color: white;
+            padding: 0.3em 0.6em;
+            border-radius: 0.25rem;
+            font-size: 0.8em;
+        }
+        
+        .valor-destaque {
+            font-weight: bold;
+            color: #dc3545;
+            font-size: 1.1em;
+        }
+        
+        .text-servico {
+          color: #fff!important;
+        }
+
+.btn-servico {
+  background: linear-gradient(135deg, #dc3545, #b71c1c);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+}
+.btn-servico:hover, .btn-servico:focus {
+  background: linear-gradient(135deg, #b71c1c, #dc3545);
+  color: #fff;
+}
+        
+        .table-servico th {
+          background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+          border-color: #dc3545;
+          color: #b71c1c;
+          font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <span class="navbar-brand"><i class="fas fa-bolt text-warning"></i> JSP ERP</span>
+            <a href="/" class="btn btn-outline-light btn-sm">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Estatísticas -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-concierge-bell fa-2x mb-2"></i>
+                    <h4>{{ total_servicos }}</h4>
+                    <p class="mb-0">Total de Serviços</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                    <h4>R$ {{ "%.2f"|format(valor_total) }}</h4>
+                    <p class="mb-0">Valor Total</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-chart-line fa-2x mb-2"></i>
+                    <h4>R$ {{ "%.2f"|format(valor_medio) }}</h4>
+                    <p class="mb-0">Valor Médio</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-cogs fa-2x mb-2"></i>
+                    <h4>{{ servicos|length }}</h4>
+                    <p class="mb-0">Ativos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cabeçalho -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="text-servico">
+                <i class="fas fa-concierge-bell"></i> Lista de Serviços
+            </h3>
+            <a href="{{ url_for('servico.novo_servico') }}" class="btn btn-servico">
+                <i class="fas fa-plus"></i> Novo Serviço
+            </a>
+        </div>
+
+        <!-- Lista de Serviços -->
+        {% if servicos %}
+        <div class="card shadow">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Serviço</th>
+                                <th>Descrição</th>
+                                <th>Unidade</th>
+                                <th>Valor</th>
+                                <th width="120">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for servico in servicos %}
+                            <tr>
+                                <td>
+                                    <strong class="text-primary">{{ servico.codigo }}</strong>
+                                </td>
+                                <td>
+                                    <strong class="text-servico">{{ servico.nome }}</strong>
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ servico.descricao[:50] + '...' if servico.descricao and servico.descricao|length > 50 else servico.descricao or '-' }}
+                                    </small>
+                                </td>
+                                <td>
+                                    <span class="badge-unidade">{{ servico.unidade }}</span>
+                                </td>
+                                <td>
+                                    <span class="valor-destaque">R$ {{ "%.2f"|format(servico.valor) }}</span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('servico.editar_servico', id=servico.id) }}" 
+                                       class="btn btn-sm btn-outline-primary" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form method="POST" action="{{ url_for('servico.excluir_servico', id=servico.id) }}" 
+                                          style="display: inline;" 
+                                          onsubmit="return confirm('Tem certeza que deseja excluir este serviço?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Estado vazio -->
+        <div class="text-center py-5">
+            <i class="fas fa-concierge-bell fa-5x text-muted mb-3"></i>
+            <h4 class="text-muted">Nenhum serviço cadastrado</h4>
+            <p class="text-muted mb-4">Comece cadastrando seu primeiro serviço</p>
+            <a href="{{ url_for('servico.novo_servico') }}" class="btn btn-servico btn-lg">
+                <i class="fas fa-plus"></i> Cadastrar Primeiro Serviço
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Rodapé -->
+        <div class="text-center mt-4">
+            <small class="text-muted">
+                <i class="fas fa-info-circle"></i>
+</body>
+</html>

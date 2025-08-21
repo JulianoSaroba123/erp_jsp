@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'Editar Fornecedor' if fornecedor else 'Cadastro de Fornecedor' }} - JSP ERP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        form .form-control, form .form-select {
+            border: 2px solid #0097a7;
+            border-radius: 6px;
+            box-shadow: none;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        form .form-control:focus, form .form-select:focus {
+            border-color: #007c91;
+            box-shadow: 0 0 0 0.2rem rgba(0, 151, 167, 0.15);
+        }
+        
+        .card {
+            border: 2px solid #0097a7;
+            border-radius: 8px;
+        }
+        
+        label {
+            font-weight: 600;
+        }
+        
+        .secao-formulario {
+            background: linear-gradient(135deg, #e0f7fa, #f0f9f9);
+            border: 2px solid #0097a7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .info-cep {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        
+        .tipo-pessoa-switch {
+            background: #f8f9fa;
+            border: 2px solid #0097a7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <span class="navbar-brand"><i class="fas fa-bolt text-warning"></i> JSP ERP</span>
+            <a href="/" class="btn btn-outline-light btn-sm me-2">Dashboard</a>
+            <a href="{{ url_for('fornecedor.listar_fornecedores') }}" class="btn btn-outline-light btn-sm">Lista de Fornecedores</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="card shadow p-4">
+            <h4 class="mb-4 text-success">
+                <i class="fas fa-truck"></i> 
+                {{ 'Editar Fornecedor' if fornecedor else 'Cadastro de Fornecedor' }}
+            </h4>
+            
+            <form method="POST">
+                <!-- Tipo de Pessoa -->
+                <div class="tipo-pessoa-switch">
+                    <h6 class="text-success mb-3"><i class="fas fa-id-card"></i> Tipo de Pessoa</h6>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="tipo_pessoa" id="tipo_pf" value="PF" {{ 'checked' if not fornecedor or (fornecedor and fornecedor.cpf_cnpj and fornecedor.cpf_cnpj|length <= 14) else '' }}>
+                        <label class="form-check-label" for="tipo_pf">
+                            <i class="fas fa-user"></i> Pessoa Física (CPF)
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="tipo_pessoa" id="tipo_pj" value="PJ" {{ 'checked' if fornecedor and fornecedor.cpf_cnpj and fornecedor.cpf_cnpj|length > 14 else '' }}>
+                        <label class="form-check-label" for="tipo_pj">
+                            <i class="fas fa-building"></i> Pessoa Jurídica (CNPJ)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Informações Principais -->
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <h5 class="text-primary"><i class="fas fa-info-circle"></i> Informações Principais</h5>
+                        <hr>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="cpf_cnpj" id="label_cpf_cnpj">CPF / CNPJ *</label>
+                        <input type="text" id="cpf_cnpj" name="cpf_cnpj" class="form-control" required maxlength="18" value="{{ fornecedor.cpf_cnpj if fornecedor else '' }}">
+                        <small class="text-muted" id="hint_cpf_cnpj">Digite apenas números</small>
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <label for="nome" id="label_nome">Nome / Razão Social *</label>
+                        <input type="text" id="nome" name="nome" class="form-control" value="{{ fornecedor.nome if fornecedor else '' }}" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="nome_fantasia">Nome Fantasia</label>
+                        <input type="text" id="nome_fantasia" name="nome_fantasia" class="form-control" value="{{ fornecedor.nome_fantasia if fornecedor else '' }}">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="telefone">Telefone *</label>
+                        <input type="text" id="telefone" name="telefone" class="form-control" value="{{ fornecedor.telefone if fornecedor else '' }}" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" name="email" class="form-control" value="{{ fornecedor.email if fornecedor else '' }}">
+                    </div>
+                </div>
+
+                <!-- Endereço -->
+                <div class="secao-formulario">
+                    <h5 class="text-warning mb-3"><i class="fas fa-map-marker-alt"></i> Endereço</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="cep">CEP</label>
+                            <input type="text" id="cep" name="cep" class="form-control" maxlength="9" value="{{ fornecedor.cep if fornecedor else '' }}">
+                            <div class="info-cep mt-2" style="display: none;">
+                                <i class="fas fa-info-circle"></i> CEP será preenchido automaticamente
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="endereco">Endereço</label>
+                            <input type="text" id="endereco" name="endereco" class="form-control" value="{{ fornecedor.endereco if fornecedor else '' }}">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="numero">Número</label>
+                            <input type="text" id="numero" name="numero" class="form-control" value="{{ fornecedor.numero if fornecedor else '' }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="complemento">Complemento</label>
+                            <input type="text" id="complemento" name="complemento" class="form-control" value="{{ fornecedor.complemento if fornecedor else '' }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="bairro">Bairro</label>
+                            <input type="text" id="bairro" name="bairro" class="form-control" value="{{ fornecedor.bairro if fornecedor else '' }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="cidade">Cidade</label>
+                            <input type="text" id="cidade" name="cidade" class="form-control" value="{{ fornecedor.cidade if fornecedor else '' }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="uf">UF</label>
+                            <select id="uf" name="uf" class="form-select">
+                                <option value="">Selecione o Estado</option>
+                                <option value="AC" {{ 'selected' if fornecedor and fornecedor.uf == 'AC' else '' }}>Acre</option>
+                                <option value="AL" {{ 'selected' if fornecedor and fornecedor.uf == 'AL' else '' }}>Alagoas</option>
+                                <option value="AP" {{ 'selected' if fornecedor and fornecedor.uf == 'AP' else '' }}>Amapá</option>
+                                <option value="AM" {{ 'selected' if fornecedor and fornecedor.uf == 'AM' else '' }}>Amazonas</option>
+                                <option value="BA" {{ 'selected' if fornecedor and fornecedor.uf == 'BA' else '' }}>Bahia</option>
+                                <option value="CE" {{ 'selected' if fornecedor and fornecedor.uf == 'CE' else '' }}>Ceará</option>
+                                <option value="DF" {{ 'selected' if fornecedor and fornecedor.uf == 'DF' else '' }}>Distrito Federal</option>
+                                <option value="ES" {{ 'selected' if fornecedor and fornecedor.uf == 'ES' else '' }}>Espírito Santo</option>
+                                <option value="GO" {{ 'selected' if fornecedor and fornecedor.uf == 'GO' else '' }}>Goiás</option>
+                                <option value="MA" {{ 'selected' if fornecedor and fornecedor.uf == 'MA' else '' }}>Maranhão</option>
+                                <option value="MT" {{ 'selected' if fornecedor and fornecedor.uf == 'MT' else '' }}>Mato Grosso</option>
+                                <option value="MS" {{ 'selected' if fornecedor and fornecedor.uf == 'MS' else '' }}>Mato Grosso do Sul</option>
+                                <option value="MG" {{ 'selected' if fornecedor and fornecedor.uf == 'MG' else '' }}>Minas Gerais</option>
+                                <option value="PA" {{ 'selected' if fornecedor and fornecedor.uf == 'PA' else '' }}>Pará</option>
+                                <option value="PB" {{ 'selected' if fornecedor and fornecedor.uf == 'PB' else '' }}>Paraíba</option>
+                                <option value="PR" {{ 'selected' if fornecedor and fornecedor.uf == 'PR' else '' }}>Paraná</option>
+                                <option value="PE" {{ 'selected' if fornecedor and fornecedor.uf == 'PE' else '' }}>Pernambuco</option>
+                                <option value="PI" {{ 'selected' if fornecedor and fornecedor.uf == 'PI' else '' }}>Piauí</option>
+                                <option value="RJ" {{ 'selected' if fornecedor and fornecedor.uf == 'RJ' else '' }}>Rio de Janeiro</option>
+                                <option value="RN" {{ 'selected' if fornecedor and fornecedor.uf == 'RN' else '' }}>Rio Grande do Norte</option>
+                                <option value="RS" {{ 'selected' if fornecedor and fornecedor.uf == 'RS' else '' }}>Rio Grande do Sul</option>
+                                <option value="RO" {{ 'selected' if fornecedor and fornecedor.uf == 'RO' else '' }}>Rondônia</option>
+                                <option value="RR" {{ 'selected' if fornecedor and fornecedor.uf == 'RR' else '' }}>Roraima</option>
+                                <option value="SC" {{ 'selected' if fornecedor and fornecedor.uf == 'SC' else '' }}>Santa Catarina</option>
+                                <option value="SP" {{ 'selected' if fornecedor and fornecedor.uf == 'SP' else '' }}>São Paulo</option>
+                                <option value="SE" {{ 'selected' if fornecedor and fornecedor.uf == 'SE' else '' }}>Sergipe</option>
+                                <option value="TO" {{ 'selected' if fornecedor and fornecedor.uf == 'TO' else '' }}>Tocantins</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="pais">País</label>
+                            <input type="text" id="pais" name="pais" class="form-control" value="{{ fornecedor.pais if fornecedor else 'Brasil' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informações Comerciais -->
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <h5 class="text-info"><i class="fas fa-handshake"></i> Informações Comerciais</h5>
+                        <hr>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="inscricao_estadual">Inscrição Estadual</label>
+                        <input type="text" id="inscricao_estadual" name="inscricao_estadual" class="form-control" value="{{ fornecedor.inscricao_estadual if fornecedor else '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="inscricao_municipal">Inscrição Municipal</label>
+                        <input type="text" id="inscricao_municipal" name="inscricao_municipal" class="form-control" value="{{ fornecedor.inscricao_municipal if fornecedor else '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="contato_comercial">Contato Comercial</label>
+                        <input type="text" id="contato_comercial" name="contato_comercial" class="form-control" value="{{ fornecedor.contato_comercial if fornecedor else '' }}">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="telefone_comercial">Telefone Comercial</label>
+                        <input type="text" id="telefone_comercial" name="telefone_comercial" class="form-control" value="{{ fornecedor.telefone_comercial if fornecedor else '' }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="email_comercial">E-mail Comercial</label>
+                        <input type="email" id="email_comercial" name="email_comercial" class="form-control" value="{{ fornecedor.email_comercial if fornecedor else '' }}">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <label for="observacoes">Observações</label>
+                        <textarea id="observacoes" name="observacoes" class="form-control" rows="3">{{ fornecedor.observacoes if fornecedor else '' }}</textarea>
+                    </div>
+                </div>
+
+                <div class="text-end mt-3">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-save"></i>
+                        {{ 'Atualizar Fornecedor' if fornecedor else 'Salvar Fornecedor' }}
+                    </button>
+                    <a href="{{ url_for('fornecedor.listar_fornecedores') }}" class="btn btn-secondary btn-lg ms-2">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- jQuery Mask Plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        $(document).ready(function () {
+            // Função para alternar entre CPF e CNPJ
+            function alternarTipoPessoa(limparCampo = true) {
+                const tipoPessoa = $('input[name="tipo_pessoa"]:checked').val();
+                
+                if (tipoPessoa === 'PF') {
+                    $('#cpf_cnpj').mask('000.000.000-00');
+                    $('#label_cpf_cnpj').text('CPF *');
+                    $('#label_nome').text('Nome Completo *');
+                    $('#hint_cpf_cnpj').text('Digite apenas números do CPF');
+                    $('#nome_fantasia').closest('.col-md-6').hide();
+                    $('#inscricao_estadual').closest('.col-md-4').hide();
+                    $('#inscricao_municipal').closest('.col-md-4').hide();
+                } else {
+                    $('#cpf_cnpj').mask('00.000.000/0000-00');
+                    $('#label_cpf_cnpj').text('CNPJ *');
+                    $('#label_nome').text('Razão Social *');
+                    $('#hint_cpf_cnpj').text('Digite apenas números do CNPJ');
+                    $('#nome_fantasia').closest('.col-md-6').show();
+                    $('#inscricao_estadual').closest('.col-md-4').show();
+                    $('#inscricao_municipal').closest('.col-md-4').show();
+                }
+                
+                // Só limpar o campo se for uma mudança manual do usuário
+                if (limparCampo) {
+                    $('#cpf_cnpj').val('').focus();
+                }
+            }
+
+            // Aplicar máscaras iniciais
+            $('#cep').mask('00000-000');
+            $('#telefone').mask('(00) 00000-0000');
+            $('#telefone_comercial').mask('(00) 00000-0000');
+            
+            // Inicializar tipo de pessoa sem limpar o campo (para preservar dados na edição)
+            alternarTipoPessoa(false);
+
+            // Evento para mudança de tipo de pessoa (aqui sim limpa o campo)
+            $('input[name="tipo_pessoa"]').change(function() {
+                alternarTipoPessoa(true);
+            });
+
+            // Buscar dados de CNPJ usando BrasilAPI
+            $('#cpf_cnpj').blur(function() {
+                const documento = $(this).val().replace(/\D/g, '');
+                const tipoPessoa = $('input[name="tipo_pessoa"]:checked').val();
+                
+                if (tipoPessoa === 'PJ' && documento.length === 14) {
+                    $.ajax({
+                        url: `https://brasilapi.com.br/api/cnpj/v1/${documento}`,
+                        method: 'GET',
+                        success: function(data) {
+                            if (!data.message) {
+                                $('#nome').val(data.razao_social || '');
+                                $('#nome_fantasia').val(data.nome_fantasia || '');
+                                if (data.cep) {
+                                    $('#cep').val(data.cep.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'));
+                                    buscarCEP(data.cep.replace(/\D/g, ''));
+                                }
+                                $('#telefone').val(data.ddd_telefone_1 || '');
+                                $('#email').val(data.email || '');
+                                
+                                // Mostrar informação de sucesso
+                                $('.info-cep').show().html('<i class="fas fa-check-circle text-success"></i> Dados do CNPJ carregados automaticamente!');
+                            }
+                        },
+                        error: function() {
+                            alert('CNPJ não encontrado ou inválido');
+                        }
+                    });
+                }
+            });
+
+            // Função para buscar endereço pelo CEP
+            function buscarCEP(cep) {
+                if (cep.length === 8) {
+                    $.ajax({
+                        url: `https://viacep.com.br/ws/${cep}/json/`,
+                        method: 'GET',
+                        success: function(data) {
+                            if (!data.erro) {
+                                $('#endereco').val(data.logradouro || '');
+                                $('#bairro').val(data.bairro || '');
+                                $('#cidade').val(data.localidade || '');
+                                $('#uf').val(data.uf || '');
+                                
+                                // Focar no campo número
+                                $('#numero').focus();
+                                
+                                // Mostrar informação de sucesso
+                                $('.info-cep').show().html('<i class="fas fa-check-circle text-success"></i> Endereço carregado automaticamente!');
+                            }
+                        },
+                        error: function() {
+                            $('.info-cep').show().html('<i class="fas fa-exclamation-triangle text-warning"></i> CEP não encontrado');
+                        }
+                    });
+                }
+            }
+
+            // Buscar endereço pelo CEP
+            $('#cep').blur(function() {
+                const cep = $(this).val().replace(/\D/g, '');
+                buscarCEP(cep);
+            });
+
+            // Validação de formulário
+            $('form').on('submit', function(e) {
+                const nome = $('#nome').val().trim();
+                const cpfCnpj = $('#cpf_cnpj').val().trim();
+                const telefone = $('#telefone').val().trim();
+
+                if (!nome) {
+                    alert('Nome é obrigatório!');
+                    $('#nome').focus();
+                    e.preventDefault();
+                    return false;
+                }
+
+                if (!cpfCnpj) {
+                    alert('CPF/CNPJ é obrigatório!');
+                    $('#cpf_cnpj').focus();
+                    e.preventDefault();
+                    return false;
+                }
+
+                if (!telefone) {
+                    alert('Telefone é obrigatório!');
+                    $('#telefone').focus();
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            // Ocultar info-cep quando campos de endereço forem editados manualmente
+            $('#endereco, #bairro, #cidade, #uf').on('input', function() {
+                $('.info-cep').fadeOut();
+            });
+        });
+    </script>
+</body>
+</html>

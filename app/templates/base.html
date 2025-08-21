@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}JSP ERP - Elétrica Industrial{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jQuery deve ser carregado antes de Select2/autocomplete_cliente.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at 60% 40%, #4e7cbf 0%, #19335A 80%) fixed;
+            background-color: #19335A;
+            background-repeat: no-repeat;
+        }
+        .sidebar-gradient {
+            min-width: 240px;
+            max-width: 260px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            background: linear-gradient(160deg, #1e3c72 0%, #2a5298 50%, #6dd5ed 100%);
+            box-shadow: 2px 0 16px 0 rgba(30,60,114,0.10);
+            border-top-right-radius: 30px;
+            border-bottom-right-radius: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        .sidebar-gradient .nav-link {
+            color: #fff !important;
+            font-size: 1.1rem;
+            border-radius: 0 30px 30px 0;
+            margin-bottom: 2px;
+            transition: background 0.2s, color 0.2s, padding-left 0.2s;
+        }
+        .sidebar-gradient .nav-link.active, .sidebar-gradient .nav-link:hover {
+            background: rgba(255,255,255,0.10);
+            color: #fff !important;
+            padding-left: 2.2rem;
+        }
+        .sidebar-gradient .nav-link i {
+            font-size: 1.2em;
+            margin-right: 0.7em;
+        }
+        .main-content {
+            margin-left: 260px;
+            padding: 30px 20px 20px 20px;
+        }
+        @media (max-width: 992px) {
+            .main-content {
+                margin-left: 0;
+            }
+            .sidebar-gradient {
+                position: static;
+                width: 100%;
+                height: auto;
+                border-radius: 0;
+                flex-direction: row;
+                justify-content: flex-start;
+            }
+        }
+        .logout-btn {
+            background: linear-gradient(90deg, #e52d27 0%, #b31217 100%) !important;
+            color: #fff !important;
+            border: none !important;
+            box-shadow: 0 4px 16px #b3121766 !important;
+            text-shadow: 0 2px 8px #b3121722;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .logout-btn:hover, .logout-btn:focus {
+            background: linear-gradient(90deg, #b31217 0%, #e52d27 100%) !important;
+            color: #fff !important;
+            box-shadow: 0 6px 24px #e52d2777 !important;
+        }
+    </style>
+</head>
+<body>
+    {% if session.get('usuario') %}
+    <nav class="sidebar-gradient d-flex flex-column p-3">
+        <div class="mb-4 text-center">
+            <span style="font-size:2rem; color:#fff; font-weight:900; letter-spacing:2px; text-shadow:0 2px 12px #19335A99;">JSP ERP</span>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item mb-1">
+                <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link {% if 'orcamento' in request.endpoint %}active{% endif %}" href="{{ url_for('orcamento.lista_orcamentos') }}">
+                    <i class="fas fa-file-invoice-dollar"></i> Orçamentos
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link {% if 'cliente' in request.endpoint %}active{% endif %}" href="{{ url_for('cliente.listar_clientes') }}">
+                    <i class="fas fa-users"></i> Clientes
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link {% if 'produto' in request.endpoint %}active{% endif %}" href="{{ url_for('produto.listar_produtos') }}">
+                    <i class="fas fa-boxes"></i> Produtos
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link {% if 'servico' in request.endpoint %}active{% endif %}" href="{{ url_for('servico.listar_servicos') }}">
+                    <i class="fas fa-concierge-bell"></i> Serviços
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link {% if 'os' in request.endpoint %}active{% endif %}" href="{{ url_for('os.listar_os') }}">
+                    <i class="fas fa-tools"></i> Ordens de Serviço
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link {% if 'fornecedor' in request.endpoint %}active{% endif %}" href="{{ url_for('fornecedor.listar_fornecedores') }}">
+                    <i class="fas fa-truck"></i> Fornecedores
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link {% if 'relatorio' in request.endpoint %}active{% endif %}" href="{{ url_for('relatorio.index_relatorios') }}">
+                    <i class="fas fa-chart-bar"></i> Relatórios
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link {% if 'financeiro' in request.endpoint %}active{% endif %}" href="{{ url_for('financeiro.listar') }}">
+                    <i class="fas fa-cash-register me-2"></i> Financeiro
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-cog"></i> Configurações
+                </a>
+            </li>
+        </ul>
+        <div class="mt-auto text-center">
+            <a class="btn btn-outline-light w-100 mt-3 logout-btn" href="{{ url_for('logout') }}">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </a>
+        </div>
+    </nav>
+    {% endif %}
+    <main class="main-content" style="{% if not session.get('usuario') %}margin-left:0;{% endif %}">
+        {% block content %}{% endblock %}
+    </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.6/inputmask.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

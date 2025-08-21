@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Produtos - JSP ERP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            background: radial-gradient(circle at 60% 40%, #4669b3 0%, #19335A 100%) !important;
+            min-height: 100vh;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .badge-estoque-normal { background-color: #28a745; }
+        .badge-estoque-baixo { background-color: #ffc107; color: #000; }
+        .badge-estoque-critico { background-color: #dc3545; }
+        .badge-estoque-zerado { background-color: #6c757d; }
+        .preco-custo { font-size: 0.9em; color: #666; }
+        .preco-venda { font-weight: bold; color: #28a745; }
+        .markup { font-size: 0.8em; color: #007bff; }
+        .table th {
+            background-color: #28a745;
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <span class="navbar-brand"><i class="fas fa-bolt text-warning"></i> JSP ERP</span>
+            <a href="/" class="btn btn-outline-light btn-sm">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Cards de estatísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-boxes fa-2x mb-2"></i>
+                    <h4>{{ total_produtos|default(produtos|length if produtos is defined else 0) }}</h4>
+                    <p class="mb-0">Total de Produtos</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                    <h4>{{ produtos|selectattr('status_estoque', 'equalto', 'Baixo')|list|length + produtos|selectattr('status_estoque', 'equalto', 'Crítico')|list|length }}</h4>
+                    <p class="mb-0">Estoque Baixo/Crítico</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-money-bill-wave fa-2x mb-2"></i>
+                    <h4>R$ {{ "%.2f"|format(produtos|sum(attribute='preco_venda')) }}</h4>
+                    <p class="mb-0">Valor Total</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-percentage fa-2x mb-2"></i>
+                    <h4>{{ "%.1f"|format((produtos|sum(attribute='markup_percentual') / produtos|length) if produtos|length > 0 else 0) }}%</h4>
+            <h3 class="text-produto">
+                </div>
+            </div>
+        </div>
+
+            <a href="{{ url_for('produto.novo_produto') }}" class="btn btn-produto">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="text-success">
+                <i class="fas fa-boxes"></i> Lista de Produtos
+            </h3>
+            <a href="{{ url_for('produto.novo_produto') }}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Novo Produto
+            </a>
+        </div>
+
+        {% if produtos %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead style="background-color: #28a745; color: white;">
+                        <tr>
+                            <th>Código</th>
+                            <th>Nome</th>
+                            <th>Categoria</th>
+                            <th>Estoque</th>
+                            <th>Preços</th>
+                            <th>Markup</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for produto in produtos %}
+                        <tr>
+                            <td>
+                                <strong>{{ produto.codigo }}</strong>
+                                {% if produto.codigo_barras %}
+                                    <br><small class="text-muted">{{ produto.codigo_barras }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ produto.nome }}</strong>
+                                {% if produto.marca %}
+                                    <br><small class="text-muted">{{ produto.marca }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ produto.categoria or '-' }}
+                                <br><small class="text-muted">{{ produto.unidade }}</small>
+                            </td>
+                            <td>
+                                <span class="badge {% if produto.status_estoque() == 'Normal' %}badge-estoque-normal{% elif produto.status_estoque() == 'Baixo' %}badge-estoque-baixo{% elif produto.status_estoque() == 'Crítico' %}badge-estoque-critico{% else %}badge-estoque-zerado{% endif %}">
+                                    {{ produto.estoque_atual }} {{ produto.unidade }}
+                                </span>
+                                <br><small class="text-muted">Min: {{ produto.estoque_minimo }}</small>
+                            </td>
+                            <td>
+                                <div class="preco-custo">Custo: R$ {{ "%.2f"|format(produto.preco_custo) }}</div>
+                                <div class="preco-venda">Venda: R$ {{ "%.2f"|format(produto.preco_venda) }}</div>
+                            </td>
+                            <td>
+                                <div class="markup">{{ "%.1f"|format(produto.markup_percentual) }}%</div>
+                                <small class="text-muted">+R$ {{ "%.2f"|format(produto.calcular_markup_valor()) }}</small>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('produto.editar_produto', id=produto.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('produto.excluir_produto', id=produto.id) }}" style="display: inline;">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Confirma exclusão?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center">
+                <i class="fas fa-boxes fa-3x mb-3"></i>
+                <h4>Nenhum produto cadastrado</h4>
+                <p>Clique em "Novo Produto" para começar.</p>
+            </div>
+        {% endif %}
+
+        <!-- Rodapé -->
+        <div class="text-center mt-4">
+            <small class="text-muted">
+                <i class="fas fa-info-circle"></i>
+                Total de {{ produtos|length if produtos is defined else 0 }} produtos cadastrados
+            </small>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

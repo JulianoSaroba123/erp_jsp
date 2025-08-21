@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - JSP ERP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        .secao-formulario {
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #e8f5e8, #f0f9f0);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .top-cliente {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 4px solid #28a745;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #28a745, #20c997) !important;
+        }
+        
+        .card-stats {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .card-stats i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .card-stats h3 {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-bolt text-warning"></i> JSP ERP
+            </a>
+            <div class="d-flex">
+                <a href="{{ url_for('relatorio.index_relatorios') }}" class="btn btn-outline-light me-2">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+                <a href="/" class="btn btn-outline-light">Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Cabeçalho -->
+        <div class="secao-formulario">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="mb-0">
+                        <i class="fas fa-tachometer-alt text-success"></i> Dashboard Geral
+                    </h2>
+                    <p class="text-muted mb-0">
+                        Período: {{ data_inicio.strftime('%d/%m/%Y') }} a {{ data_fim.strftime('%d/%m/%Y') }}
+                    </p>
+                </div>
+                <div class="col-auto">
+                    <div class="badge bg-success fs-6">
+                        <i class="fas fa-calendar-day"></i> Últimos 30 dias
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estatísticas Principais -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card-stats">
+                    <i class="fas fa-tools text-primary"></i>
+                    <h3 class="text-primary">{{ total_os }}</h3>
+                    <p class="text-muted mb-0">Total de OS</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-stats">
+                    <i class="fas fa-dollar-sign text-success"></i>
+                    <h3 class="text-success">R$ {{ "%.2f"|format(valor_total) }}</h3>
+                    <p class="text-muted mb-0">Faturamento</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-stats">
+                    <i class="fas fa-chart-line text-info"></i>
+                    <h3 class="text-info">R$ {{ "%.2f"|format(valor_total / total_os if total_os > 0 else 0) }}</h3>
+                    <p class="text-muted mb-0">Ticket Médio</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card-stats">
+                    <i class="fas fa-percentage text-warning"></i>
+                    <h3 class="text-warning">{{ "%.1f"|format((stats_status.get('Concluída', 0) / total_os * 100) if total_os > 0 else 0) }}%</h3>
+                    <p class="text-muted mb-0">Taxa Conclusão</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Gráfico de Status -->
+            <div class="col-md-6 mb-4">
+                <div class="chart-container">
+                    <h5 class="mb-3">
+                        <i class="fas fa-chart-pie text-success"></i> Distribuição por Status
+                    </h5>
+                    <canvas id="chartStatus"></canvas>
+                </div>
+            </div>
+
+            <!-- Top 5 Clientes -->
+            <div class="col-md-6 mb-4">
+                <div class="secao-formulario">
+                    <h5 class="mb-3">
+                        <i class="fas fa-trophy text-success"></i> Top 5 Clientes
+                    </h5>
+                    {% if top_clientes %}
+                        {% for cliente, dados in top_clientes %}
+                        <div class="top-cliente">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <strong>{{ cliente }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ dados.count }} OS realizadas</small>
+                                </div>
+                                <div class="col-auto">
+                                    <span class="text-success fw-bold">
+                                        R$ {{ "%.2f"|format(dados.valor) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <p>Nenhum cliente encontrado no período</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Estatísticas Detalhadas por Status -->
+        {% if stats_status %}
+        <div class="secao-formulario">
+            <h5 class="mb-3">
+                <i class="fas fa-list text-success"></i> Detalhamento por Status
+            </h5>
+            <div class="row">
+                {% for status, count in stats_status.items() %}
+                <div class="col-md-3 mb-3">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <i class="fas fa-circle text-{% if status == 'Aberta' %}primary{% elif status == 'Em Andamento' %}warning{% elif status == 'Concluída' %}success{% else %}danger{% endif %} fa-2x mb-2"></i>
+                            <h6 class="card-title">{{ status }}</h6>
+                            <h4 class="text-{% if status == 'Aberta' %}primary{% elif status == 'Em Andamento' %}warning{% elif status == 'Concluída' %}success{% else %}danger{% endif %}">{{ count }}</h4>
+                            <p class="text-muted">
+                                {{ "%.1f"|format((count / total_os * 100) if total_os > 0 else 0) }}% do total
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Links Rápidos -->
+        <div class="secao-formulario">
+            <h5 class="mb-3">
+                <i class="fas fa-external-link-alt text-success"></i> Ações Rápidas
+            </h5>
+            <div class="row">
+                <div class="col-md-3">
+                    <a href="{{ url_for('os.nova_os') }}" class="btn btn-success w-100 mb-2">
+                        <i class="fas fa-plus"></i> Nova OS
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ url_for('relatorio.relatorio_os') }}" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-tools"></i> Relatório OS
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ url_for('relatorio.export_os_csv') }}" class="btn btn-info w-100 mb-2">
+                        <i class="fas fa-download"></i> Exportar CSV
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{{ url_for('os.listar_os') }}" class="btn btn-outline-success w-100 mb-2">
+                        <i class="fas fa-list"></i> Listar OS
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Dados para o gráfico de status
+        const statusData = {{ stats_status | tojson }};
+        const statusLabels = Object.keys(statusData);
+        const statusValues = Object.values(statusData);
+        
+        // Cores para cada status
+        const statusColors = {
+            'Aberta': '#007bff',
+            'Em Andamento': '#ffc107', 
+            'Concluída': '#28a745',
+            'Cancelada': '#dc3545'
+        };
+        
+        const colors = statusLabels.map(status => statusColors[status] || '#6c757d');
+        
+        // Configuração do gráfico
+        const ctx = document.getElementById('chartStatus').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusValues,
+                    backgroundColor: colors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

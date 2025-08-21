@@ -1,0 +1,48 @@
+{% extends 'base.html' %}{% block conteudo %}
+<div class="container mt-3">
+  <h3 class="text-primary">Financeiro • Dashboard</h3>
+  <p>Período: {{ periodo[0].strftime('%d/%m/%Y') }} a {{ periodo[1].strftime('%d/%m/%Y') }}</p>
+  <div class="row g-3">
+    <div class="col-md-3"><div class="card p-3 border-success"><b>Receitas</b><div>R$ {{ '%.2f'|format(receitas) }}</div></div></div>
+    <div class="col-md-3"><div class="card p-3 border-danger"><b>Despesas</b><div>R$ {{ '%.2f'|format(despesas) }}</div></div></div>
+    <div class="col-md-3"><div class="card p-3 border-info"><b>Saldo</b><div>R$ {{ '%.2f'|format(saldo) }}</div></div></div>
+    <div class="col-md-3"><div class="card p-3 border-warning"><b>PE (R$)</b><div>R$ {{ '%.2f'|format(pe_reais) }}</div></div></div>
+  </div>
+  <div class="row g-3 mt-2">
+    <div class="col-md-3"><div class="card p-3"><b>Receita (DRE)</b><div>R$ {{ '%.2f'|format(rec_dre) }}</div></div></div>
+    <div class="col-md-3"><div class="card p-3"><b>Despesas (DRE)</b><div>R$ {{ '%.2f'|format(des_dre) }}</div></div></div>
+    <div class="col-md-3"><div class="card p-3"><b>Lucro (DRE)</b><div>R$ {{ '%.2f'|format(lucro) }}</div></div></div>
+    <div class="col-md-3"><div class="card p-3"><b>Valor-hora</b><div>R$ {{ '%.2f'|format(valor_hora) }} <small class="text-muted">(base R$ {{ '%.2f'|format(base_hora) }})</small></div></div></div>
+  </div>
+  <div class="mt-3 d-flex gap-2 flex-wrap">
+    <a class="btn btn-primary fw-bold shadow-sm d-flex align-items-center gap-2" href="{{ url_for('financeiro.listar_lanc') }}">
+      <i class="fas fa-list"></i> Lançamentos
+    </a>
+    <a class="btn btn-info fw-bold shadow-sm d-flex align-items-center gap-2 text-white" href="{{ url_for('financeiro.parametros') }}">
+      <i class="fas fa-sliders-h"></i> Parâmetros
+    </a>
+    <a class="btn btn-success fw-bold shadow-sm d-flex align-items-center gap-2" href="{{ url_for('financeiro.categorias') }}">
+      <i class="fas fa-tags"></i> Categorias
+    </a>
+    <a class="btn btn-warning fw-bold shadow-sm d-flex align-items-center gap-2 text-dark" href="{{ url_for('financeiro.contas') }}">
+      <i class="fas fa-university"></i> Contas
+    </a>
+    <a class="btn btn-secondary fw-bold shadow-sm d-flex align-items-center gap-2" href="{{ url_for('financeiro.centros') }}">
+      <i class="fas fa-project-diagram"></i> Centros de Custo
+    </a>
+  </div>
+  <style>
+    .btn.btn-primary, .btn.btn-info, .btn.btn-success, .btn.btn-warning, .btn.btn-secondary {
+      min-width: 160px;
+      font-size: 1.08rem;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+      transition: transform 0.08s;
+    }
+    .btn.btn-primary:hover, .btn.btn-info:hover, .btn.btn-success:hover, .btn.btn-warning:hover, .btn.btn-secondary:hover {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 4px 16px 0 rgba(30,60,114,0.10);
+    }
+  </style>
+</div>
+{% endblock %}
