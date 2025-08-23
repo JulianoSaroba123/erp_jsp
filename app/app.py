@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from functools import wraps
-from flask_migrate import Migrate
+# from flask_migrate import Migrate  # Temporariamente desabilitado
 from extensoes import db
 from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, SECRET_KEY
 
@@ -20,7 +20,7 @@ load_dotenv()
 
 
 app = Flask(__name__)
-migrate = Migrate(app, db)
+# migrate = Migrate(app, db)  # Temporariamente desabilitado
 
 # Decorator para exigir login
 def login_required(f):
