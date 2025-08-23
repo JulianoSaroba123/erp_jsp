@@ -44,7 +44,6 @@ class Cliente(db.Model):
     # Controle
     ativo = db.Column(db.Boolean, default=True)
     data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
-    data_atualizacao = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
         return f'<Cliente {self.nome}>'
