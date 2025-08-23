@@ -16,11 +16,15 @@ from flask_migrate import upgrade
 def deploy():
     """Run deployment tasks."""
     # Create database tables
-    upgrade()
+    with app.app_context():
+        upgrade()
 
 if __name__ == '__main__':
     # Em produção (Render), executar migrações automaticamente
     if os.environ.get('DATABASE_URL'):
-        deploy()
+        try:
+            deploy()
+        except Exception as e:
+            print(f"Migration error (ignoring): {e}")
     
     app.run(host='0.0.0.0', port=5000, debug=True)
