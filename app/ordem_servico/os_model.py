@@ -83,7 +83,6 @@ class OrdemServico(db.Model):
     # 12. Controle
     ativo = db.Column(db.Boolean, default=True)
     data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
-    data_atualizacao = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
 
     # 13. Campos para Assinaturas/Aprovações

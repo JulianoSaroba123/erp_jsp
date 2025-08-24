@@ -29,7 +29,6 @@ class OSArquivo(db.Model):
     # Controle
     ativo = db.Column(db.Boolean, default=True)
     data_upload = db.Column(db.DateTime, default=datetime.utcnow)
-    data_atualizacao = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     usuario_upload = db.Column(db.String(100))  # Usuário que fez upload
     
     # Relacionamento

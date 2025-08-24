@@ -234,7 +234,6 @@ def editar_os(id):
         ordem.produtos_dados = dados.get('produtos_dados')
         ordem.parcelas_json = dados.get('parcelas_json')
         
-        ordem.data_atualizacao = datetime.now()
         db.session.commit()
         
         flash(f'Ordem de serviço {ordem.codigo} atualizada com sucesso!', 'success')
@@ -328,7 +327,6 @@ def deletar_os(id):
         
         # Soft delete da OS
         ordem.ativo = False
-        ordem.data_atualizacao = datetime.now()
         
         db.session.commit()
         
