@@ -1340,7 +1340,7 @@ def test_pdf_jsp():
                 self.codigo = "OS-2024001"
                 self.numero = "2024001"
                 self.data_abertura = datetime.now()
-                self.data_conclusao = datetime.now()
+                # self.data_conclusao = datetime.now()  # Temporariamente comentado - coluna não existe
                 self.status = "Concluída"
                 
                 # Cliente

@@ -17,7 +17,7 @@ class OrdemServico(db.Model):
     # 2. Dados da OS
     data_emissao = db.Column(db.Date, default=datetime.utcnow)
     previsao_conclusao = db.Column(db.Date)
-    data_conclusao = db.Column(db.Date)
+    # data_conclusao = db.Column(db.Date)  # Temporariamente comentado - coluna não existe no banco
     # Novos campos
     solicitante = db.Column(db.String(100))
     contato = db.Column(db.String(100))
