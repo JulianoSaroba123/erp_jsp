@@ -81,21 +81,18 @@ def editar_cliente(id):
         if not endereco:
             return partes
         tokens = [p.strip() for p in endereco.split(',')]
-        for t in tokens:
-            if t.startswith('nº '):
-                partes['numero'] = t.replace('nº ', '').strip()
-            elif t.startswith('Bairro: '):
-                partes['bairro'] = t.replace('Bairro: ', '').strip()
-            elif t.startswith('CEP: '):
-                partes['cep'] = t.replace('CEP: ', '').strip()
-            elif len(t) == 2 and t.isalpha():
-                partes['uf'] = t
-            elif not partes['logradouro']:
-                partes['logradouro'] = t
-            elif not partes['cidade']:
-                partes['cidade'] = t
-            else:
-                partes['complemento'] = t
+        # Ordem esperada: logradouro, numero, complemento, bairro, cidade, uf, cep
+        campos = ['logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'cep']
+        for i, campo in enumerate(campos):
+            if i < len(tokens):
+                valor = tokens[i]
+                if campo == 'numero' and valor.startswith('nº '):
+                    valor = valor.replace('nº ', '').strip()
+                if campo == 'bairro' and valor.startswith('Bairro: '):
+                    valor = valor.replace('Bairro: ', '').strip()
+                if campo == 'cep' and valor.startswith('CEP: '):
+                    valor = valor.replace('CEP: ', '').strip()
+                partes[campo] = valor
         return partes
 
     if request.method == 'POST':
