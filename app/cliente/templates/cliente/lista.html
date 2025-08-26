@@ -3,7 +3,14 @@
 {% block title %}Lista de Clientes - JSP ERP{% endblock %}
 
 {% block content %}
-
+<style>
+    /* Garante que o botão hamburger apareça na lista */
+    .menu-toggle {
+        display: block !important;
+        visibility: visible !important;
+        z-index: 200 !important;
+    }
+</style>
 
 <div class="container mt-4" style="min-height: 100vh;">
         <!-- Cards de estatísticas -->
