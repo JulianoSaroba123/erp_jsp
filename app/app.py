@@ -99,5 +99,13 @@ if app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite:///"):
     rel = app.config["SQLALCHEMY_DATABASE_URI"].replace("sqlite:///", "", 1)
     print("DB ABS PATH =", os.path.abspath(rel))
 
+# Inicializar banco de dados automaticamente
+with app.app_context():
+    try:
+        db.create_all()
+        print("Tabelas do banco de dados criadas com sucesso!")
+    except Exception as e:
+        print(f"Erro ao criar tabelas: {e}")
+
 if __name__ == '__main__':
     app.run(debug=True)
