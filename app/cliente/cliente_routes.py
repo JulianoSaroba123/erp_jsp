@@ -53,8 +53,8 @@ def novo_cliente():
                 endereco_partes.append(f"Bairro: {request.form.get('bairro')}")
             if request.form.get('cidade'):
                 endereco_partes.append(request.form.get('cidade'))
-            if request.form.get('uf'):
-                endereco_partes.append(request.form.get('uf'))
+            # Sempre adiciona UF (mesmo vazio) para garantir posição
+            endereco_partes.append(request.form.get('uf', ''))
             if request.form.get('cep'):
                 endereco_partes.append(f"CEP: {request.form.get('cep')}")
             
@@ -119,8 +119,8 @@ def editar_cliente(id):
                 endereco_partes.append(f"Bairro: {request.form.get('bairro')}")
             if request.form.get('cidade'):
                 endereco_partes.append(request.form.get('cidade'))
-            if request.form.get('uf'):
-                endereco_partes.append(request.form.get('uf'))
+            # Sempre adiciona UF (mesmo vazio) para garantir posição
+            endereco_partes.append(request.form.get('uf', ''))
             if request.form.get('cep'):
                 endereco_partes.append(f"CEP: {request.form.get('cep')}")
             
