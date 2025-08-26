@@ -39,7 +39,7 @@
         .menu-toggle {
             position: fixed;
             top: 20px;
-            left: 20px;
+            left: 280px;
             z-index: 200;
             background: linear-gradient(160deg, #1e3c72 0%, #2a5298 50%, #6dd5ed 100%);
             border: none;
@@ -49,6 +49,10 @@
             color: white;
             font-size: 18px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: left 0.3s ease;
+        }
+        .sidebar-hidden + .menu-toggle {
+            left: 20px;
         }
         .sidebar-gradient .nav-link {
             color: #fff !important;
@@ -171,15 +175,28 @@
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.querySelector('.menu-toggle');
+            
             sidebar.classList.toggle('sidebar-hidden');
+            
+            // Atualizar posição do botão
+            if (sidebar.classList.contains('sidebar-hidden')) {
+                toggleBtn.style.left = '20px';
+            } else {
+                toggleBtn.style.left = '280px';
+            }
         }
         
         // Esconder sidebar em telas pequenas por padrão
         if (window.innerWidth <= 768) {
             document.addEventListener('DOMContentLoaded', function() {
                 const sidebar = document.getElementById('sidebar');
+                const toggleBtn = document.querySelector('.menu-toggle');
                 if (sidebar) {
                     sidebar.classList.add('sidebar-hidden');
+                    if (toggleBtn) {
+                        toggleBtn.style.left = '20px';
+                    }
                 }
             });
         }
