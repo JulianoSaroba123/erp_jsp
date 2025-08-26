@@ -142,11 +142,12 @@ def api_busca_clientes():
     resultados = [
         {
             'id': c.id,
+            'codigo': c.codigo,
             'nome': c.nome,
-            'cpf_cnpj': c.cpf_cnpj,
-            'telefone': c.telefone,
-            'email': c.email,
-            'endereco': c.endereco
+            'cpf_cnpj': c.cpf_cnpj or '',
+            'telefone': c.telefone or '',
+            'email': c.email or '',
+            'endereco': c.endereco or ''
         }
         for c in clientes
     ]
