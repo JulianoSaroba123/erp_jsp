@@ -41,31 +41,43 @@ def novo_cliente():
             cliente.email = request.form.get('email')
             cliente.telefone = request.form.get('telefone')
             
-            # Salvar campos de endereço separados
-            cliente.cep = request.form.get('cep', '')
-            cliente.logradouro = request.form.get('logradouro', '')
-            cliente.numero = request.form.get('numero', '')
-            cliente.complemento = request.form.get('complemento', '')
-            cliente.bairro = request.form.get('bairro', '')
-            cliente.cidade = request.form.get('cidade', '')
-            cliente.uf = request.form.get('uf', '')
+            # Salvar campos de endereço separados (com try/except para compatibilidade)
+            try:
+                cliente.cep = request.form.get('cep', '')
+                cliente.logradouro = request.form.get('logradouro', '')
+                cliente.numero = request.form.get('numero', '')
+                cliente.complemento = request.form.get('complemento', '')
+                cliente.bairro = request.form.get('bairro', '')
+                cliente.cidade = request.form.get('cidade', '')
+                cliente.uf = request.form.get('uf', '')
+            except AttributeError:
+                # Se as colunas não existem, ignore
+                pass
             
             # Construir endereço completo para compatibilidade
             endereco_partes = []
-            if cliente.logradouro:
-                endereco_partes.append(cliente.logradouro)
-            if cliente.numero:
-                endereco_partes.append(f"nº {cliente.numero}")
-            if cliente.complemento:
-                endereco_partes.append(cliente.complemento)
-            if cliente.bairro:
-                endereco_partes.append(f"Bairro: {cliente.bairro}")
-            if cliente.cidade:
-                endereco_partes.append(cliente.cidade)
-            if cliente.uf:
-                endereco_partes.append(cliente.uf)
-            if cliente.cep:
-                endereco_partes.append(f"CEP: {cliente.cep}")
+            logradouro = request.form.get('logradouro', '')
+            numero = request.form.get('numero', '')
+            complemento = request.form.get('complemento', '')
+            bairro = request.form.get('bairro', '')
+            cidade = request.form.get('cidade', '')
+            uf = request.form.get('uf', '')
+            cep = request.form.get('cep', '')
+            
+            if logradouro:
+                endereco_partes.append(logradouro)
+            if numero:
+                endereco_partes.append(f"nº {numero}")
+            if complemento:
+                endereco_partes.append(complemento)
+            if bairro:
+                endereco_partes.append(f"Bairro: {bairro}")
+            if cidade:
+                endereco_partes.append(cidade)
+            if uf:
+                endereco_partes.append(uf)
+            if cep:
+                endereco_partes.append(f"CEP: {cep}")
             
             cliente.endereco = ', '.join(endereco_partes) if endereco_partes else ''
             cliente.ativo = 'ativo' in request.form
@@ -94,31 +106,43 @@ def editar_cliente(id):
             cliente.email = request.form.get('email')
             cliente.telefone = request.form.get('telefone')
             
-            # Salvar campos de endereço separados
-            cliente.cep = request.form.get('cep', '')
-            cliente.logradouro = request.form.get('logradouro', '')
-            cliente.numero = request.form.get('numero', '')
-            cliente.complemento = request.form.get('complemento', '')
-            cliente.bairro = request.form.get('bairro', '')
-            cliente.cidade = request.form.get('cidade', '')
-            cliente.uf = request.form.get('uf', '')
+            # Salvar campos de endereço separados (com try/except para compatibilidade)
+            try:
+                cliente.cep = request.form.get('cep', '')
+                cliente.logradouro = request.form.get('logradouro', '')
+                cliente.numero = request.form.get('numero', '')
+                cliente.complemento = request.form.get('complemento', '')
+                cliente.bairro = request.form.get('bairro', '')
+                cliente.cidade = request.form.get('cidade', '')
+                cliente.uf = request.form.get('uf', '')
+            except AttributeError:
+                # Se as colunas não existem, ignore
+                pass
             
             # Construir endereço completo para compatibilidade
             endereco_partes = []
-            if cliente.logradouro:
-                endereco_partes.append(cliente.logradouro)
-            if cliente.numero:
-                endereco_partes.append(f"nº {cliente.numero}")
-            if cliente.complemento:
-                endereco_partes.append(cliente.complemento)
-            if cliente.bairro:
-                endereco_partes.append(f"Bairro: {cliente.bairro}")
-            if cliente.cidade:
-                endereco_partes.append(cliente.cidade)
-            if cliente.uf:
-                endereco_partes.append(cliente.uf)
-            if cliente.cep:
-                endereco_partes.append(f"CEP: {cliente.cep}")
+            logradouro = request.form.get('logradouro', '')
+            numero = request.form.get('numero', '')
+            complemento = request.form.get('complemento', '')
+            bairro = request.form.get('bairro', '')
+            cidade = request.form.get('cidade', '')
+            uf = request.form.get('uf', '')
+            cep = request.form.get('cep', '')
+            
+            if logradouro:
+                endereco_partes.append(logradouro)
+            if numero:
+                endereco_partes.append(f"nº {numero}")
+            if complemento:
+                endereco_partes.append(complemento)
+            if bairro:
+                endereco_partes.append(f"Bairro: {bairro}")
+            if cidade:
+                endereco_partes.append(cidade)
+            if uf:
+                endereco_partes.append(uf)
+            if cep:
+                endereco_partes.append(f"CEP: {cep}")
             
             cliente.endereco = ', '.join(endereco_partes) if endereco_partes else ''
             cliente.ativo = 'ativo' in request.form

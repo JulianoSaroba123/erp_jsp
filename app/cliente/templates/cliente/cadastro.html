@@ -218,70 +218,75 @@
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label for="cep">CEP</label>
-                            <input type="text" id="cep" name="cep" class="form-control" maxlength="9" value="{{ cliente.cep if cliente else '' }}">
+                            <input type="text" id="cep" name="cep" class="form-control" maxlength="9" 
+                                   value="{{ cliente.cep if cliente and hasattr(cliente, 'cep') and cliente.cep else '' }}">
                         </div>
                         <div class="col-md-8 mb-3">
                             <label for="logradouro">Logradouro</label>
-                            <input type="text" id="logradouro" name="logradouro" class="form-control" value="{{ cliente.logradouro if cliente else '' }}">
+                            <input type="text" id="logradouro" name="logradouro" class="form-control" 
+                                   value="{{ cliente.logradouro if cliente and hasattr(cliente, 'logradouro') and cliente.logradouro else '' }}">
                         </div>
                     </div>
                     
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <label for="numero">Número</label>
-                            <input type="text" id="numero" name="numero" class="form-control" value="{{ cliente.numero if cliente else '' }}">
+                            <input type="text" id="numero" name="numero" class="form-control" 
+                                   value="{{ cliente.numero if cliente and hasattr(cliente, 'numero') and cliente.numero else '' }}">
                         </div>
                         <div class="col-md-5 mb-3">
                             <label for="complemento">Complemento</label>
-                            <input type="text" id="complemento" name="complemento" class="form-control" value="{{ cliente.complemento if cliente else '' }}">
+                            <input type="text" id="complemento" name="complemento" class="form-control" 
+                                   value="{{ cliente.complemento if cliente and hasattr(cliente, 'complemento') and cliente.complemento else '' }}">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="bairro">Bairro</label>
-                            <input type="text" id="bairro" name="bairro" class="form-control" value="{{ cliente.bairro if cliente else '' }}">
+                            <input type="text" id="bairro" name="bairro" class="form-control" 
+                                   value="{{ cliente.bairro if cliente and hasattr(cliente, 'bairro') and cliente.bairro else '' }}">
                         </div>
                     </div>
                     
                     <div class="row">
                         <div class="col-md-8 mb-3">
                             <label for="cidade">Cidade</label>
-                            <input type="text" id="cidade" name="cidade" class="form-control" value="{{ cliente.cidade if cliente else '' }}">
+                            <input type="text" id="cidade" name="cidade" class="form-control" 
+                                   value="{{ cliente.cidade if cliente and hasattr(cliente, 'cidade') and cliente.cidade else '' }}">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="uf">UF</label>
                             <select id="uf" name="uf" class="form-select">
+                                {% set current_uf = cliente.uf if cliente and hasattr(cliente, 'uf') and cliente.uf else '' %}
                                 <option value="">Selecione...</option>
-                                <option value="AC" {{ 'selected' if cliente and cliente.uf == 'AC' else '' }}>AC</option>
-                                <option value="AL" {{ 'selected' if cliente and cliente.uf == 'AL' else '' }}>AL</option>
-                                <option value="AP" {{ 'selected' if cliente and cliente.uf == 'AP' else '' }}>AP</option>
-                                <option value="AM" {{ 'selected' if cliente and cliente.uf == 'AM' else '' }}>AM</option>
-                                <option value="BA" {{ 'selected' if cliente and cliente.uf == 'BA' else '' }}>BA</option>
-                                <option value="CE" {{ 'selected' if cliente and cliente.uf == 'CE' else '' }}>CE</option>
-                                <option value="DF" {{ 'selected' if cliente and cliente.uf == 'DF' else '' }}>DF</option>
-                                <option value="ES" {{ 'selected' if cliente and cliente.uf == 'ES' else '' }}>ES</option>
-                                <option value="GO" {{ 'selected' if cliente and cliente.uf == 'GO' else '' }}>GO</option>
-                                <option value="MA" {{ 'selected' if cliente and cliente.uf == 'MA' else '' }}>MA</option>
-                                <option value="MT" {{ 'selected' if cliente and cliente.uf == 'MT' else '' }}>MT</option>
-                                <option value="MS" {{ 'selected' if cliente and cliente.uf == 'MS' else '' }}>MS</option>
-                                <option value="MG" {{ 'selected' if cliente and cliente.uf == 'MG' else '' }}>MG</option>
-                                <option value="PA" {{ 'selected' if cliente and cliente.uf == 'PA' else '' }}>PA</option>
-                                <option value="PB" {{ 'selected' if cliente and cliente.uf == 'PB' else '' }}>PB</option>
-                                <option value="PR" {{ 'selected' if cliente and cliente.uf == 'PR' else '' }}>PR</option>
-                                <option value="PE" {{ 'selected' if cliente and cliente.uf == 'PE' else '' }}>PE</option>
-                                <option value="PI" {{ 'selected' if cliente and cliente.uf == 'PI' else '' }}>PI</option>
-                                <option value="RJ" {{ 'selected' if cliente and cliente.uf == 'RJ' else '' }}>RJ</option>
-                                <option value="RN" {{ 'selected' if cliente and cliente.uf == 'RN' else '' }}>RN</option>
-                                <option value="RS" {{ 'selected' if cliente and cliente.uf == 'RS' else '' }}>RS</option>
-                                <option value="RO" {{ 'selected' if cliente and cliente.uf == 'RO' else '' }}>RO</option>
-                                <option value="RR" {{ 'selected' if cliente and cliente.uf == 'RR' else '' }}>RR</option>
-                                <option value="SC" {{ 'selected' if cliente and cliente.uf == 'SC' else '' }}>SC</option>
-                                <option value="SP" {{ 'selected' if cliente and cliente.uf == 'SP' else '' }}>SP</option>
-                                <option value="SE" {{ 'selected' if cliente and cliente.uf == 'SE' else '' }}>SE</option>
-                                <option value="TO" {{ 'selected' if cliente and cliente.uf == 'TO' else '' }}>TO</option>
+                                <option value="AC" {{ 'selected' if current_uf == 'AC' else '' }}>AC</option>
+                                <option value="AL" {{ 'selected' if current_uf == 'AL' else '' }}>AL</option>
+                                <option value="AP" {{ 'selected' if current_uf == 'AP' else '' }}>AP</option>
+                                <option value="AM" {{ 'selected' if current_uf == 'AM' else '' }}>AM</option>
+                                <option value="BA" {{ 'selected' if current_uf == 'BA' else '' }}>BA</option>
+                                <option value="CE" {{ 'selected' if current_uf == 'CE' else '' }}>CE</option>
+                                <option value="DF" {{ 'selected' if current_uf == 'DF' else '' }}>DF</option>
+                                <option value="ES" {{ 'selected' if current_uf == 'ES' else '' }}>ES</option>
+                                <option value="GO" {{ 'selected' if current_uf == 'GO' else '' }}>GO</option>
+                                <option value="MA" {{ 'selected' if current_uf == 'MA' else '' }}>MA</option>
+                                <option value="MT" {{ 'selected' if current_uf == 'MT' else '' }}>MT</option>
+                                <option value="MS" {{ 'selected' if current_uf == 'MS' else '' }}>MS</option>
+                                <option value="MG" {{ 'selected' if current_uf == 'MG' else '' }}>MG</option>
+                                <option value="PA" {{ 'selected' if current_uf == 'PA' else '' }}>PA</option>
+                                <option value="PB" {{ 'selected' if current_uf == 'PB' else '' }}>PB</option>
+                                <option value="PR" {{ 'selected' if current_uf == 'PR' else '' }}>PR</option>
+                                <option value="PE" {{ 'selected' if current_uf == 'PE' else '' }}>PE</option>
+                                <option value="PI" {{ 'selected' if current_uf == 'PI' else '' }}>PI</option>
+                                <option value="RJ" {{ 'selected' if current_uf == 'RJ' else '' }}>RJ</option>
+                                <option value="RN" {{ 'selected' if current_uf == 'RN' else '' }}>RN</option>
+                                <option value="RS" {{ 'selected' if current_uf == 'RS' else '' }}>RS</option>
+                                <option value="RO" {{ 'selected' if current_uf == 'RO' else '' }}>RO</option>
+                                <option value="RR" {{ 'selected' if current_uf == 'RR' else '' }}>RR</option>
+                                <option value="SC" {{ 'selected' if current_uf == 'SC' else '' }}>SC</option>
+                                <option value="SP" {{ 'selected' if current_uf == 'SP' else '' }}>SP</option>
+                                <option value="SE" {{ 'selected' if current_uf == 'SE' else '' }}>SE</option>
+                                <option value="TO" {{ 'selected' if current_uf == 'TO' else '' }}>TO</option>
                             </select>
                         </div>
-                    </div>
-                    
-                    <div class="loading-spinner" id="loading-cep">
+                    </div>                    <div class="loading-spinner" id="loading-cep">
                         <i class="fas fa-spinner fa-spin"></i> Buscando endereço...
                     </div>
                 </div>
