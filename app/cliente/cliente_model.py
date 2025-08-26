@@ -13,7 +13,6 @@ class Cliente(db.Model):
     cpf_cnpj = db.Column(db.String(20), unique=True, nullable=True)
     ativo = db.Column(db.Boolean, default=True, nullable=False)
     data_cadastro = db.Column(db.DateTime, default=datetime.utcnow)
-    data_modificacao = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     def __repr__(self):
         return f'<Cliente {self.nome}>'
@@ -27,6 +26,5 @@ class Cliente(db.Model):
             'endereco': self.endereco,
             'cpf_cnpj': self.cpf_cnpj,
             'ativo': self.ativo,
-            'data_cadastro': self.data_cadastro.isoformat() if self.data_cadastro else None,
-            'data_modificacao': self.data_modificacao.isoformat() if self.data_modificacao else None
+            'data_cadastro': self.data_cadastro.isoformat() if self.data_cadastro else None
         }
