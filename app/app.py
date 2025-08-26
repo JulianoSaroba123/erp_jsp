@@ -6,12 +6,6 @@ from app.config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, 
 
 from dotenv import load_dotenv
 load_dotenv()
-from dotenv import load_dotenv
-load_dotenv()
-
-
-
-
 
 app = Flask(__name__)
 # migrate = Migrate(app, db)  # Temporariamente desabilitado
@@ -58,6 +52,13 @@ app.register_blueprint(fornecedor_bp)
 # Criar tabelas do banco de dados
 with app.app_context():
     db.create_all()
+    
+    # Executar migrações automáticas
+    try:
+        from app.migracoes_db import executar_migracoes
+        executar_migracoes()
+    except Exception as e:
+        print(f"Erro ao executar migrações: {e}")
 
 
 # Rota raiz - Dashboard
