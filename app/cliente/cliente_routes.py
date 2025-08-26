@@ -136,10 +136,7 @@ def editar_cliente(id):
     
     # Garante que o campo codigo exista ao renderizar o template
     if not hasattr(cliente, 'codigo') or not cliente.codigo:
-    # Garante que o campo codigo exista ao renderizar o template
-    if not hasattr(cliente, 'codigo') or not cliente.codigo:
         cliente.codigo = gerar_codigo_cliente()
-    
     return render_template('cliente/cadastro.html', cliente=cliente, codigo_gerado=cliente.codigo)
 
 # Exclusão
