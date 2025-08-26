@@ -318,6 +318,22 @@
 $(document).ready(function() {
     // Configuração inicial
     atualizarTipoPessoa();
+
+    // Se já existe valor no campo cpf_cnpj, aplica a máscara e formata para exibição
+    const valorCpfCnpj = $('#cpf_cnpj').val();
+    if (valorCpfCnpj) {
+        const tipoPessoa = $('input[name="tipo_pessoa"]:checked').val();
+        let valorFormatado = valorCpfCnpj.replace(/\D/g, '');
+        if (tipoPessoa === 'PF' && valorFormatado.length === 11) {
+            valorFormatado = valorFormatado.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            $('#cpf_cnpj').val(valorFormatado);
+            $('#cpf_cnpj').mask('000.000.000-00');
+        } else if (tipoPessoa === 'PJ' && valorFormatado.length === 14) {
+            valorFormatado = valorFormatado.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+            $('#cpf_cnpj').val(valorFormatado);
+            $('#cpf_cnpj').mask('00.000.000/0000-00');
+        }
+    }
     
     // Máscaras
     $('#telefone').mask('(00) 00000-0000');
@@ -344,8 +360,7 @@ $(document).ready(function() {
             $('#cpf_cnpj_info').text('Digite apenas números, a formatação será aplicada automaticamente');
         }
         
-        // Limpar campo CPF/CNPJ ao trocar tipo
-        $('#cpf_cnpj').val('');
+    // Não limpar o campo CPF/CNPJ ao trocar tipo
     }
     
     // Validação de CPF/CNPJ

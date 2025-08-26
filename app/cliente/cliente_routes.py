@@ -34,7 +34,10 @@ def novo_cliente():
             cliente = Cliente()
             cliente.codigo = gerar_codigo_cliente()
             cliente.nome = request.form['nome']
-            cliente.cpf_cnpj = request.form.get('cpf_cnpj', '')
+            cpf_cnpj = request.form.get('cpf_cnpj', '')
+            # Remove qualquer formatação (pontos, traços, barras)
+            cpf_cnpj = ''.join(filter(str.isdigit, cpf_cnpj))
+            cliente.cpf_cnpj = cpf_cnpj
             cliente.email = request.form.get('email')
             cliente.telefone = request.form.get('telefone')
             
@@ -75,7 +78,9 @@ def editar_cliente(id):
     if request.method == 'POST':
         try:
             cliente.nome = request.form['nome']
-            cliente.cpf_cnpj = request.form.get('cpf_cnpj')
+            cpf_cnpj = request.form.get('cpf_cnpj', '')
+            cpf_cnpj = ''.join(filter(str.isdigit, cpf_cnpj))
+            cliente.cpf_cnpj = cpf_cnpj
             cliente.email = request.form.get('email')
             cliente.telefone = request.form.get('telefone')
             
