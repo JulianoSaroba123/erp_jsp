@@ -98,6 +98,12 @@ def home():
         return redirect(url_for('cliente.listar_clientes'))
     return redirect(url_for('login'))
 
+# Rota específica para /cliente/novo
+@app.route('/cliente/novo')
+@login_required  
+def cliente_novo():
+    return redirect(url_for('cliente.novo_cliente'))
+
 
 import os
 print("SQLALCHEMY_DATABASE_URI =", app.config["SQLALCHEMY_DATABASE_URI"])
