@@ -86,6 +86,12 @@ def login():
 def inicio():
     return render_template('index.html')
 
+# Rota para dashboard
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('index.html')
+
 @app.route('/')
 def home():
     if 'usuario' in session:
