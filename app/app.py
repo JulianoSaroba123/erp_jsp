@@ -20,7 +20,7 @@ app = Flask(__name__)
 
 # Importa blueprints
 from app.cliente.cliente_routes import cliente_bp
-from fornecedor.fornecedor_routes import fornecedor_bp
+from app.fornecedor.fornecedor_routes import fornecedor_bp
 
 # Decorator para exigir login
 def login_required(f):
