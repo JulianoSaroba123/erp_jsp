@@ -36,7 +36,7 @@ def logout():
 # Configurações do banco
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
-app.config['SECRET_KEY'] = 'sua_chave_super_secreta'
+app.config['SECRET_KEY'] = SECRET_KEY
 
 # Inicializa o banco
 db.init_app(app)
