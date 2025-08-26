@@ -218,46 +218,46 @@
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label for="cep">CEP</label>
-                            <input type="text" id="cep" name="cep" class="form-control" maxlength="9" value="{{ cliente.cep if cliente else '' }}">
+                            <input type="text" id="cep" name="cep" class="form-control" maxlength="9" value="{{ cep if cep is defined else '' }}">
                         </div>
                         <div class="col-md-8 mb-3">
                             <label for="logradouro">Logradouro</label>
-                            <input type="text" id="logradouro" name="logradouro" class="form-control" value="{{ cliente.logradouro if cliente else '' }}">
+                            <input type="text" id="logradouro" name="logradouro" class="form-control" value="{{ logradouro if logradouro is defined else '' }}">
                         </div>
                     </div>
                     
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <label for="numero">Número</label>
-                            <input type="text" id="numero" name="numero" class="form-control" value="{{ cliente.numero if cliente else '' }}">
+                            <input type="text" id="numero" name="numero" class="form-control" value="{{ numero if numero is defined else '' }}">
                         </div>
                         <div class="col-md-5 mb-3">
                             <label for="complemento">Complemento</label>
-                            <input type="text" id="complemento" name="complemento" class="form-control" value="{{ cliente.complemento if cliente else '' }}">
+                            <input type="text" id="complemento" name="complemento" class="form-control" value="{{ complemento if complemento is defined else '' }}">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="bairro">Bairro</label>
-                            <input type="text" id="bairro" name="bairro" class="form-control" value="{{ cliente.bairro if cliente else '' }}">
+                            <input type="text" id="bairro" name="bairro" class="form-control" value="{{ bairro if bairro is defined else '' }}">
                         </div>
                     </div>
                     
                     <div class="row">
                         <div class="col-md-8 mb-3">
                             <label for="cidade">Cidade</label>
-                            <input type="text" id="cidade" name="cidade" class="form-control" value="{{ cliente.cidade if cliente else '' }}">
+                            <input type="text" id="cidade" name="cidade" class="form-control" value="{{ cidade if cidade is defined else '' }}">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="uf">UF</label>
                             <select id="uf" name="uf" class="form-select">
                                 <option value="">Selecione...</option>
-                                <option value="AC" {{ 'selected' if cliente and cliente.uf == 'AC' else '' }}>AC</option>
-                                <option value="AL" {{ 'selected' if cliente and cliente.uf == 'AL' else '' }}>AL</option>
-                                <option value="AP" {{ 'selected' if cliente and cliente.uf == 'AP' else '' }}>AP</option>
-                                <option value="AM" {{ 'selected' if cliente and cliente.uf == 'AM' else '' }}>AM</option>
-                                <option value="BA" {{ 'selected' if cliente and cliente.uf == 'BA' else '' }}>BA</option>
-                                <option value="CE" {{ 'selected' if cliente and cliente.uf == 'CE' else '' }}>CE</option>
-                                <option value="DF" {{ 'selected' if cliente and cliente.uf == 'DF' else '' }}>DF</option>
-                                <option value="ES" {{ 'selected' if cliente and cliente.uf == 'ES' else '' }}>ES</option>
+                                <option value="AC" {{ 'selected' if uf == 'AC' else '' }}>AC</option>
+                                <option value="AL" {{ 'selected' if uf == 'AL' else '' }}>AL</option>
+                                <option value="AP" {{ 'selected' if uf == 'AP' else '' }}>AP</option>
+                                <option value="AM" {{ 'selected' if uf == 'AM' else '' }}>AM</option>
+                                <option value="BA" {{ 'selected' if uf == 'BA' else '' }}>BA</option>
+                                <option value="CE" {{ 'selected' if uf == 'CE' else '' }}>CE</option>
+                                <option value="DF" {{ 'selected' if uf == 'DF' else '' }}>DF</option>
+                                <option value="ES" {{ 'selected' if uf == 'ES' else '' }}>ES</option>
                                 <option value="GO" {{ 'selected' if cliente and cliente.uf == 'GO' else '' }}>GO</option>
                                 <option value="MA" {{ 'selected' if cliente and cliente.uf == 'MA' else '' }}>MA</option>
                                 <option value="MT" {{ 'selected' if cliente and cliente.uf == 'MT' else '' }}>MT</option>

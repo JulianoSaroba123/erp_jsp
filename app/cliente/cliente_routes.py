@@ -75,6 +75,29 @@ def novo_cliente():
 @cliente_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
 def editar_cliente(id):
     cliente = Cliente.query.get_or_404(id)
+    # Função para separar o campo endereco em partes
+    def parse_endereco(endereco):
+        partes = {'logradouro': '', 'numero': '', 'complemento': '', 'bairro': '', 'cidade': '', 'uf': '', 'cep': ''}
+        if not endereco:
+            return partes
+        tokens = [p.strip() for p in endereco.split(',')]
+        for t in tokens:
+            if t.startswith('nº '):
+                partes['numero'] = t.replace('nº ', '').strip()
+            elif t.startswith('Bairro: '):
+                partes['bairro'] = t.replace('Bairro: ', '').strip()
+            elif t.startswith('CEP: '):
+                partes['cep'] = t.replace('CEP: ', '').strip()
+            elif len(t) == 2 and t.isalpha():
+                partes['uf'] = t
+            elif not partes['logradouro']:
+                partes['logradouro'] = t
+            elif not partes['cidade']:
+                partes['cidade'] = t
+            else:
+                partes['complemento'] = t
+        return partes
+
     if request.method == 'POST':
         try:
             cliente.nome = request.form['nome']
@@ -116,7 +139,9 @@ def editar_cliente(id):
     # Garante que o campo codigo exista ao renderizar o template
     if not hasattr(cliente, 'codigo') or not cliente.codigo:
         cliente.codigo = gerar_codigo_cliente()
-    return render_template('cliente/cadastro.html', cliente=cliente, codigo_gerado=cliente.codigo)
+    # Ao renderizar, passar os campos de endereço separados
+    endereco_campos = parse_endereco(cliente.endereco)
+    return render_template('cliente/cadastro.html', cliente=cliente, codigo_gerado=cliente.codigo, **endereco_campos)
 
 # Exclusão
 @cliente_bp.route('/excluir/<int:id>', methods=['POST'])
