@@ -19,7 +19,7 @@ app = Flask(__name__)
 # IMPORTS DOS BLUEPRINTS APÓS CRIAÇÃO DO APP E DB
 
 # Importa blueprints
-from cliente.cliente_routes import cliente_bp
+from app.cliente.cliente_routes import cliente_bp
 from fornecedor.fornecedor_routes import fornecedor_bp
 
 # Decorator para exigir login
