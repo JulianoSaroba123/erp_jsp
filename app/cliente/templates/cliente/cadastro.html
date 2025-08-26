@@ -1,127 +1,294 @@
 {% extends 'base.html' %}
-<!-- TEMPLATE AVANÇADO ATUALIZADO - RENDER FORCE UPDATE 26/08/2025 14:30 -->
-<!-- Template de Cadastro Avançado v3.0 - NOVO DEPLOY -->
+
+{% block title %}Cadastro de Cliente{% endblock %}
+
 {% block content %}
 <style>
-    form .form-control, form .form-select {
-        border: 2px solid #0074d9;
-        border-radius: 6px;
-        box-shadow: none;
-        transition: all 0.3s ease-in-out;
+    .gradient-bg {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px 0;
     }
-    form .form-control:focus, form .form-select:focus {
-        border-color: #005fa3;
-        box-shadow: 0 0 0 0.2rem rgba(0, 116, 217, 0.15);
+    
+    .form-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        padding: 30px;
+        margin: 20px auto;
+        max-width: 800px;
     }
-    .card {
-        border: 2px solid #0074d9;
-        border-radius: 8px;
-    }
-    label {
+    
+    .form-title {
+        text-align: center;
+        color: #4a5568;
+        margin-bottom: 30px;
         font-weight: 600;
     }
-    .secao-formulario {
-        background: linear-gradient(135deg, #e8f5ff, #f0f9ff);
-        border: 2px solid #0074d9;
-        border-radius: 8px;
-        padding: 20px;
-        margin: 20px 0;
-    }
-    .info-cep {
-        background-color: #d1ecf1;
-        border: 1px solid #bee5eb;
-        padding: 10px;
-        border-radius: 5px;
-        font-size: 0.9em;
-    }
-    .tipo-pessoa-switch {
+    
+    .form-section {
         background: #f8f9fa;
-        border: 2px solid #0074d9;
-        border-radius: 8px;
-        padding: 15px;
+        border-radius: 10px;
+        padding: 20px;
         margin-bottom: 20px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .form-section h5 {
+        color: #4a5568;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .tipo-pessoa-toggle {
+        display: flex;
+        background: #e2e8f0;
+        border-radius: 8px;
+        padding: 4px;
+        margin-bottom: 20px;
+    }
+    
+    .tipo-pessoa-toggle input[type="radio"] {
+        display: none;
+    }
+    
+    .tipo-pessoa-toggle label {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .tipo-pessoa-toggle input[type="radio"]:checked + label {
+        background: #667eea;
+        color: white;
+    }
+    
+    .cpf-cnpj-info {
+        background: #e6fffa;
+        border: 1px solid #4fd1c7;
+        border-radius: 6px;
+        padding: 10px;
+        margin-top: 5px;
+        font-size: 0.9em;
+        color: #234e52;
+    }
+    
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        margin: 10px 0;
+    }
+    
+    .alert {
+        border-radius: 8px;
+        border: none;
+    }
+    
+    .form-check {
+        margin: 15px 0;
+    }
+    
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+    
+    label {
+        font-weight: 500;
+        color: #4a5568;
+        margin-bottom: 5px;
+    }
+    
+    .required {
+        color: #e53e3e;
     }
 </style>
 
-<div class="container mt-4">
-    <div class="card shadow p-4">
-        <h4 class="mb-4 text-success">
-            <i class="fas fa-users"></i> 
-            {{ 'Editar Cliente' if cliente else '🚀 NOVO TEMPLATE AVANÇADO - CLIENTE' }}
-        </h4>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'danger' else 'success' }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div class="gradient-bg">
+    <div class="container">
+        <div class="form-container">
+            <h2 class="form-title">
+                <i class="fas fa-user-plus"></i>
+                {{ 'Editar Cliente' if cliente else 'Cadastro de Cliente' }}
+            </h2>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" id="clienteForm">
+                <!-- Tipo de Pessoa -->
+                <div class="form-section">
+                    <h5><i class="fas fa-id-card"></i> Tipo de Pessoa</h5>
+                    <div class="tipo-pessoa-toggle">
+                        <input type="radio" name="tipo_pessoa" id="tipo_pf" value="PF" {{ 'checked' if not cliente or (cliente and cliente.cpf_cnpj and cliente.cpf_cnpj|length <= 14) else '' }}>
+                        <label for="tipo_pf">Pessoa Física</label>
+                        
+                        <input type="radio" name="tipo_pessoa" id="tipo_pj" value="PJ" {{ 'checked' if cliente and cliente.cpf_cnpj and cliente.cpf_cnpj|length > 14 else '' }}>
+                        <label for="tipo_pj">Pessoa Jurídica</label>
                     </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
-        <form method="POST">
-            <!-- Tipo de Pessoa -->
-            <div class="tipo-pessoa-switch">
-                <h6 class="text-success mb-3"><i class="fas fa-id-card"></i> Tipo de Pessoa</h6>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="tipo_pessoa" id="tipo_pf" value="PF" {{ 'checked' if not cliente or (cliente and cliente.cpf_cnpj and cliente.cpf_cnpj|length <= 14) else '' }}>
-                    <label class="form-check-label" for="tipo_pf">
-                        <i class="fas fa-user"></i> Pessoa Física (CPF)
-                    </label>
                 </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="tipo_pessoa" id="tipo_pj" value="PJ" {{ 'checked' if cliente and cliente.cpf_cnpj and cliente.cpf_cnpj|length > 14 else '' }}>
-                    <label class="form-check-label" for="tipo_pj">
-                        <i class="fas fa-building"></i> Pessoa Jurídica (CNPJ)
-                    </label>
-                </div>
-            </div>
-            <!-- Informações Principais -->
-            <div class="row">
-                <div class="col-12 mb-3">
-                    <h5 class="text-primary"><i class="fas fa-info-circle"></i> Informações Principais</h5>
-                    <hr>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label for="cpf_cnpj" id="label_cpf_cnpj">CPF / CNPJ *</label>
-                    <input type="text" id="cpf_cnpj" name="cpf_cnpj" class="form-control" required maxlength="18" value="{{ cliente.cpf_cnpj if cliente else '' }}">
-                    <small class="text-muted" id="hint_cpf_cnpj">Digite apenas números</small>
-                </div>
-                <div class="col-md-8 mb-3">
-                    <label for="nome" id="label_nome">Nome / Razão Social *</label>
-                    <input type="text" id="nome" name="nome" class="form-control" value="{{ cliente.nome if cliente else '' }}" required>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 mb-3">
-                    <label for="telefone">Telefone *</label>
-                    <input type="text" id="telefone" name="telefone" class="form-control" value="{{ cliente.telefone if cliente else '' }}" required>
-                </div>
-                <div class="col-md-9 mb-3">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" name="email" class="form-control" value="{{ cliente.email if cliente else '' }}">
-                </div>
-            </div>
-
-            <!-- Endereço -->
-            <div class="secao-formulario">
-                <h5 class="text-warning mb-3"><i class="fas fa-map-marker-alt"></i> Endereço</h5>
                 
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <label for="endereco">Endereço Completo</label>
-                        <textarea id="endereco" name="endereco" class="form-control" rows="3" placeholder="Digite o endereço completo">{{ cliente.endereco if cliente else '' }}</textarea>
+                <!-- Informações Básicas -->
+                <div class="form-section">
+                    <h5><i class="fas fa-user"></i> Informações Básicas</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="cpf_cnpj">
+                                <span id="label_cpf_cnpj">CPF</span> <span class="required">*</span>
+                            </label>
+                            <input type="text" id="cpf_cnpj" name="cpf_cnpj" class="form-control" required maxlength="18" value="{{ cliente.cpf_cnpj if cliente else '' }}">
+                            <div class="cpf-cnpj-info" id="cpf_cnpj_info">
+                                Digite apenas números, a formatação será aplicada automaticamente
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="nome">
+                                <span id="label_nome">Nome Completo</span> <span class="required">*</span>
+                            </label>
+                            <input type="text" id="nome" name="nome" class="form-control" value="{{ cliente.nome if cliente else '' }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="telefone">Telefone <span class="required">*</span></label>
+                            <input type="text" id="telefone" name="telefone" class="form-control" value="{{ cliente.telefone if cliente else '' }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email">E-mail</label>
+                            <input type="email" id="email" name="email" class="form-control" value="{{ cliente.email if cliente else '' }}">
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Status -->
-            <div class="row">
-                <div class="col-md-6 mb-3">
+                <!-- Endereço -->
+                <div class="form-section">
+                    <h5><i class="fas fa-map-marker-alt"></i> Endereço</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="cep">CEP</label>
+                            <input type="text" id="cep" name="cep" class="form-control" maxlength="9" value="{{ cliente.cep if cliente else '' }}">
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            <label for="logradouro">Logradouro</label>
+                            <input type="text" id="logradouro" name="logradouro" class="form-control" value="{{ cliente.logradouro if cliente else '' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="numero">Número</label>
+                            <input type="text" id="numero" name="numero" class="form-control" value="{{ cliente.numero if cliente else '' }}">
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <label for="complemento">Complemento</label>
+                            <input type="text" id="complemento" name="complemento" class="form-control" value="{{ cliente.complemento if cliente else '' }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="bairro">Bairro</label>
+                            <input type="text" id="bairro" name="bairro" class="form-control" value="{{ cliente.bairro if cliente else '' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="cidade">Cidade</label>
+                            <input type="text" id="cidade" name="cidade" class="form-control" value="{{ cliente.cidade if cliente else '' }}">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="uf">UF</label>
+                            <select id="uf" name="uf" class="form-select">
+                                <option value="">Selecione...</option>
+                                <option value="AC" {{ 'selected' if cliente and cliente.uf == 'AC' else '' }}>AC</option>
+                                <option value="AL" {{ 'selected' if cliente and cliente.uf == 'AL' else '' }}>AL</option>
+                                <option value="AP" {{ 'selected' if cliente and cliente.uf == 'AP' else '' }}>AP</option>
+                                <option value="AM" {{ 'selected' if cliente and cliente.uf == 'AM' else '' }}>AM</option>
+                                <option value="BA" {{ 'selected' if cliente and cliente.uf == 'BA' else '' }}>BA</option>
+                                <option value="CE" {{ 'selected' if cliente and cliente.uf == 'CE' else '' }}>CE</option>
+                                <option value="DF" {{ 'selected' if cliente and cliente.uf == 'DF' else '' }}>DF</option>
+                                <option value="ES" {{ 'selected' if cliente and cliente.uf == 'ES' else '' }}>ES</option>
+                                <option value="GO" {{ 'selected' if cliente and cliente.uf == 'GO' else '' }}>GO</option>
+                                <option value="MA" {{ 'selected' if cliente and cliente.uf == 'MA' else '' }}>MA</option>
+                                <option value="MT" {{ 'selected' if cliente and cliente.uf == 'MT' else '' }}>MT</option>
+                                <option value="MS" {{ 'selected' if cliente and cliente.uf == 'MS' else '' }}>MS</option>
+                                <option value="MG" {{ 'selected' if cliente and cliente.uf == 'MG' else '' }}>MG</option>
+                                <option value="PA" {{ 'selected' if cliente and cliente.uf == 'PA' else '' }}>PA</option>
+                                <option value="PB" {{ 'selected' if cliente and cliente.uf == 'PB' else '' }}>PB</option>
+                                <option value="PR" {{ 'selected' if cliente and cliente.uf == 'PR' else '' }}>PR</option>
+                                <option value="PE" {{ 'selected' if cliente and cliente.uf == 'PE' else '' }}>PE</option>
+                                <option value="PI" {{ 'selected' if cliente and cliente.uf == 'PI' else '' }}>PI</option>
+                                <option value="RJ" {{ 'selected' if cliente and cliente.uf == 'RJ' else '' }}>RJ</option>
+                                <option value="RN" {{ 'selected' if cliente and cliente.uf == 'RN' else '' }}>RN</option>
+                                <option value="RS" {{ 'selected' if cliente and cliente.uf == 'RS' else '' }}>RS</option>
+                                <option value="RO" {{ 'selected' if cliente and cliente.uf == 'RO' else '' }}>RO</option>
+                                <option value="RR" {{ 'selected' if cliente and cliente.uf == 'RR' else '' }}>RR</option>
+                                <option value="SC" {{ 'selected' if cliente and cliente.uf == 'SC' else '' }}>SC</option>
+                                <option value="SP" {{ 'selected' if cliente and cliente.uf == 'SP' else '' }}>SP</option>
+                                <option value="SE" {{ 'selected' if cliente and cliente.uf == 'SE' else '' }}>SE</option>
+                                <option value="TO" {{ 'selected' if cliente and cliente.uf == 'TO' else '' }}>TO</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="loading-spinner" id="loading-cep">
+                        <i class="fas fa-spinner fa-spin"></i> Buscando endereço...
+                    </div>
+                </div>
+                
+                <!-- Status -->
+                <div class="form-section">
+                    <h5><i class="fas fa-toggle-on"></i> Status</h5>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="ativo" name="ativo" {{ 'checked' if not cliente or cliente.ativo else '' }}>
                         <label class="form-check-label" for="ativo">
@@ -129,125 +296,170 @@
                         </label>
                     </div>
                 </div>
-            </div>
-
-            <div class="text-end mt-3">
-                <button type="submit" class="btn btn-success btn-lg">
-                    <i class="fas fa-save"></i>
-                    {{ 'Atualizar Cliente' if cliente else 'Salvar Cliente' }}
-                </button>
-                <a href="{{ url_for('cliente.listar_clientes') }}" class="btn btn-secondary btn-lg ms-2">
-                    <i class="fas fa-arrow-left"></i> Voltar
-                </a>
-            </div>
-        </form>
+                
+                <!-- Botões -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary me-3">
+                        <i class="fas fa-save"></i> 
+                        {{ 'Atualizar' if cliente else 'Cadastrar' }} Cliente
+                    </button>
+                    <a href="{{ url_for('cliente.listar_clientes') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<!-- jQuery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<!-- jQuery Mask Plugin -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
-
 <script>
-    $(document).ready(function () {
-        // Função para alternar entre CPF e CNPJ
-        function alternarTipoPessoa(limparCampo = true) {
-            const tipoPessoa = $('input[name="tipo_pessoa"]:checked').val();
-            
-            if (tipoPessoa === 'PF') {
-                $('#cpf_cnpj').mask('000.000.000-00');
-                $('#label_cpf_cnpj').text('CPF *');
-                $('#label_nome').text('Nome Completo *');
-                $('#hint_cpf_cnpj').text('Digite apenas números do CPF');
-            } else {
-                $('#cpf_cnpj').mask('00.000.000/0000-00');
-                $('#label_cpf_cnpj').text('CNPJ *');
-                $('#label_nome').text('Razão Social *');
-                $('#hint_cpf_cnpj').text('Digite apenas números do CNPJ');
-            }
-            
-            // Só limpar o campo se for uma mudança manual do usuário
-            if (limparCampo) {
-                $('#cpf_cnpj').val('').focus();
-            }
-        }
-
-        // Aplicar máscaras iniciais
-        $('#telefone').mask('(00) 00000-0000');
+$(document).ready(function() {
+    // Configuração inicial
+    atualizarTipoPessoa();
+    
+    // Máscaras
+    $('#telefone').mask('(00) 00000-0000');
+    $('#cep').mask('00000-000');
+    
+    // Eventos
+    $('input[name="tipo_pessoa"]').change(atualizarTipoPessoa);
+    $('#cpf_cnpj').on('input', validarCpfCnpj);
+    $('#cep').on('blur', buscarCep);
+    
+    // Função para atualizar tipo de pessoa
+    function atualizarTipoPessoa() {
+        const tipoPessoa = $('input[name="tipo_pessoa"]:checked').val();
         
-        // Inicializar tipo de pessoa sem limpar o campo (para preservar dados na edição)
-        alternarTipoPessoa(false);
-
-        // Evento para mudança de tipo de pessoa (aqui sim limpa o campo)
-        $('input[name="tipo_pessoa"]').change(function() {
-            alternarTipoPessoa(true);
-        });
-
-        // Buscar dados de CNPJ usando BrasilAPI
-        $('#cpf_cnpj').blur(function() {
-            const documento = $(this).val().replace(/\D/g, '');
-            const tipoPessoa = $('input[name="tipo_pessoa"]:checked').val();
-            
-            if (tipoPessoa === 'PJ' && documento.length === 14) {
-                $.ajax({
-                    url: `https://brasilapi.com.br/api/cnpj/v1/${documento}`,
-                    method: 'GET',
-                    success: function(data) {
-                        if (!data.message) {
-                            $('#nome').val(data.razao_social || '');
-                            $('#telefone').val(data.ddd_telefone_1 || '');
-                            $('#email').val(data.email || '');
-                            
-                            // Montar endereço completo
-                            let endereco = '';
-                            if (data.logradouro) endereco += data.logradouro;
-                            if (data.numero) endereco += ', ' + data.numero;
-                            if (data.bairro) endereco += ' - ' + data.bairro;
-                            if (data.municipio) endereco += ' - ' + data.municipio;
-                            if (data.uf) endereco += '/' + data.uf;
-                            if (data.cep) endereco += ' - CEP: ' + data.cep;
-                            
-                            $('#endereco').val(endereco);
-                            
-                            alert('Dados do CNPJ carregados automaticamente!');
-                        }
-                    },
-                    error: function() {
-                        alert('CNPJ não encontrado ou inválido');
+        if (tipoPessoa === 'PF') {
+            $('#label_cpf_cnpj').text('CPF');
+            $('#label_nome').text('Nome Completo');
+            $('#cpf_cnpj').mask('000.000.000-00');
+            $('#cpf_cnpj_info').text('Digite apenas números, a formatação será aplicada automaticamente');
+        } else {
+            $('#label_cpf_cnpj').text('CNPJ');
+            $('#label_nome').text('Razão Social');
+            $('#cpf_cnpj').mask('00.000.000/0000-00');
+            $('#cpf_cnpj_info').text('Digite apenas números, a formatação será aplicada automaticamente');
+        }
+        
+        // Limpar campo CPF/CNPJ ao trocar tipo
+        $('#cpf_cnpj').val('');
+    }
+    
+    // Validação de CPF/CNPJ
+    function validarCpfCnpj() {
+        const valor = $(this).val().replace(/\D/g, '');
+        const tipoPessoa = $('input[name="tipo_pessoa"]:checked').val();
+        
+        if (tipoPessoa === 'PF' && valor.length === 11) {
+            // Buscar dados do CPF (pode implementar validação específica)
+            console.log('CPF completo:', valor);
+        } else if (tipoPessoa === 'PJ' && valor.length === 14) {
+            // Buscar dados do CNPJ via API
+            buscarCnpj(valor);
+        }
+    }
+    
+    // Buscar dados do CNPJ
+    function buscarCnpj(cnpj) {
+        $.ajax({
+            url: `https://brasilapi.com.br/api/cnpj/v1/${cnpj}`,
+            method: 'GET',
+            beforeSend: function() {
+                $('#cpf_cnpj_info').html('<i class="fas fa-spinner fa-spin"></i> Buscando dados do CNPJ...');
+            },
+            success: function(data) {
+                if (data.company_name) {
+                    $('#nome').val(data.company_name);
+                    $('#email').val(data.email || '');
+                    $('#telefone').val(formatarTelefone(data.phone) || '');
+                    
+                    // Preencher endereço
+                    if (data.zip) {
+                        $('#cep').val(formatarCep(data.zip));
+                        $('#logradouro').val(data.street || '');
+                        $('#numero').val(data.number || '');
+                        $('#complemento').val(data.additional_address_details || '');
+                        $('#bairro').val(data.district || '');
+                        $('#cidade').val(data.city || '');
+                        $('#uf').val(data.state || '');
                     }
-                });
+                    
+                    $('#cpf_cnpj_info').html('<i class="fas fa-check text-success"></i> Dados encontrados e preenchidos automaticamente');
+                } else {
+                    $('#cpf_cnpj_info').html('<i class="fas fa-exclamation-triangle text-warning"></i> CNPJ válido, mas dados não encontrados');
+                }
+            },
+            error: function() {
+                $('#cpf_cnpj_info').html('<i class="fas fa-times text-danger"></i> CNPJ não encontrado ou inválido');
             }
         });
-
-        // Validação de formulário
-        $('form').on('submit', function(e) {
-            const nome = $('#nome').val().trim();
-            const cpfCnpj = $('#cpf_cnpj').val().trim();
-            const telefone = $('#telefone').val().trim();
-
-            if (!nome) {
-                alert('Nome é obrigatório!');
-                $('#nome').focus();
-                e.preventDefault();
-                return false;
-            }
-
-            if (!cpfCnpj) {
-                alert('CPF/CNPJ é obrigatório!');
-                $('#cpf_cnpj').focus();
-                e.preventDefault();
-                return false;
-            }
-
-            if (!telefone) {
-                alert('Telefone é obrigatório!');
-                $('#telefone').focus();
-                e.preventDefault();
-                return false;
-            }
-        });
+    }
+    
+    // Buscar CEP
+    function buscarCep() {
+        const cep = $(this).val().replace(/\D/g, '');
+        
+        if (cep.length === 8) {
+            $('#loading-cep').show();
+            
+            $.ajax({
+                url: `https://viacep.com.br/ws/${cep}/json/`,
+                method: 'GET',
+                success: function(data) {
+                    if (!data.erro) {
+                        $('#logradouro').val(data.logradouro);
+                        $('#bairro').val(data.bairro);
+                        $('#cidade').val(data.localidade);
+                        $('#uf').val(data.uf);
+                        $('#numero').focus();
+                    }
+                },
+                complete: function() {
+                    $('#loading-cep').hide();
+                }
+            });
+        }
+    }
+    
+    // Funções auxiliares
+    function formatarTelefone(telefone) {
+        if (!telefone) return '';
+        const clean = telefone.replace(/\D/g, '');
+        if (clean.length === 11) {
+            return `(${clean.substring(0,2)}) ${clean.substring(2,7)}-${clean.substring(7)}`;
+        }
+        return telefone;
+    }
+    
+    function formatarCep(cep) {
+        if (!cep) return '';
+        const clean = cep.replace(/\D/g, '');
+        if (clean.length === 8) {
+            return `${clean.substring(0,5)}-${clean.substring(5)}`;
+        }
+        return cep;
+    }
+    
+    // Validação do formulário
+    $('#clienteForm').on('submit', function(e) {
+        const cpfCnpj = $('#cpf_cnpj').val().replace(/\D/g, '');
+        const tipoPessoa = $('input[name="tipo_pessoa"]:checked').val();
+        
+        if (tipoPessoa === 'PF' && cpfCnpj.length !== 11) {
+            e.preventDefault();
+            alert('CPF deve ter 11 dígitos');
+            return false;
+        }
+        
+        if (tipoPessoa === 'PJ' && cpfCnpj.length !== 14) {
+            e.preventDefault();
+            alert('CNPJ deve ter 14 dígitos');
+            return false;
+        }
     });
+});
 </script>
-
 {% endblock %}
