@@ -4,23 +4,23 @@ from functools import wraps
 from extensoes import db
 from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, SECRET_KEY
 
-from app.cliente.cliente_routes import cliente_bp
-from app.fornecedor.fornecedor_routes import fornecedor_bp
-from app.produto.produto_routes import produto_bp
-from app.servico.servico_routes import servico_bp
-from app.ordem_servico.os_routes import os_bp
-from app.test_routes import test_bp
-from app.relatorios.relatorio_routes import relatorio_bp
-from app.financeiro.financeiro_routes import financeiro_bp
-from app.orcamento.orcamento_routes import orcamento_bp
+from dotenv import load_dotenv
+load_dotenv()
 from dotenv import load_dotenv
 load_dotenv()
 
 
 
 
+
 app = Flask(__name__)
 # migrate = Migrate(app, db)  # Temporariamente desabilitado
+
+# IMPORTS DOS BLUEPRINTS APÓS CRIAÇÃO DO APP E DB
+
+# Importa blueprints
+from cliente.cliente_routes import cliente_bp
+from fornecedor.fornecedor_routes import fornecedor_bp
 
 # Decorator para exigir login
 def login_required(f):
@@ -49,22 +49,11 @@ db.init_app(app)
 
 
 # Registra Blueprints
+
 app.register_blueprint(cliente_bp)
 app.register_blueprint(fornecedor_bp)
-app.register_blueprint(produto_bp)
-app.register_blueprint(servico_bp)
-app.register_blueprint(os_bp)
-app.register_blueprint(test_bp)
-app.register_blueprint(relatorio_bp)
-app.register_blueprint(financeiro_bp)
-app.register_blueprint(orcamento_bp)
 
-# Importar modelos (após inicialização do app)
-from app.cliente.cliente_model import Cliente
-from app.fornecedor.fornecedor_model import Fornecedor
-from app.produto.produto_model import Produto
-from app.servico.servico_model import Servico
-from app.ordem_servico.os_model import OrdemServico, OrdemServicoItem
+
 
 # Criar tabelas do banco de dados
 with app.app_context():
@@ -73,59 +62,7 @@ with app.app_context():
 
 # Rota raiz - Dashboard
 
-from app.financeiro.financeiro_model import LancamentoFinanceiro
-from sqlalchemy import func
 
-@app.route('/')
-@login_required
-def index():
-    # Totais do financeiro
-    entradas_total = db.session.query(func.sum(LancamentoFinanceiro.valor)).filter(LancamentoFinanceiro.tipo == 'Receita').scalar() or 0
-    saidas_total = db.session.query(func.sum(LancamentoFinanceiro.valor)).filter(LancamentoFinanceiro.tipo == 'Despesa').scalar() or 0
-    saldo_total = entradas_total - saidas_total
-
-
-    # Entradas e saídas por mês (12 meses)
-    from sqlalchemy import extract
-    meses = list(range(1, 13))
-    grafico_entradas = [
-        db.session.query(func.sum(LancamentoFinanceiro.valor)).filter(
-            LancamentoFinanceiro.tipo == 'Receita',
-            extract('month', LancamentoFinanceiro.data) == m
-        ).scalar() or 0 for m in meses
-    ]
-    grafico_saidas = [
-        db.session.query(func.sum(LancamentoFinanceiro.valor)).filter(
-            LancamentoFinanceiro.tipo == 'Despesa',
-            extract('month', LancamentoFinanceiro.data) == m
-        ).scalar() or 0 for m in meses
-    ]
-    # Saldo acumulado mês a mês
-    saldo_acumulado = []
-    saldo = 0
-    for i in range(12):
-        saldo += grafico_entradas[i] - grafico_saidas[i]
-        saldo_acumulado.append(saldo)
-
-    # Despesas por categoria (top 5)
-    cat_query = db.session.query(
-        LancamentoFinanceiro.categoria,
-        func.sum(LancamentoFinanceiro.valor)
-    ).filter(LancamentoFinanceiro.tipo == 'Despesa').group_by(LancamentoFinanceiro.categoria).order_by(func.sum(LancamentoFinanceiro.valor).desc()).limit(5).all()
-    categorias = [c[0] for c in cat_query]
-    valores_cat = [float(c[1]) for c in cat_query]
-
-    return render_template(
-        'index.html',
-        saldo_total=f'{saldo_total:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.'),
-        entradas_total=f'{entradas_total:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.'),
-        saidas_total=f'{saidas_total:,.2f}'.replace(',', 'X').replace('.', ',').replace('X', '.'),
-        grafico_saldo=saldo_acumulado,
-        grafico_entradas=grafico_entradas,
-        grafico_saidas=grafico_saidas,
-        categorias=categorias,
-        valores_cat=valores_cat
-    )
 
 
 # Rota de Login
@@ -134,11 +71,10 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        # Usuário e senha fixos para exemplo
         if username == 'admin' and password == 'admin':
             session['usuario'] = username
             flash('Login realizado com sucesso!', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('cliente.listar_clientes'))
         else:
             flash('Usuário ou senha inválidos.', 'danger')
     return render_template('login.html')
@@ -149,6 +85,12 @@ def login():
 @login_required
 def inicio():
     return render_template('index.html')
+
+@app.route('/')
+def home():
+    if 'usuario' in session:
+        return redirect(url_for('cliente.listar_clientes'))
+    return redirect(url_for('login'))
 
 
 import os

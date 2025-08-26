@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for
-from app.fornecedor.fornecedor_model import Fornecedor
+from .fornecedor_model import Fornecedor
 from extensoes import db
 
 fornecedor_bp = Blueprint(
@@ -107,7 +107,7 @@ def editar_fornecedor(id):
 
     return render_template('fornecedor/cadastro.html', fornecedor=fornecedor)
 
-@fornecedor_bp.route('/excluir/<int:id>')
+@fornecedor_bp.route('/excluir/<int:id>', methods=['POST'])
 def excluir_fornecedor(id):
     fornecedor = Fornecedor.query.get_or_404(id)
     db.session.delete(fornecedor)

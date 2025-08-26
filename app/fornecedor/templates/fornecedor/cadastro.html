@@ -99,27 +99,27 @@
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <label for="cpf_cnpj" id="label_cpf_cnpj">CPF / CNPJ *</label>
-                        <input type="text" id="cpf_cnpj" name="cpf_cnpj" class="form-control" required maxlength="18" value="{{ fornecedor.cpf_cnpj if fornecedor else '' }}">
+                        <input type="text" id="cpf_cnpj" name="cpf_cnpj" class="form-control" required maxlength="18" value="{{ fornecedor.cpf_cnpj if fornecedor else '' }}" placeholder="Digite o CPF ou CNPJ">
                         <small class="text-muted" id="hint_cpf_cnpj">Digite apenas números</small>
                     </div>
                     <div class="col-md-8 mb-3">
                         <label for="nome" id="label_nome">Nome / Razão Social *</label>
-                        <input type="text" id="nome" name="nome" class="form-control" value="{{ fornecedor.nome if fornecedor else '' }}" required>
+                        <input type="text" id="nome" name="nome" class="form-control" value="{{ fornecedor.nome if fornecedor else '' }}" required placeholder="Nome completo ou razão social">
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="nome_fantasia">Nome Fantasia</label>
-                        <input type="text" id="nome_fantasia" name="nome_fantasia" class="form-control" value="{{ fornecedor.nome_fantasia if fornecedor else '' }}">
+                        <input type="text" id="nome_fantasia" name="nome_fantasia" class="form-control" value="{{ fornecedor.nome_fantasia if fornecedor else '' }}" placeholder="Nome fantasia (opcional)">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="telefone">Telefone *</label>
-                        <input type="text" id="telefone" name="telefone" class="form-control" value="{{ fornecedor.telefone if fornecedor else '' }}" required>
+                        <input type="text" id="telefone" name="telefone" class="form-control" value="{{ fornecedor.telefone if fornecedor else '' }}" required placeholder="(99) 99999-9999">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="email">E-mail</label>
-                        <input type="email" id="email" name="email" class="form-control" value="{{ fornecedor.email if fornecedor else '' }}">
+                        <input type="email" id="email" name="email" class="form-control" value="{{ fornecedor.email if fornecedor else '' }}" placeholder="email@exemplo.com">
                     </div>
                 </div>
 
@@ -130,33 +130,33 @@
                     <div class="row">
                         <div class="col-md-3 mb-3">
                             <label for="cep">CEP</label>
-                            <input type="text" id="cep" name="cep" class="form-control" maxlength="9" value="{{ fornecedor.cep if fornecedor else '' }}">
+                            <input type="text" id="cep" name="cep" class="form-control" maxlength="9" value="{{ fornecedor.cep if fornecedor else '' }}" placeholder="00000-000">
                             <div class="info-cep mt-2" style="display: none;">
                                 <i class="fas fa-info-circle"></i> CEP será preenchido automaticamente
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="endereco">Endereço</label>
-                            <input type="text" id="endereco" name="endereco" class="form-control" value="{{ fornecedor.endereco if fornecedor else '' }}">
+                            <input type="text" id="endereco" name="endereco" class="form-control" value="{{ fornecedor.endereco if fornecedor else '' }}" placeholder="Rua, avenida, etc.">
                         </div>
                         <div class="col-md-3 mb-3">
                             <label for="numero">Número</label>
-                            <input type="text" id="numero" name="numero" class="form-control" value="{{ fornecedor.numero if fornecedor else '' }}">
+                            <input type="text" id="numero" name="numero" class="form-control" value="{{ fornecedor.numero if fornecedor else '' }}" placeholder="Número">
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label for="complemento">Complemento</label>
-                            <input type="text" id="complemento" name="complemento" class="form-control" value="{{ fornecedor.complemento if fornecedor else '' }}">
+                            <input type="text" id="complemento" name="complemento" class="form-control" value="{{ fornecedor.complemento if fornecedor else '' }}" placeholder="Complemento (opcional)">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="bairro">Bairro</label>
-                            <input type="text" id="bairro" name="bairro" class="form-control" value="{{ fornecedor.bairro if fornecedor else '' }}">
+                            <input type="text" id="bairro" name="bairro" class="form-control" value="{{ fornecedor.bairro if fornecedor else '' }}" placeholder="Bairro">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label for="cidade">Cidade</label>
-                            <input type="text" id="cidade" name="cidade" class="form-control" value="{{ fornecedor.cidade if fornecedor else '' }}">
+                            <input type="text" id="cidade" name="cidade" class="form-control" value="{{ fornecedor.cidade if fornecedor else '' }}" placeholder="Cidade">
                         </div>
                     </div>
 
@@ -212,33 +212,33 @@
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <label for="inscricao_estadual">Inscrição Estadual</label>
-                        <input type="text" id="inscricao_estadual" name="inscricao_estadual" class="form-control" value="{{ fornecedor.inscricao_estadual if fornecedor else '' }}">
+                            <input type="text" id="inscricao_estadual" name="inscricao_estadual" class="form-control" value="{{ fornecedor.inscricao_estadual if fornecedor and fornecedor.inscricao_estadual else '' }}">
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="inscricao_municipal">Inscrição Municipal</label>
-                        <input type="text" id="inscricao_municipal" name="inscricao_municipal" class="form-control" value="{{ fornecedor.inscricao_municipal if fornecedor else '' }}">
+                            <input type="text" id="inscricao_municipal" name="inscricao_municipal" class="form-control" value="{{ fornecedor.inscricao_municipal if fornecedor and fornecedor.inscricao_municipal else '' }}">
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="contato_comercial">Contato Comercial</label>
-                        <input type="text" id="contato_comercial" name="contato_comercial" class="form-control" value="{{ fornecedor.contato_comercial if fornecedor else '' }}">
+                            <input type="text" id="contato_comercial" name="contato_comercial" class="form-control" value="{{ fornecedor.contato_comercial if fornecedor and fornecedor.contato_comercial else '' }}">
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="telefone_comercial">Telefone Comercial</label>
-                        <input type="text" id="telefone_comercial" name="telefone_comercial" class="form-control" value="{{ fornecedor.telefone_comercial if fornecedor else '' }}">
+                            <input type="text" id="telefone_comercial" name="telefone_comercial" class="form-control" value="{{ fornecedor.telefone_comercial if fornecedor and fornecedor.telefone_comercial else '' }}">
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="email_comercial">E-mail Comercial</label>
-                        <input type="email" id="email_comercial" name="email_comercial" class="form-control" value="{{ fornecedor.email_comercial if fornecedor else '' }}">
+                            <input type="email" id="email_comercial" name="email_comercial" class="form-control" value="{{ fornecedor.email_comercial if fornecedor and fornecedor.email_comercial else '' }}">
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-12 mb-3">
                         <label for="observacoes">Observações</label>
-                        <textarea id="observacoes" name="observacoes" class="form-control" rows="3">{{ fornecedor.observacoes if fornecedor else '' }}</textarea>
+                            <textarea id="observacoes" name="observacoes" class="form-control" rows="3">{{ fornecedor.observacoes if fornecedor and fornecedor.observacoes else '' }}</textarea>
                     </div>
                 </div>
 

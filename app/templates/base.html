@@ -88,12 +88,12 @@
         </div>
         <ul class="nav flex-column">
             <li class="nav-item mb-1">
-                <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">
-                    <i class="fas fa-home"></i> Dashboard
+                <a class="nav-link {% if request.endpoint == 'cliente.listar_clientes' %}active{% endif %}" href="{{ url_for('cliente.listar_clientes') }}">
+                    <i class="fas fa-home"></i> Clientes
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <a class="nav-link {% if 'orcamento' in request.endpoint %}active{% endif %}" href="{{ url_for('orcamento.lista_orcamentos') }}">
+                <!-- <a class="nav-link" href="#">Orçamentos (removido)</a> -->
                     <i class="fas fa-file-invoice-dollar"></i> Orçamentos
                 </a>
             </li>
@@ -103,17 +103,17 @@
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <a class="nav-link {% if 'produto' in request.endpoint %}active{% endif %}" href="{{ url_for('produto.listar_produtos') }}">
+                <!-- <a class="nav-link" href="#">Produtos (removido)</a> -->
                     <i class="fas fa-boxes"></i> Produtos
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <a class="nav-link {% if 'servico' in request.endpoint %}active{% endif %}" href="{{ url_for('servico.listar_servicos') }}">
+                <!-- <a class="nav-link" href="#">Serviços (removido)</a> -->
                     <i class="fas fa-concierge-bell"></i> Serviços
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <a class="nav-link {% if 'os' in request.endpoint %}active{% endif %}" href="{{ url_for('os.listar_os') }}">
+                <!-- <a class="nav-link" href="#">Ordens de Serviço (removido)</a> -->
                     <i class="fas fa-tools"></i> Ordens de Serviço
                 </a>
             </li>
@@ -123,12 +123,12 @@
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <a class="nav-link {% if 'relatorio' in request.endpoint %}active{% endif %}" href="{{ url_for('relatorio.index_relatorios') }}">
+                <!-- <a class="nav-link" href="#">Relatórios (removido)</a> -->
                     <i class="fas fa-chart-bar"></i> Relatórios
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <a class="nav-link {% if 'financeiro' in request.endpoint %}active{% endif %}" href="{{ url_for('financeiro.listar') }}">
+                <!-- <a class="nav-link" href="#">Financeiro (removido)</a> -->
                     <i class="fas fa-cash-register me-2"></i> Financeiro
                 </a>
             </li>

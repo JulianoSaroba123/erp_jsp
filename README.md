@@ -17,6 +17,25 @@ python iniciar_sistema.py
 - **Python 3.8+** (Download: https://python.org)
 - **Navegador Web** (Chrome, Firefox, Edge)
 
+
+---
+
+## 🚀 Deploy no Render.com
+
+1. Faça push deste projeto para um repositório no GitHub.
+2. Crie um novo serviço Web no Render e conecte ao seu repositório.
+3. Configure:
+	 - **Build Command:** `pip install -r requirements.txt`
+	 - **Start Command:** `gunicorn app.app:app`
+	 - **Python Version:** 3.10 ou superior
+	 - **(Opcional) Variáveis de ambiente:**
+		 - `SECRET_KEY` (chave secreta Flask)
+		 - `DATABASE_URL` (caso use banco externo)
+4. O Render detecta automaticamente o Procfile.
+5. Acesse a URL gerada para usar o sistema online!
+
+---
+
 ### 🛠️ **Instalação**
 
 #### **Instalação Automática (Recomendada)**
@@ -56,6 +75,7 @@ python iniciar_sistema.py
 ├── 📋 requirements.txt         # Dependências Python
 ├── 🗂️ app/                     # Código da aplicação
 │   ├── 👥 cliente/             # Módulo de clientes
+│   ├── 👥 Financeiro/          # Módulo de Financeiro
 │   ├── 📋 ordem_servico/       # Módulo de ordens de serviço
 │   ├── 💰 financeiro/          # Módulo financeiro
 │   ├── 🛠️ servico/             # Módulo de serviços
