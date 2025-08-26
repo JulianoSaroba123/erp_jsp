@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Iniciar Aplicação Flask",
+			"type": "shell",
+			"command": "C:/Users/julia/Desktop/erp_jsp/.venv/Scripts/python.exe",
+			"args": [
+				"run.py"
+			],
+			"group": "build",
+			"isBackground": true
+		}
+	]
+}
