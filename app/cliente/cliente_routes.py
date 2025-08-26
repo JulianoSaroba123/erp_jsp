@@ -32,13 +32,14 @@ def novo_cliente():
     if request.method == 'POST':
         try:
             cliente = Cliente()
+            cliente.codigo = gerar_codigo_cliente()
             cliente.nome = request.form['nome']
             cliente.cpf_cnpj = request.form.get('cpf_cnpj', '')
             cliente.email = request.form.get('email')
             cliente.telefone = request.form.get('telefone')
             cliente.endereco = request.form.get('endereco')
             cliente.ativo = 'ativo' in request.form
-            
+
             db.session.add(cliente)
             db.session.commit()
             flash('Cliente cadastrado com sucesso!', 'success')
@@ -71,12 +72,18 @@ def editar_cliente(id):
             cliente.inscricao_estadual = request.form.get('inscricao_estadual')
             cliente.inscricao_municipal = request.form.get('inscricao_municipal')
             cliente.observacoes = request.form.get('observacoes')
+            # Garante que o campo codigo exista
+            if not hasattr(cliente, 'codigo') or not cliente.codigo:
+                cliente.codigo = gerar_codigo_cliente()
             db.session.commit()
             flash('Cliente atualizado com sucesso!', 'success')
             return redirect(url_for('cliente.listar_clientes'))
         except Exception as e:
             db.session.rollback()
             flash(f'Erro ao atualizar cliente: {e}', 'danger')
+    # Garante que o campo codigo exista ao renderizar o template
+    if not hasattr(cliente, 'codigo') or not cliente.codigo:
+        cliente.codigo = gerar_codigo_cliente()
     return render_template('cliente/cadastro.html', cliente=cliente, codigo_gerado=cliente.codigo)
 
 # Exclusão

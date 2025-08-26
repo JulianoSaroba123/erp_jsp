@@ -6,6 +6,7 @@ class Cliente(db.Model):
     __tablename__ = 'clientes'
     
     id = db.Column(db.Integer, primary_key=True)
+    codigo = db.Column(db.String(10), unique=True, nullable=False)
     nome = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=True)
     telefone = db.Column(db.String(20), nullable=True)
@@ -20,6 +21,7 @@ class Cliente(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
+            'codigo': self.codigo,
             'nome': self.nome,
             'email': self.email,
             'telefone': self.telefone,
