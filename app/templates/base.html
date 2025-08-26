@@ -88,32 +88,27 @@
         </div>
         <ul class="nav flex-column">
             <li class="nav-item mb-1">
-                <a class="nav-link {% if request.endpoint == 'cliente.listar_clientes' %}active{% endif %}" href="{{ url_for('cliente.listar_clientes') }}">
-                    <i class="fas fa-home"></i> Clientes
-                </a>
-            </li>
-            <li class="nav-item mb-1">
-                <!-- <a class="nav-link" href="#">Orçamentos (removido)</a> -->
-                    <i class="fas fa-file-invoice-dollar"></i> Orçamentos
-                </a>
-            </li>
-            <li class="nav-item mb-1">
                 <a class="nav-link {% if 'cliente' in request.endpoint %}active{% endif %}" href="{{ url_for('cliente.listar_clientes') }}">
                     <i class="fas fa-users"></i> Clientes
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <!-- <a class="nav-link" href="#">Produtos (removido)</a> -->
+                <a class="nav-link" href="#">
+                    <i class="fas fa-file-invoice-dollar"></i> Orçamentos
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link" href="#">
                     <i class="fas fa-boxes"></i> Produtos
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <!-- <a class="nav-link" href="#">Serviços (removido)</a> -->
+                <a class="nav-link" href="#">
                     <i class="fas fa-concierge-bell"></i> Serviços
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <!-- <a class="nav-link" href="#">Ordens de Serviço (removido)</a> -->
+                <a class="nav-link" href="#">
                     <i class="fas fa-tools"></i> Ordens de Serviço
                 </a>
             </li>
@@ -123,13 +118,13 @@
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <!-- <a class="nav-link" href="#">Relatórios (removido)</a> -->
+                <a class="nav-link" href="#">
                     <i class="fas fa-chart-bar"></i> Relatórios
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <!-- <a class="nav-link" href="#">Financeiro (removido)</a> -->
-                    <i class="fas fa-cash-register me-2"></i> Financeiro
+                <a class="nav-link" href="#">
+                    <i class="fas fa-cash-register"></i> Financeiro
                 </a>
             </li>
             <li class="nav-item mb-1">
