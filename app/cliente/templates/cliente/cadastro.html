@@ -371,22 +371,23 @@ $(document).ready(function() {
                 $('#cpf_cnpj_info').html('<i class="fas fa-spinner fa-spin"></i> Buscando dados do CNPJ...');
             },
             success: function(data) {
-                if (data.company_name) {
-                    $('#nome').val(data.company_name);
+                // BrasilAPI pode retornar razao_social, nome_fantasia, telefone, email, etc.
+                if (data.razao_social) {
+                    $('#nome').val(data.razao_social);
                     $('#email').val(data.email || '');
-                    $('#telefone').val(formatarTelefone(data.phone) || '');
-                    
+                    $('#telefone').val(formatarTelefone(data.telefone || data.ddd_telefone_1 || ''));
+
                     // Preencher endereço
-                    if (data.zip) {
-                        $('#cep').val(formatarCep(data.zip));
-                        $('#logradouro').val(data.street || '');
-                        $('#numero').val(data.number || '');
-                        $('#complemento').val(data.additional_address_details || '');
-                        $('#bairro').val(data.district || '');
-                        $('#cidade').val(data.city || '');
-                        $('#uf').val(data.state || '');
+                    if (data.cep) {
+                        $('#cep').val(formatarCep(data.cep));
+                        $('#logradouro').val(data.logradouro || '');
+                        $('#numero').val(data.numero || '');
+                        $('#complemento').val(data.complemento || '');
+                        $('#bairro').val(data.bairro || '');
+                        $('#cidade').val(data.municipio || data.cidade || '');
+                        $('#uf').val(data.uf || '');
                     }
-                    
+
                     $('#cpf_cnpj_info').html('<i class="fas fa-check text-success"></i> Dados encontrados e preenchidos automaticamente');
                 } else {
                     $('#cpf_cnpj_info').html('<i class="fas fa-exclamation-triangle text-warning"></i> CNPJ válido, mas dados não encontrados');
