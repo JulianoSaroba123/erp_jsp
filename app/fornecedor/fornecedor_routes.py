@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from .fornecedor_model import Fornecedor
-from extensoes import db
+from app.extensoes import db
 
 fornecedor_bp = Blueprint(
     'fornecedor',
