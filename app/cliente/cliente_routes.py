@@ -32,24 +32,13 @@ def novo_cliente():
     if request.method == 'POST':
         try:
             cliente = Cliente()
-            cliente.codigo = gerar_codigo_cliente()
             cliente.nome = request.form['nome']
-            cliente.nome_fantasia = request.form.get('nome_fantasia')
             cliente.cpf_cnpj = request.form.get('cpf_cnpj', '')
             cliente.email = request.form.get('email')
             cliente.telefone = request.form.get('telefone')
-            cliente.cep = request.form.get('cep')
             cliente.endereco = request.form.get('endereco')
-            cliente.numero = request.form.get('numero')
-            cliente.complemento = request.form.get('complemento')
-            cliente.bairro = request.form.get('bairro')
-            cliente.cidade = request.form.get('cidade')
-            cliente.uf = request.form.get('uf')
-            cliente.pais = request.form.get('pais', 'Brasil')
-            cliente.inscricao_estadual = request.form.get('inscricao_estadual')
-            cliente.inscricao_municipal = request.form.get('inscricao_municipal')
-            cliente.observacoes = request.form.get('observacoes')
-            cliente.ativo = True
+            cliente.ativo = 'ativo' in request.form
+            
             db.session.add(cliente)
             db.session.commit()
             flash('Cliente cadastrado com sucesso!', 'success')
@@ -57,8 +46,8 @@ def novo_cliente():
         except Exception as e:
             db.session.rollback()
             flash(f'Erro ao cadastrar cliente: {e}', 'danger')
-    codigo_gerado = gerar_codigo_cliente()
-    return render_template('cliente/cadastro.html', codigo_gerado=codigo_gerado, cliente=None)
+    
+    return render_template('cliente/cadastro.html')
 
 # Edição
 @cliente_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
