@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+<!-- Template de Cadastro Avançado v2.0 - Atualizado em 26/08/2025 -->
 {% block content %}
 <style>
     form .form-control, form .form-select {
@@ -45,7 +46,7 @@
     <div class="card shadow p-4">
         <h4 class="mb-4 text-success">
             <i class="fas fa-users"></i> 
-            {{ 'Editar Cliente' if cliente else 'Cadastro de Cliente' }}
+            {{ 'Editar Cliente' if cliente else 'Cadastro de Cliente Avançado' }}
         </h4>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
