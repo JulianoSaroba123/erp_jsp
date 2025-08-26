@@ -3,7 +3,7 @@
 
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, flash
 from .cliente_model import Cliente
-from extensoes import db
+from app.extensoes import db
 from sqlalchemy import or_
 
 cliente_bp = Blueprint('cliente', __name__, url_prefix='/clientes', template_folder='templates')
