@@ -37,7 +37,25 @@ def novo_cliente():
             cliente.cpf_cnpj = request.form.get('cpf_cnpj', '')
             cliente.email = request.form.get('email')
             cliente.telefone = request.form.get('telefone')
-            cliente.endereco = request.form.get('endereco')
+            
+            # Construir endereço completo a partir dos campos separados
+            endereco_partes = []
+            if request.form.get('logradouro'):
+                endereco_partes.append(request.form.get('logradouro'))
+            if request.form.get('numero'):
+                endereco_partes.append(f"nº {request.form.get('numero')}")
+            if request.form.get('complemento'):
+                endereco_partes.append(request.form.get('complemento'))
+            if request.form.get('bairro'):
+                endereco_partes.append(f"Bairro: {request.form.get('bairro')}")
+            if request.form.get('cidade'):
+                endereco_partes.append(request.form.get('cidade'))
+            if request.form.get('uf'):
+                endereco_partes.append(request.form.get('uf'))
+            if request.form.get('cep'):
+                endereco_partes.append(f"CEP: {request.form.get('cep')}")
+            
+            cliente.endereco = ', '.join(endereco_partes) if endereco_partes else ''
             cliente.ativo = 'ativo' in request.form
 
             db.session.add(cliente)
@@ -57,21 +75,30 @@ def editar_cliente(id):
     if request.method == 'POST':
         try:
             cliente.nome = request.form['nome']
-            cliente.nome_fantasia = request.form.get('nome_fantasia')
             cliente.cpf_cnpj = request.form.get('cpf_cnpj')
             cliente.email = request.form.get('email')
             cliente.telefone = request.form.get('telefone')
-            cliente.cep = request.form.get('cep')
-            cliente.endereco = request.form.get('endereco')
-            cliente.numero = request.form.get('numero')
-            cliente.complemento = request.form.get('complemento')
-            cliente.bairro = request.form.get('bairro')
-            cliente.cidade = request.form.get('cidade')
-            cliente.uf = request.form.get('uf')
-            cliente.pais = request.form.get('pais', 'Brasil')
-            cliente.inscricao_estadual = request.form.get('inscricao_estadual')
-            cliente.inscricao_municipal = request.form.get('inscricao_municipal')
-            cliente.observacoes = request.form.get('observacoes')
+            
+            # Construir endereço completo a partir dos campos separados
+            endereco_partes = []
+            if request.form.get('logradouro'):
+                endereco_partes.append(request.form.get('logradouro'))
+            if request.form.get('numero'):
+                endereco_partes.append(f"nº {request.form.get('numero')}")
+            if request.form.get('complemento'):
+                endereco_partes.append(request.form.get('complemento'))
+            if request.form.get('bairro'):
+                endereco_partes.append(f"Bairro: {request.form.get('bairro')}")
+            if request.form.get('cidade'):
+                endereco_partes.append(request.form.get('cidade'))
+            if request.form.get('uf'):
+                endereco_partes.append(request.form.get('uf'))
+            if request.form.get('cep'):
+                endereco_partes.append(f"CEP: {request.form.get('cep')}")
+            
+            cliente.endereco = ', '.join(endereco_partes) if endereco_partes else ''
+            cliente.ativo = 'ativo' in request.form
+            
             # Garante que o campo codigo exista
             if not hasattr(cliente, 'codigo') or not cliente.codigo:
                 cliente.codigo = gerar_codigo_cliente()
