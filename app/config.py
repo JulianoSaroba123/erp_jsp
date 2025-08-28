@@ -1,7 +1,11 @@
 # config.py
 import os
+from urllib.parse import quote_plus
 
-# Configurações do banco de dados
-SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'postgresql://usuario:senha@localhost:5432/jsp_erp'
+# Melhor prática: usar variáveis de ambiente
+usuario = os.getenv("DB_USER", "postgres")
+senha = quote_plus(os.getenv("DB_PASS", "minhaçsenha"))
+
+SQLALCHEMY_DATABASE_URI = f"postgresql://{usuario}:{senha}@localhost:5432/jsp_erp"
 SQLALCHEMY_TRACK_MODIFICATIONS = False
-SECRET_KEY = os.environ.get('SECRET_KEY') or 'sua_chave_super_secreta_para_producao'
+SECRET_KEY = os.environ.get('SECRET_KEY') or 'chave_super_secreta'
