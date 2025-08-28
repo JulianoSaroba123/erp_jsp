@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Condições de Pagamento{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-success">Condições de Pagamento</h2>
+        <a href="{{ url_for('condicoes_pagamento.nova_condicao_pagamento') }}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Nova Condição
+        </a>
+    </div>
+    <div class="card border-success">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="bg-success text-white">
+                    <tr>
+                        <th>ID</th>
+                        <th>Descrição</th>
+                        <th>Tipo</th>
+                        <th>Parcelas</th>
+                        <th>Desconto (%)</th>
+                        <th>Juros (%)</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for condicao in condicoes %}
+                    <tr>
+                        <td>{{ condicao.id }}</td>
+                        <td>{{ condicao.descricao }}</td>
+                        <td>{{ condicao.tipo }}</td>
+                        <td>{{ condicao.parcelas }}</td>
+                        <td>{{ condicao.desconto }}</td>
+                        <td>{{ condicao.juros }}</td>
+                        <td>
+                            <a href="{{ url_for('condicoes_pagamento.editar_condicao_pagamento', id=condicao.id) }}" class="btn btn-sm btn-outline-warning" title="Editar"><i class="fas fa-edit"></i></a>
+                            <form action="{{ url_for('condicoes_pagamento.excluir_condicao_pagamento', id=condicao.id) }}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir esta condição?');"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center">Nenhuma condição cadastrada.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+.text-success { color: #198754; }
+.bg-success { background-color: #198754 !important; }
+.border-success { border: 1px solid #198754 !important; }
+</style>
+{% endblock %}

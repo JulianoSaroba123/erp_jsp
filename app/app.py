@@ -13,8 +13,12 @@ app = Flask(__name__)
 # IMPORTS DOS BLUEPRINTS APÓS CRIAÇÃO DO APP E DB
 
 # Importa blueprints
+
 from app.cliente.cliente_routes import cliente_bp
 from app.fornecedor.fornecedor_routes import fornecedor_bp
+from app.produto.produto_routes import produto_bp
+from app.servico.servico_routes import servico_bp
+from app.orcamento.orcamento_routes import orcamento_bp
 
 # Decorator para exigir login
 def login_required(f):
@@ -44,10 +48,12 @@ db.init_app(app)
 
 # Registra Blueprints
 
+
 app.register_blueprint(cliente_bp)
 app.register_blueprint(fornecedor_bp)
-
-
+app.register_blueprint(produto_bp)
+app.register_blueprint(servico_bp)
+app.register_blueprint(orcamento_bp)
 
 # Criar tabelas do banco de dados
 with app.app_context():

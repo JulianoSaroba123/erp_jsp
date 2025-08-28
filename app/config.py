@@ -2,10 +2,13 @@
 import os
 from urllib.parse import quote_plus
 
-# Melhor prática: usar variáveis de ambiente
-usuario = os.getenv("DB_USER", "postgres")
-senha = quote_plus(os.getenv("DB_PASS", "minhaçsenha"))
+# Carregar variáveis do .env
+from dotenv import load_dotenv
+load_dotenv()
 
-SQLALCHEMY_DATABASE_URI = f"postgresql://{usuario}:{senha}@localhost:5432/jsp_erp"
+# Configurações do banco de dados
+# Prioridade: DATABASE_URL do .env > SQLite padrão
+SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///./database/database.db'
+
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = os.environ.get('SECRET_KEY') or 'chave_super_secreta'

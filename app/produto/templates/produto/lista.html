@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block titulo %}Lista de Produtos - JSP ERP{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Cards de estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <i class="fas fa-boxes fa-2x mb-2"></i>
+                <h4>{{ total_produtos|default(produtos|length if produtos is defined else 0) }}</h4>
+                <p class="mb-0">Total de Produtos</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                <h4>{{ produtos|selectattr('status_estoque', 'equalto', 'Baixo')|list|length + produtos|selectattr('status_estoque', 'equalto', 'Crítico')|list|length }}</h4>
+                <p class="mb-0">Estoque Baixo/Crítico</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <i class="fas fa-money-bill-wave fa-2x mb-2"></i>
+                <h4>R$ {{ "%.2f"|format(produtos|sum(attribute='preco_venda')) }}</h4>
+                <p class="mb-0">Valor Total</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card text-center">
+                <i class="fas fa-percentage fa-2x mb-2"></i>
+                <h4>{{ "%.1f"|format((produtos|sum(attribute='markup_percentual') / produtos|length) if produtos|length > 0 else 0) }}%</h4>
+                <p class="mb-0">Markup Médio</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-success">
+            <i class="fas fa-boxes"></i> Lista de Produtos
+        </h3>
+        <a href="{{ url_for('produto.novo_produto') }}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Novo Produto
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nome</th>
+                    <th>Preço</th>
+                    <th>Estoque</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produto in produtos %}
+                <tr>
+                    <td>{{ produto.codigo }}</td>
+                    <td>{{ produto.nome }}</td>
+                    <td>R$ {{ "%.2f"|format(produto.preco_venda) }}</td>
+                    <td>{{ produto.estoque_atual }}</td>
+                    <td>
+                        <a href="{{ url_for('produto.editar_produto', id=produto.id) }}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <form action="{{ url_for('produto.excluir_produto', id=produto.id) }}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .stats-card {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .table th {
+        background-color: #28a745;
+        color: white;
+        border: none;
+    }
+    .badge-estoque-normal { background-color: #28a745; }
+    .badge-estoque-baixo { background-color: #ffc107; color: #000; }
+    .badge-estoque-critico { background-color: #dc3545; }
+    .badge-estoque-zerado { background-color: #6c757d; }
+</style>
+{% endblock %}

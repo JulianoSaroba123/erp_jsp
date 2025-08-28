@@ -120,18 +120,23 @@
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <a class="nav-link" href="#">
-                    <i class="fas fa-file-invoice-dollar"></i> Orçamentos
+                <a class="nav-link {% if 'fornecedor' in request.endpoint %}active{% endif %}" href="{{ url_for('fornecedor.listar_fornecedores') }}">
+                    <i class="fas fa-truck"></i> Fornecedores
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <a class="nav-link" href="#">
+                <a class="nav-link {% if 'produto' in request.endpoint %}active{% endif %}" href="{{ url_for('produto.listar_produtos') }}">
                     <i class="fas fa-boxes"></i> Produtos
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <a class="nav-link" href="#">
+                <a class="nav-link {% if 'servico' in request.endpoint %}active{% endif %}" href="{{ url_for('servico.listar_servicos') }}">
                     <i class="fas fa-concierge-bell"></i> Serviços
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a class="nav-link {% if 'orcamento' in request.endpoint %}active{% endif %}" href="{{ url_for('orcamento.listar_orcamentos') }}">
+                    <i class="fas fa-file-invoice-dollar"></i> Orçamentos
                 </a>
             </li>
             <li class="nav-item mb-1">
@@ -140,18 +145,13 @@
                 </a>
             </li>
             <li class="nav-item mb-1">
-                <a class="nav-link {% if 'fornecedor' in request.endpoint %}active{% endif %}" href="{{ url_for('fornecedor.listar_fornecedores') }}">
-                    <i class="fas fa-truck"></i> Fornecedores
+                <a class="nav-link" href="#">
+                    <i class="fas fa-cash-register"></i> Financeiro
                 </a>
             </li>
             <li class="nav-item mb-1">
                 <a class="nav-link" href="#">
                     <i class="fas fa-chart-bar"></i> Relatórios
-                </a>
-            </li>
-            <li class="nav-item mb-1">
-                <a class="nav-link" href="#">
-                    <i class="fas fa-cash-register"></i> Financeiro
                 </a>
             </li>
             <li class="nav-item mb-1">
@@ -167,7 +167,7 @@
         </div>
     </nav>
     {% endif %}
-    <main class="main-content" style="{% if not session.get('usuario') %}margin-left:0;{% endif %}">
+    <main class="main-content"{% if not session.get('usuario') %} style="margin-left:0;"{% endif %}>
         {% block content %}{% endblock %}
     </main>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.6/inputmask.min.js"></script>

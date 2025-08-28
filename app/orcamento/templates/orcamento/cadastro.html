@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% block title %}Novo Orçamento{% endblock %}
+
+{% block content %}
+<style>
+    form .form-control, form .form-select {
+        border: 2px solid #ff9d00;
+        border-radius: 6px;
+        box-shadow: none;
+        transition: all 0.3s ease-in-out;
+    }
+    form .form-control:focus, form .form-select:focus {
+        border-color: #e68900;
+        box-shadow: 0 0 0 0.2rem rgba(255, 157, 0, 0.15);
+    }
+    .card {
+        border: 2px solid #ff9d00;
+        border-radius: 8px;
+    }
+    label, .form-label {
+        font-weight: 600;
+        display: block;
+    }
+    .secao-formulario {
+        background: linear-gradient(135deg, #fff7e6, #ffefcc);
+        border: 2px solid #ff9d00;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="card shadow p-4">
+        <h4 class="mb-4" style="color:#ff9d00;">
+            <i class="bi bi-file-earmark-text-fill"></i> 
+            Cadastro de Orçamento
+            <span class="badge rounded-pill text-bg-dark ms-auto">Nº: {{ codigo_preview }}</span>
+        </h4>
+        
+        <form id="formOrcamento" method="POST" action="{{ url_for('orcamento.salvar_orcamento') }}">
+            <!-- Informações Básicas -->
+            <div class="secao-formulario">
+                <h6 style="color:#ff9d00;" class="mb-3"><i class="bi bi-info-circle-fill"></i> Informações Básicas</h6>
+
+                <!-- Linha 1: Cliente | Data | Previsão de Entrega -->
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="cliente_id" class="form-label">Cliente *</label>
+                        <select class="form-select" id="cliente_id" name="cliente_id" required>
+                            <option value="" selected disabled>Selecione</option>
+                            {% for c in clientes %}
+                                <option
+                                    value="{{ c.id }}"
+                                    data-razao="{{ c.nome or '' }}"
+                                    data-fantasia="{{ c.fantasia or '' }}"
+                                    data-doc="{{ c.cnpj or c.cpf or '' }}"
+                                    data-endereco="{{ c.endereco or '' }}"
+                                    data-cidade="{{ c.cidade or '' }}"
+                                    data-uf="{{ c.uf or '' }}"
+                                    data-cep="{{ c.cep or '' }}"
+                                    data-telefone="{{ c.telefone or '' }}"
+                                    data-email="{{ c.email or '' }}"
+                                >{{ c.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="data" class="form-label">Data *</label>
+                        <div class="input-group">
+                            <input type="date" class="form-control" id="data" name="data" value="{{ data_hoje or '' }}" required>
+                            <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="previsao_entrega" class="form-label">Previsão de Entrega</label>
+                        <input type="date" class="form-control" id="previsao_entrega" name="previsao_entrega">
+                    </div>
+                </div>
+
+                <!-- Linha 2: Vendedor | Validade | Status -->
+                <div class="row g-3 mt-1">
+                    <div class="col-md-4">
+                        <label for="vendedor" class="form-label">Vendedor</label>
+                        <input type="text" class="form-control" id="vendedor" name="vendedor" placeholder="Ex.: Juliano Saroba Pereira">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="validade" class="form-label">Validade (dias) *</label>
+                        <input type="number" class="form-control" id="validade" name="validade" min="1" step="1" value="7" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="status" class="form-label">Status *</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="Pendente" selected>Pendente</option>
+                            <option value="Aprovado">Aprovado</option>
+                            <option value="Recusado">Recusado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Linha 3: Condição Pagamento | Valor Total -->
+                <div class="row g-3 mt-1">
+                    <div class="col-md-6">
+                        <label for="condicao_pagamento_id" class="form-label">Condição de Pagamento *</label>
+                        <select class="form-select" id="condicao_pagamento_id" name="condicao_pagamento_id" required>
+                            <option value="" selected disabled>Selecione</option>
+                            {% for cond in condicoes %}
+                                <option value="{{ cond.id }}">
+                                    {{ cond.descricao }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="valor_total" class="form-label">Valor Total *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input type="text" class="form-control" id="valor_total" name="valor_total" placeholder="0,00" inputmode="decimal" required>
+                        </div>
+                        <div class="form-text">Digite apenas números. Ex.: 1250,90</div>
+                    </div>
+                </div>
+
+                <!-- Observações / Serviço Proposto (como no PDF) -->
+                <div class="mt-3">
+                    <label for="observacoes" class="form-label">Observações / Serviço Proposto</label>
+                    <textarea class="form-control" id="observacoes" name="observacoes" rows="5"
+                        placeholder="1) Descrever escopo do serviço conforme combinado...&#10;2) Condições específicas..."></textarea>
+                </div>
+            </div>
+
+            <!-- Dados do Cliente (painel visual somente leitura, igual ao PDF) -->
+            <div class="mt-4 p-3 border rounded bg-light" style="border:2px solid #ff9d00;">
+                <div class="fw-bold mb-2" style="color:#ff9d00;"><i class="bi bi-person-vcard me-1"></i> Dados do Cliente</div>
+                <div class="row g-2 small">
+                    <div class="col-md-6"><strong>Razão social:</strong> <span id="cli_razao">—</span></div>
+                    <div class="col-md-6"><strong>Nome fantasia:</strong> <span id="cli_fantasia">—</span></div>
+                    <div class="col-md-6"><strong>CNPJ/CPF:</strong> <span id="cli_doc">—</span></div>
+                    <div class="col-md-6"><strong>E-mail:</strong> <span id="cli_email">—</span></div>
+                    <div class="col-md-8"><strong>Endereço:</strong> <span id="cli_end">—</span></div>
+                    <div class="col-md-2"><strong>Cidade/UF:</strong> <span id="cli_cidade_uf">—</span></div>
+                    <div class="col-md-2"><strong>CEP:</strong> <span id="cli_cep">—</span></div>
+                    <div class="col-md-4"><strong>Telefone:</strong> <span id="cli_tel">—</span></div>
+                </div>
+            </div>
+
+            <!-- Hidden JSONs para futuro -->
+            <input type="hidden" name="servicos_json" id="servicos_json" value="[]">
+            <input type="hidden" name="produtos_json" id="produtos_json" value="[]">
+
+            <!-- Ações -->
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a href="{{ url_for('orcamento.listar_orcamentos') }}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn" style="background:#ffb703; color:#111; font-weight:600;">Salvar Orçamento</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(function(){
+    // Data padrão
+    const inputData = document.getElementById('data');
+    if (inputData && !inputData.value) {
+        const hoje = new Date();
+        const yyyy = hoje.getFullYear();
+        const mm = String(hoje.getMonth()+1).padStart(2,'0');
+        const dd = String(hoje.getDate()).padStart(2,'0');
+        inputData.value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    // Preenche painel "Dados do Cliente" ao selecionar
+    const selCliente = document.getElementById('cliente_id');
+    const byId = (id)=>document.getElementById(id);
+
+    function fillCliente(){
+        const opt = selCliente.options[selCliente.selectedIndex];
+        if(!opt || !opt.dataset) return;
+        byId('cli_razao').textContent = opt.dataset.razao || '—';
+        byId('cli_fantasia').textContent = opt.dataset.fantasia || '—';
+        byId('cli_doc').textContent = opt.dataset.doc || '—';
+        byId('cli_end').textContent = opt.dataset.endereco || '—';
+        byId('cli_cidade_uf').textContent = ((opt.dataset.cidade||'') + '/' + (opt.dataset.uf||'')).replace(/^\//,'') || '—';
+        byId('cli_cep').textContent = opt.dataset.cep || '—';
+        byId('cli_tel').textContent = opt.dataset.telefone || '—';
+        byId('cli_email').textContent = opt.dataset.email || '—';
+    }
+    selCliente && selCliente.addEventListener('change', fillCliente);
+
+    // Normaliza Valor Total para padrão numérico
+    const form = document.getElementById('formOrcamento');
+    const valor = document.getElementById('valor_total');
+
+    valor.addEventListener('blur', () => {
+        let v = valor.value.replace(/\./g, '').replace(',', '.');
+        const n = Number(v);
+        if (!isNaN(n)) {
+            valor.value = n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+    });
+
+    form.addEventListener('submit', (e) => {
+        let v = valor.value.replace(/\./g, '').replace(',', '.');
+        if (isNaN(Number(v))) {
+            e.preventDefault();
+            alert('Valor Total inválido.');
+            valor.focus();
+            return false;
+        }
+        valor.value = Number(v).toFixed(2);
+    });
+})();
+</script>
+{% endblock %}
