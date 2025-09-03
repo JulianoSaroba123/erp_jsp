@@ -1,128 +1,148 @@
 {% extends 'base.html' %}
-
+{% block titulo %}Fornecedores — JSP ERP{% endblock %}
 {% block content %}
-<div class="container mt-4" style="min-height: 100vh;">
-    <!-- Cards de estatísticas -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="stats-card text-center">
-                <i class="fas fa-truck fa-2x mb-2"></i>
-                <h4>{{ total_fornecedores|default(fornecedores|length if fornecedores is defined else 0) }}</h4>
-                <p class="mb-0">Total de Fornecedores</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stats-card text-center">
-                <i class="fas fa-city fa-2x mb-2"></i>
-                <h4>{{ cidades_fornecedores|default('-') }}</h4>
-                <p class="mb-0">Cidades</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stats-card text-center">
-                <i class="fas fa-user-check fa-2x mb-2"></i>
-                <h4>{{ fornecedores_ativos|default('-') }}</h4>
-                <p class="mb-0">Ativos</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Cabeçalho -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="text-fornecedor">
-            <i class="fas fa-truck"></i> Lista de Fornecedores
-        </h3>
-        <a href="{{ url_for('fornecedor.novo_fornecedor') }}" class="btn btn-fornecedor">
-            <i class="fas fa-plus"></i> Novo Fornecedor
-        </a>
-    </div>
-
-    {% if fornecedores %}
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead style="background-color: #28a745; color: white;">
-                    <tr>
-                        <th>Código</th>
-                        <th>Nome</th>
-                        <th>CNPJ</th>
-                        <th>Telefone</th>
-                        <th>CEP</th>
-                        <th>Cidade</th>
-                        <th>Endereço</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for fornecedor in fornecedores %}
-                    <tr>
-                        <td>{{ fornecedor.codigo }}</td>
-                        <td>{{ fornecedor.nome }}</td>
-                        <td>{{ fornecedor.cnpj }}</td>
-                        <td>{{ fornecedor.telefone }}</td>
-                        <td>{{ fornecedor.cep }}</td>
-                        <td>{{ fornecedor.cidade }}</td>
-                        <td>{{ fornecedor.endereco }}</td>
-                        <td>
-                            <a href="{{ url_for('fornecedor.editar_fornecedor', id=fornecedor.id) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <form action="{{ url_for('fornecedor.excluir_fornecedor', id=fornecedor.id) }}" method="post" style="display:inline;">
-                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja excluir este fornecedor?');">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% else %}
-        <div class="alert alert-info text-center">
-            <i class="fas fa-truck fa-3x mb-3"></i>
-            <h4>Nenhum fornecedor cadastrado</h4>
-            <p>Clique em "Novo Fornecedor" para começar.</p>
-        </div>
-    {% endif %}
-
-    <!-- Rodapé -->
-    <div class="text-center mt-4">
-        <small class="text-muted">
-            <i class="fas fa-info-circle"></i>
-            Total de {{ fornecedores|length if fornecedores is defined else 0 }} fornecedores cadastrados
-        </small>
-    </div>
-</div>
 
 <style>
-body {
-    background: radial-gradient(circle at 60% 40%, #4669b3 0%, #19335A 100%) !important;
-    min-height: 100vh;
-}
-.stats-card {
-    background: linear-gradient(135deg, #20c997, #17a2b8);
-    color: white;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-.table th {
-    background-color: #20c997;
-    color: white;
-    border: none;
-}
-.text-fornecedor {
-    color: #20c997 !important;
-}
-.btn-fornecedor {
-    background: linear-gradient(135deg, #20c997, #138d75);
-    color: #fff;
-    border: none;
-    font-weight: 600;
-}
-.btn-fornecedor:hover, .btn-fornecedor:focus {
-    background: linear-gradient(135deg, #138d75, #20c997);
-    color: #fff;
-}
+  /* Adjust colors for table fields */
+  td strong {
+    color: #00bfff; /* Bright blue for strong text */
+  }
+  td {
+    color: #00bfff; /* Bright blue for general text */
+  }
+  code {
+    color: #ff1493; /* Bright pink for code text */
+  }
+  .chip {
+    background-color: transparent; /* Remove background color */
+    color: #00bfff; /* Match text color */
+  }
 </style>
+
+<div class="page-title">
+  <div class="ico"><i class="fas fa-truck"></i></div>
+  <h3 style="margin:0; color: #ffffff;">Fornecedores</h3>
+</div>
+
+<div class="card card-jsp mb-3">
+  <div class="card-header d-flex flex-wrap gap-2 align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-2">
+      <i class="fas fa-database" style="color: #ffffff;"></i>
+      <strong style="color: #ffffff;">Base de Fornecedores</strong>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <form class="d-flex" method="GET" action="{{ url_for('fornecedor.listar_fornecedores') }}">
+        <input class="form-control form-control-sm" type="search" name="q"
+               placeholder="Buscar por nome, documento ou e-mail"
+               value="{{ request.args.get('q','') }}" style="min-width:260px">
+        <button class="btn btn-brand btn-sm ms-2" type="submit">
+          <i class="fas fa-search me-1"></i> Buscar
+        </button>
+      </form>
+      <a class="btn btn-brand btn-sm" href="{{ url_for('fornecedor.novo_fornecedor') }}">
+        <i class="fas fa-plus me-1"></i> Novo Fornecedor
+      </a>
+    </div>
+  </div>
+
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-jsp table-striped align-middle mb-0">
+        <thead>
+          <tr>
+            <th style="width:110px; color: #ffffff;">Código</th>
+            <th style="color: #ffffff;">Nome/Razão</th>
+            <th style="width:150px; color: #ffffff;">CPF/CNPJ</th>
+            <th style="width:160px; color: #ffffff;">Telefone</th>
+            <th style="width:220px; color: #ffffff;">E-mail</th>
+            <th style="width:160px; color: #ffffff;">Cidade/UF</th>
+            <th style="width:110px; color: #ffffff;">Status</th>
+            <th style="width:140px; color: #ffffff;" class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set lista = fornecedores.items if fornecedores is defined and fornecedores.items is defined else fornecedores %}
+          {% if lista and lista|length > 0 %}
+            {% for f in lista %}
+            <tr>
+              <td><code>{{ f.codigo or ('FOR%05d' % f.id) }}</code></td>
+              <td>
+                <strong>{{ f.razao_social or f.nome }}</strong>
+                {% if f.nome_fantasia %}<div class="text-muted small" style="color: #00bfff;">{{ f.nome_fantasia }}</div>{% endif %}
+              </td>
+              <td style="color: #00bfff;">{{ f.cnpj or f.cpf_cnpj or '-' }}</td>
+              <td style="color: #00bfff;">{{ f.telefone or '-' }}</td>
+              <td><a href="mailto:{{ f.email }}" style="color: #00bfff;">{{ f.email or '-' }}</a></td>
+              <td style="color: #00bfff;">
+                {% set cid = f.cidade or '-' %}
+                {% set uf  = f.uf or '' %}
+                {{ cid }}{% if uf %}/{{ uf }}{% endif %}
+              </td>
+              <td>
+                {% if f.ativo %}
+                  <span class="chip">Ativo</span>
+                {% else %}
+                  <span class="chip">Inativo</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <a class="btn btn-brand" href="{{ url_for('fornecedor.editar_fornecedor', id=f.id) if url_for else '#' }}">
+                    <i class="fas fa-pen" style="color: #ffffff;"></i>
+                  </a>
+                  <a class="btn btn-outline-light" style="border-color:rgba(255,255,255,.25); color: #ffffff;"
+                     href="{{ url_for('fornecedor.detalhar_fornecedor', id=f.id) if url_for else '#' }}">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <form method="POST" action="{{ url_for('fornecedor.excluir_fornecedor', id=f.id) if url_for else '#' }}"
+                        onsubmit="return confirm('Confirma excluir {{ f.razao_social or f.nome }}?');">
+                    <button class="btn btn-outline-light" style="border-color:rgba(255,255,255,.25); color: #ffffff;">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="8" class="text-center text-muted py-4" style="color: #00bfff;">Nenhum fornecedor encontrado.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% set pag = paginacao if paginacao is defined else (fornecedores if fornecedores and fornecedores.pages is defined else None) %}
+  {% if pag %}
+  <div class="card-footer d-flex justify-content-between align-items-center">
+    <span class="text-muted small" style="color: #00bfff;">
+      Página {{ pag.page }} de {{ pag.pages }} — {{ pag.total }} registros
+    </span>
+    <nav>
+      <ul class="pagination pagination-sm mb-0">
+        <li class="page-item {% if not pag.has_prev %}disabled{% endif %}">
+          <a class="page-link" style="color: #ffffff;"
+             href="{{ url_for('fornecedor.listar_fornecedores', pagina=pag.prev_num, q=request.args.get('q')) }}">«</a>
+        </li>
+
+        {% set start = 1 if pag.page - 2 < 1 else pag.page - 2 %}
+        {% set end = pag.pages if pag.page + 2 > pag.pages else pag.page + 2 %}
+        {% for p in range(start, end + 1) %}
+        <li class="page-item {% if p == pag.page %}active{% endif %}">
+          <a class="page-link" style="color: #ffffff;"
+             href="{{ url_for('fornecedor.listar_fornecedores', pagina=p, q=request.args.get('q')) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+
+        <li class="page-item {% if not pag.has_next %}disabled{% endif %}">
+          <a class="page-link" style="color: #ffffff;"
+             href="{{ url_for('fornecedor.listar_fornecedores', pagina=pag.next_num, q=request.args.get('q')) }}">»</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</div>
+
+
 {% endblock %}

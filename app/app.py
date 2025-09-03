@@ -7,18 +7,34 @@ from app.config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, 
 from dotenv import load_dotenv
 load_dotenv()
 
-app = Flask(__name__)
+from flask import Flask
+import os
+
+BASE_DIR = os.path.dirname(__file__)
+ROOT_DIR = os.path.dirname(BASE_DIR)
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, "templates"),
+    static_folder=os.path.join(ROOT_DIR, "static"),
+    static_url_path="/static"
+)
+
 # migrate = Migrate(app, db)  # Temporariamente desabilitado
 
 # IMPORTS DOS BLUEPRINTS APÓS CRIAÇÃO DO APP E DB
 
 # Importa blueprints
 
+
 from app.cliente.cliente_routes import cliente_bp
 from app.fornecedor.fornecedor_routes import fornecedor_bp
 from app.produto.produto_routes import produto_bp
 from app.servico.servico_routes import servico_bp
 from app.orcamento.orcamento_routes import orcamento_bp
+from app.configuracoes.condicoes_pagamento.condicoes_pagamento_routes import condicoes_pagamento_bp
+from app.ordem_servico.os_routes import os_bp
+from app.financeiro.financeiro_routes import financeiro_bp
 
 # Decorator para exigir login
 def login_required(f):
@@ -49,11 +65,15 @@ db.init_app(app)
 # Registra Blueprints
 
 
+
 app.register_blueprint(cliente_bp)
 app.register_blueprint(fornecedor_bp)
 app.register_blueprint(produto_bp)
 app.register_blueprint(servico_bp)
 app.register_blueprint(orcamento_bp)
+app.register_blueprint(condicoes_pagamento_bp)
+app.register_blueprint(os_bp)
+app.register_blueprint(financeiro_bp)
 
 # Criar tabelas do banco de dados
 with app.app_context():
@@ -78,10 +98,10 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        if username == 'admin' and password == 'admin':
+        if username == 'Juliano' and password == 'admin':
             session['usuario'] = username
             flash('Login realizado com sucesso!', 'success')
-            return redirect(url_for('cliente.listar_clientes'))
+            return redirect(url_for('inicio'))
         else:
             flash('Usuário ou senha inválidos.', 'danger')
     return render_template('login.html')
@@ -91,7 +111,17 @@ def login():
 @app.route('/inicio')
 @login_required
 def inicio():
-    return render_template('index.html')
+    # Dados padrão para os gráficos
+    grafico_entradas = []
+    grafico_saidas = []
+    categorias = []
+    valores_cat = []
+    
+    return render_template('index.html', 
+                         grafico_entradas=grafico_entradas,
+                         grafico_saidas=grafico_saidas,
+                         categorias=categorias,
+                         valores_cat=valores_cat)
 
 # Rota para dashboard
 @app.route('/dashboard')

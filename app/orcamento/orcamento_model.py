@@ -21,7 +21,7 @@ class Orcamento(db.Model):
 
     # Relacionamentos
     cliente = db.relationship('Cliente', backref='orcamentos')
-    # condicao_pagamento = db.relationship('CondicaoPagamento')
+    condicao_pagamento = db.relationship('CondicaoPagamento', backref='orcamentos')
 
     def __repr__(self):
         return f'<Orcamento {self.codigo}>'

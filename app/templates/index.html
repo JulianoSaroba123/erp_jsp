@@ -1,464 +1,246 @@
 {% extends 'base.html' %}
+{% block titulo %}Dashboard — JSP ERP{% endblock %}
 {% block content %}
+
 <style>
-  body, .container-fluid {
-    background: #181c2f !important;
-    color: #fff !important;
-    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-  }
-  .dashboard-top {
-    margin-bottom: 2rem;
-    background: none;
-    border-radius: 18px;
-    box-shadow: none;
-    padding: 0;
-  }
-  .finance-card {
-    border-radius: 18px;
-    box-shadow: 0 6px 24px 0 #0004;
-    background: linear-gradient(135deg, #ff6a00 0%, #ee0979 100%);
-    color: #fff;
-    margin-bottom: 1.2rem;
-    padding: 1.2rem 1.1rem 1.1rem 1.1rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 110px;
-    transition: box-shadow 0.2s, transform 0.2s;
-  }
-  .finance-card:hover {
-    box-shadow: 0 10px 32px 0 #0006;
-    transform: translateY(-2px) scale(1.03);
-  }
-  .finance-card.blue { background: linear-gradient(135deg, #283e51 0%, #485563 100%); }
-  .finance-card.green { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
-  .finance-card.purple { background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); }
-  .finance-card .card-title {
-    font-size: 1.08rem;
-    font-weight: 600;
-    opacity: 0.92;
-    letter-spacing: 0.01em;
-    margin-bottom: 0.2rem;
-  }
-  .finance-card .card-value {
-    font-size: 2.1rem;
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: 0.01em;
-  }
-  .dashboard-bottom { background: none; }
-  .dashboard-card, .finance-card, .card {
-    box-shadow: 0 6px 24px 0 #0004;
-    border-radius: 18px;
-  }
-  .dashboard-card .card-header {
-    border-radius: 16px 16px 0 0;
-    color: #fff;
-    font-weight: 700;
-    font-size: 1.15rem;
-    letter-spacing: 0.01em;
-    padding: 0.7rem 0.5rem 0.5rem 0.5rem;
-    margin-bottom: 0.2rem;
-  }
-  .dashboard-card .card-body {
-    color: #e0e0e0;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.4;
-  }
-  .dashboard-card .btn-outline-primary, .dashboard-card .btn-outline-success, .dashboard-card .btn-outline-danger, .dashboard-card .btn-outline-info {
-    border-width: 2px;
-    background: transparent;
-    color: #fff !important;
-    border-color: #fff !important;
-    transition: background 0.2s, color 0.2s;
-  }
-  .dashboard-card .btn-outline-primary:hover { background: #007bff; color: #fff !important; border-color: #007bff !important; }
-  .dashboard-card .btn-outline-success:hover { background: #28a745; color: #fff !important; border-color: #28a745 !important; }
-  .dashboard-card .btn-outline-danger:hover { background: #dc3545; color: #fff !important; border-color: #dc3545 !important; }
-  .dashboard-card .btn-outline-info:hover { background: #17a2b8; color: #fff !important; border-color: #17a2b8 !important; }
-  .dashboard-card .btn, .dashboard-card .btn-outline-primary, .dashboard-card .btn-outline-success, .dashboard-card .btn-outline-danger, .dashboard-card .btn-outline-info {
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    border-radius: 8px;
-    margin-bottom: 0.2rem;
-  }
-  .dashboard-card .btn:focus { outline: 2px solid #fff; }
-  .dashboard-card .btn-shadow { box-shadow: 0 2px 8px #19335A33; }
-  .dashboard-card .btn-secondary { background: #545b62; border-color: #6c757d; color: #fff; }
-  .dashboard-card .btn-secondary:hover { background: #6c757d; border-color: #545b62; color: #fff; }
-  .titulo-destaque {
-    font-size: 2.5rem;
-    font-weight: 900;
-    letter-spacing: 0.03em;
-    color: #fff;
-    margin-bottom: 0.2rem;
-    line-height: 1.1;
-  }
-  .subtitulo-destaque {
-    font-size: 1.35rem;
-    font-weight: 600;
-    color: #b0b8d8;
-    margin-bottom: 0.2rem;
-    line-height: 1.2;
-  }
-  .descricao-destaque {
-    font-size: 1.05rem;
-    color: #b0b8d8;
-    font-weight: 400;
-    margin-bottom: 0.7rem;
-    line-height: 1.3;
-  }
-  .quick-fab {
-    position: fixed;
-    bottom: 32px;
-    right: 32px;
-    z-index: 999;
-    display: flex;
-    flex-direction: column;
-    gap: 0.7rem;
-  }
-  .quick-fab .btn {
-    border-radius: 50%;
-    width: 54px;
-    height: 54px;
-    font-size: 1.5rem;
-    box-shadow: 0 4px 16px #0005;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  /* Gráficos */
-  .main-chart-card {
-    background: #23284d;
-    border-radius: 18px;
-    box-shadow: 0 6px 24px 0 #0004;
-    min-height: 340px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 1.5rem 1rem 1.2rem 1rem;
-    margin-bottom: 1.2rem;
-  }
-  .main-chart-card h5 {
-    color: #fff;
-    font-size: 1.15rem;
-    font-weight: 700;
-    margin-bottom: 1.1rem;
-    letter-spacing: 0.01em;
-  }
-  .main-chart-canvas {
-    width: 100% !important;
-    max-width: 100%;
-    min-height: 220px;
-    max-height: 320px;
-    margin: 0 auto;
-    display: block;
-    background: transparent;
-  }
-  @media (max-width: 767px) {
-    .main-chart-card { min-height: 220px; padding: 1rem 0.5rem; }
-    .main-chart-canvas { min-height: 140px; max-height: 200px; }
-    .dashboard-card .card-header { font-size: 1rem; }
-    .finance-card .card-value { font-size: 1.3rem; }
-    .titulo-destaque { font-size: 1.5rem; }
-    .subtitulo-destaque { font-size: 1.1rem; }
-  }
+  /* layout do topo e cards rápidos */
+  .hero { text-align:center; margin-bottom: 18px; }
+  .hero .title { font-weight:900; font-size: clamp(1.4rem, 3vw, 2.2rem); }
+  .hero .subtitle { color: var(--jsp-muted); margin-top:-4px }
+
+  .kpi-grid{ display:grid; gap:14px; grid-template-columns: repeat(12, 1fr); }
+  .kpi-grid > .col{ grid-column: span 12; }
+  @media (min-width:576px){ .kpi-grid > .col{ grid-column: span 6; } }
+  @media (min-width:992px){ .kpi-grid > .col{ grid-column: span 4; } }
+
+  .kpi h6{ margin:0; font-weight:700; letter-spacing:.2px; color:#d7f2ff }
+  .kpi .value{ font-size: clamp(1.2rem, 3.2vw, 2rem); font-weight:900; line-height:1.1 }
+
+  .quick-grid{ display:grid; gap:16px; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); }
+  .quick .card-header{ font-weight:800; border-bottom:1px solid rgba(255,255,255,.08) }
+  .quick .card-body p{ color:var(--jsp-muted); margin-bottom:12px }
+
+  /* cartas de gráfico */
+  .chart-card{ min-height:360px; }
+  .chart-card .card-header{ font-weight:800 }
+  .chart-wrap{ position:relative; height: 260px }
+
+  /* FAB */
+  .quick-fab{ position:fixed; right:24px; bottom:24px; display:flex; flex-direction:column; gap:10px; z-index:999 }
+  .quick-fab .btn{ width:52px; height:52px; border-radius:50%; padding:0; display:grid; place-items:center }
 </style>
+
 <div class="container-fluid">
-    <div class="text-center mb-4">
-        <h1 class="titulo-destaque">Bem-vindo ao JSP ERP</h1>
-        <h4 class="subtitulo-destaque">Sistema de Gestão - Elétrica Industrial</h4>
-        <p class="descricao-destaque">Gerencie seus clientes, produtos, serviços, ordens de serviço e muito mais de forma profissional!</p>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="title">Bem-vindo ao <strong>JSP ERP</strong></div>
+    <div class="subtitle">Gestão Industrial com DNA de automação ⚡</div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid mb-3">
+    <div class="col">
+      <div class="kpi">
+        <h6>Saldo</h6>
+        <div class="value">R$ {{ saldo_total|default('0,00') }}</div>
+      </div>
     </div>
-    <div class="dashboard-top" style="max-width: 1400px; margin: 0 auto 2.5rem auto;">
-      <div class="row g-3 justify-content-center align-items-stretch">
-        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 mb-3 d-flex">
-          <div class="finance-card orange flex-fill">
-            <div class="card-title">Saldo</div>
-            <div class="card-value">R$ {{ saldo_total|default('0,00') }}</div>
+    <div class="col">
+      <div class="kpi">
+        <h6>Entradas</h6>
+        <div class="value">R$ {{ entradas_total|default('0,00') }}</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="kpi">
+        <h6>Despesas</h6>
+        <div class="value">R$ {{ saidas_total|default('0,00') }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-lg-6">
+      <div class="card card-jsp chart-card">
+        <div class="card-header">Entradas x Saídas (Mensal)</div>
+        <div class="card-body">
+          <div class="chart-wrap"><canvas id="barEntradasSaidas"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="card card-jsp chart-card">
+        <div class="card-header">Despesas por Categoria</div>
+        <div class="card-body">
+          <div class="chart-wrap"><canvas id="pieDespesasCategoria"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ações rápidas -->
+  <div class="quick mb-4">
+    <div class="quick-grid">
+      <div class="card card-jsp">
+        <div class="card-header"><i class="fas fa-file-invoice-dollar me-2"></i> Orçamentos</div>
+        <div class="card-body">
+          <p>Crie, acompanhe e aprove orçamentos para seus clientes.</p>
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('orcamento.listar_orcamentos') }}" class="btn btn-brand"><i class="fas fa-list me-1"></i> Visualizar</a>
+            <a href="{{ url_for('orcamento.novo_orcamento') if url_for else '#' }}" class="btn btn-amber"><i class="fas fa-plus me-1"></i> Novo</a>
           </div>
         </div>
-        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 mb-3 d-flex">
-          <div class="finance-card blue flex-fill">
-            <div class="card-title">Entradas</div>
-            <div class="card-value">R$ {{ entradas_total|default('0,00') }}</div>
+      </div>
+
+      <div class="card card-jsp">
+        <div class="card-header"><i class="fas fa-users me-2"></i> Clientes</div>
+        <div class="card-body">
+          <p>Cadastre clientes e gerencie contatos/endereço.</p>
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('cliente.listar_clientes') }}" class="btn btn-brand"><i class="fas fa-list me-1"></i> Visualizar</a>
+            <a href="{{ url_for('cliente.novo_cliente') }}" class="btn btn-amber"><i class="fas fa-plus me-1"></i> Novo</a>
           </div>
         </div>
-        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 mb-3 d-flex">
-          <div class="finance-card purple flex-fill">
-            <div class="card-title">Despesas</div>
-            <div class="card-value">R$ {{ saidas_total|default('0,00') }}</div>
+      </div>
+
+      <div class="card card-jsp">
+        <div class="card-header"><i class="fas fa-boxes me-2"></i> Produtos</div>
+        <div class="card-body">
+          <p>Catálogo com preços e estoque controlados.</p>
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('produto.listar_produtos') }}" class="btn btn-brand"><i class="fas fa-list me-1"></i> Visualizar</a>
+            <a href="{{ url_for('produto.novo_produto') }}" class="btn btn-amber"><i class="fas fa-plus me-1"></i> Novo</a>
           </div>
         </div>
-        <div class="col-12 col-lg-6 col-xl-6 mb-3 d-flex">
-          <div class="main-chart-card flex-fill">
-            <h5 class="text-center">Entradas x Saídas Mensais</h5>
-            <canvas id="barEntradasSaidas" class="main-chart-canvas" aria-label="Gráfico de barras Entradas x Saídas" role="img"></canvas>
+      </div>
+
+      <div class="card card-jsp">
+        <div class="card-header"><i class="fas fa-concierge-bell me-2"></i> Serviços</div>
+        <div class="card-body">
+          <p>Portfólio de serviços e unidades de cobrança.</p>
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('servico.listar_servicos') }}" class="btn btn-brand"><i class="fas fa-list me-1"></i> Visualizar</a>
+            <a href="{{ url_for('servico.novo_servico') }}" class="btn btn-amber"><i class="fas fa-plus me-1"></i> Novo</a>
           </div>
         </div>
-        <div class="col-12 col-lg-6 col-xl-6 mb-3 d-flex">
-          <div class="main-chart-card flex-fill">
-            <h5 class="text-center">Despesas por Categoria</h5>
-            <canvas id="pieDespesasCategoria" class="main-chart-canvas" aria-label="Gráfico de pizza Despesas por Categoria" role="img"></canvas>
+      </div>
+
+      <div class="card card-jsp">
+        <div class="card-header"><i class="fas fa-truck me-2"></i> Fornecedores</div>
+        <div class="card-body">
+          <p>Cadastro de fornecedores e parcerias estratégicas.</p>
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('fornecedor.listar_fornecedores') }}" class="btn btn-brand"><i class="fas fa-list me-1"></i> Visualizar</a>
+            <a href="{{ url_for('fornecedor.novo_fornecedor') }}" class="btn btn-amber"><i class="fas fa-plus me-1"></i> Novo</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-jsp">
+        <div class="card-header"><i class="fas fa-tools me-2"></i> Ordens de Serviço</div>
+        <div class="card-body">
+          <p>Controle de OS, apontamento e faturamento.</p>
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('os.listar_os') }}" class="btn btn-brand"><i class="fas fa-list me-1"></i> Visualizar</a>
+            <a href="{{ url_for('os.nova_os') if url_for else '#' }}" class="btn btn-amber"><i class="fas fa-plus me-1"></i> Nova</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-jsp">
+        <div class="card-header"><i class="fas fa-wallet me-2"></i> Financeiro</div>
+        <div class="card-body">
+          <p>Lançamentos, categorias, conciliação e relatórios.</p>
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('orcamento.listar_orcamentos') }}" class="btn btn-brand"><i class="fas fa-wallet me-1"></i> Acessar</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-jsp">
+        <div class="card-header"><i class="fas fa-cog me-2"></i> Configurações</div>
+        <div class="card-body">
+          <p>Preferências do sistema e parâmetros operacionais.</p>
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('configuracoes_condicoes_pagamento.listar_condicoes_pagamento') }}" class="btn btn-brand">
+              <i class="fas fa-sliders me-1"></i> Abrir
+            </a>
           </div>
         </div>
       </div>
     </div>
-  <div class="dashboard-bottom" style="margin-top: 0.5rem;">
-  <div class="row g-3 justify-content-center align-items-stretch">
-        <!-- Cards de entrada (clientes, produtos, etc) -->
-      <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-        <div class="card dashboard-card h-100 p-2" style="min-width:180px; max-width:260px; min-height:210px;">
-          <div class="card-header" style="background: linear-gradient(135deg, #ff9800, #ffb74d);">
-            <i class="fas fa-file-invoice-dollar d-block"></i>
-            <h4>Orçamentos</h4>
-          </div>
-          <div class="card-body">
-            <p>Crie, acompanhe e aprove orçamentos para seus clientes.</p>
-            <div class="d-grid gap-2">
-              <!-- <a href="#" class="btn btn-warning text-dark" aria-label="Visualizar Orçamentos"> -->
-                <i class="fas fa-list"></i> Visualizar Orçamentos
-              </a>
-              <!-- <a href="#" class="btn btn-outline-warning text-dark" aria-label="Novo Orçamento"> -->
-                <i class="fas fa-plus"></i> Novo Orçamento
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-       <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-          <div class="card dashboard-card h-100 p-2" style="min-width:180px; max-width:260px; min-height:210px;">
-            <div class="card-header" style="background: linear-gradient(135deg, #007bff, #0056b3);">
-              <i class="fas fa-users d-block"></i>
-              <h4>Clientes</h4>
-            </div>
-            <div class="card-body">
-              <p>Gerencie informações de clientes, contatos e endereços de forma completa.</p>
-              <div class="d-grid gap-2">
-                <a href="{{ url_for('cliente.listar_clientes') }}" class="btn btn-primary" aria-label="Visualizar Clientes">
-                  <i class="fas fa-list"></i> Visualizar Clientes
-                </a>
-                <a href="{{ url_for('cliente.novo_cliente') }}" class="btn btn-outline-primary" aria-label="Novo Cliente">
-                  <i class="fas fa-plus"></i> Novo Cliente
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-          <div class="card dashboard-card h-100 p-2" style="min-width:180px; max-width:260px; min-height:210px;">
-            <div class="card-header" style="background: linear-gradient(135deg, #28a745, #1e7e34);">
-              <i class="fas fa-boxes d-block"></i>
-              <h4>Produtos</h4>
-            </div>
-            <div class="card-body">
-              <p>Catálogo de produtos elétricos com controle de preços e estoque.</p>
-              <div class="d-grid gap-2">
-                <a href="{{ url_for('produto.listar_produtos') }}" class="btn btn-success" aria-label="Visualizar Produtos">
-                  <i class="fas fa-list"></i> Visualizar Produtos
-                </a>
-                <a href="{{ url_for('produto.novo_produto') }}" class="btn btn-outline-success" aria-label="Novo Produto">
-                  <i class="fas fa-plus"></i> Novo Produto
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-          <div class="card dashboard-card h-100 p-2" style="min-width:180px; max-width:260px; min-height:210px;">
-            <div class="card-header" style="background: linear-gradient(135deg, #dc3545, #bd2130);">
-              <i class="fas fa-concierge-bell d-block"></i>
-              <h4>Serviços</h4>
-            </div>
-            <div class="card-body">
-              <p>Catálogo de serviços técnicos com controle de valores e unidades.</p>
-              <div class="d-grid gap-2">
-                <a href="{{ url_for('servico.listar_servicos') }}" class="btn btn-danger" aria-label="Visualizar Serviços">
-                  <i class="fas fa-list"></i> Visualizar Serviços
-                </a>
-                <a href="{{ url_for('servico.novo_servico') }}" class="btn btn-outline-danger" aria-label="Novo Serviço">
-                  <i class="fas fa-plus"></i> Novo Serviço
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-          <div class="card dashboard-card h-100 p-2" style="min-width:180px; max-width:260px; min-height:210px;">
-            <div class="card-header" style="background: linear-gradient(135deg, #17a2b8, #117a8b);">
-              <i class="fas fa-truck d-block"></i>
-              <h4>Fornecedores</h4>
-            </div>
-            <div class="card-body">
-              <p>Cadastro de fornecedores e parcerias comerciais estratégicas.</p>
-              <div class="d-grid gap-2">
-                <a href="{{ url_for('fornecedor.listar_fornecedores') }}" class="btn btn-info" aria-label="Visualizar Fornecedores">
-                  <i class="fas fa-list"></i> Visualizar Fornecedores
-                </a>
-                <a href="{{ url_for('fornecedor.novo_fornecedor') }}" class="btn btn-outline-info" aria-label="Novo Fornecedor">
-                  <i class="fas fa-plus"></i> Novo Fornecedor
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-          <div class="card dashboard-card h-100 p-2" style="min-width:180px; max-width:260px; min-height:210px;">
-            <div class="card-header" style="background: linear-gradient(135deg, #19335A, #1e3c72);">
-              <i class="fas fa-tools d-block"></i>
-              <h4>Ordens de Serviço</h4>
-            </div>
-            <div class="card-body">
-              <p>Controle de serviços técnicos e manutenções industriais.</p>
-              <div class="d-grid gap-2">
-                <a href="{{ url_for('os.listar_os') }}" class="btn btn-primary btn-shadow" aria-label="Visualizar Ordens de Serviço" style="background: #19335A; border-color: #1e3c72; color: #fff; box-shadow: 0 2px 8px #19335A33; font-weight: 600; letter-spacing: 0.5px;">
-                  <i class="fas fa-list"></i> Visualizar OS
-                </a>
-                <a href="{{ url_for('os.nova_os') }}" class="btn btn-outline-primary btn-shadow" aria-label="Nova Ordem de Serviço" style="border-color: #19335A; color: #19335A; font-weight: 600; letter-spacing: 0.5px;">
-                  <i class="fas fa-plus"></i> Nova OS
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-          <div class="card dashboard-card h-100 p-2" style="min-width:180px; max-width:260px; min-height:210px;">
-            <div class="card-header" style="background: linear-gradient(135deg, #17a2b8, #4669b3);">
-              <i class="fas fa-wallet d-block"></i>
-              <h4>Financeiro</h4>
-            </div>
-            <div class="card-body">
-              <p>Gestão financeira, lançamentos, contas, categorias e relatórios.</p>
-              <div class="d-grid gap-2">
-                <a href="{{ url_for('financeiro.listar') }}" class="btn btn-info text-white" aria-label="Acessar Financeiro">
-                  <i class="fas fa-wallet"></i> Acessar Financeiro
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-          <div class="card dashboard-card h-100 p-2" style="min-width:180px; max-width:260px; min-height:210px;">
-            <div class="card-header" style="background: linear-gradient(135deg, #6c757d, #545b62);">
-              <i class="fas fa-cog d-block"></i>
-              <h4>Configurações</h4>
-            </div>
-            <div class="card-body">
-              <p>Configurações do sistema, preferências e ajustes gerais.</p>
-              <div class="d-grid gap-2">
-                <a href="#" class="btn btn-secondary" aria-label="Configurações">
-                  <i class="fas fa-cog"></i> Configurações
-                </a>
-              </div>
-  <!-- Botões flutuantes de ação rápida -->
+  </div>
+
+  <!-- FAB -->
   <div class="quick-fab">
-    <a href="{{ url_for('cliente.novo_cliente') }}" class="btn btn-primary" aria-label="Novo Cliente" title="Novo Cliente (Alt+C)"><i class="fas fa-user-plus"></i></a>
-    <a href="{{ url_for('os.nova_os') }}" class="btn btn-warning" aria-label="Nova Ordem de Serviço" title="Nova OS (Alt+O)"><i class="fas fa-tools"></i></a>
-  </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <a href="{{ url_for('cliente.novo_cliente') }}" class="btn btn-brand" title="Novo Cliente (Alt+C)"><i class="fas fa-user-plus"></i></a>
+    <a href="{{ url_for('servico.novo_servico') }}" class="btn btn-amber" title="Novo Serviço (Alt+S)"><i class="fas fa-tools"></i></a>
   </div>
 
-
-
-  <!-- Removidos os cards de gráficos duplicados da parte inferior -->
-  </div>
 </div>
+
+<!-- Charts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Gráfico de Barras Entradas x Saídas Mensais
-const barES = document.getElementById('barEntradasSaidas').getContext('2d');
-new Chart(barES, {
-  type: 'bar',
-  data: {
-    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-    datasets: [
-      {
-        label: 'Entradas',
-        data: {{ grafico_entradas|tojson|safe }},
-        backgroundColor: 'rgba(46, 204, 113, 0.8)',
-        borderRadius: 8,
-        maxBarThickness: 28
+  // Paleta alinhada ao tema
+  const gridColor = 'rgba(255,255,255,0.15)';
+  const tickColor = '#eaf3ff';
+  const entradasColor = 'rgba(86,212,255,0.85)';   // ciano JSP
+  const saidasColor   = 'rgba(231,76,60,0.85)';    // vermelho despesas
+
+  // Entradas x Saídas
+  new Chart(document.getElementById('barEntradasSaidas'), {
+    type: 'bar',
+    data: {
+      labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+      datasets: [
+        { label: 'Entradas',
+          data: JSON.parse('{{ grafico_entradas|tojson|safe }}'),
+          backgroundColor: entradasColor, borderRadius: 8, maxBarThickness: 28 },
+        { label: 'Saídas',
+          data: JSON.parse('{{ grafico_saidas|tojson|safe }}'),
+          backgroundColor: saidasColor, borderRadius: 8, maxBarThickness: 28 }
+      ]
+    },
+    options: {
+      plugins:{
+        legend:{ labels:{ color: tickColor, font:{ weight:'bold' } } },
+        tooltip:{
+          backgroundColor:'#0f1f36', titleColor:'#fff', bodyColor:'#fff', borderColor:'#fff', borderWidth:1,
+          callbacks:{ label:(ctx)=>`${ctx.dataset.label}: R$ ${ctx.parsed.y?.toLocaleString('pt-BR',{minimumFractionDigits:2})}` }
+        }
       },
-      {
-        label: 'Saídas',
-        data: {{ grafico_saidas|tojson|safe }},
-        backgroundColor: 'rgba(231, 76, 60, 0.8)',
-        borderRadius: 8,
-        maxBarThickness: 28
-      }
-    ]
-  },
-  options: {
-    plugins: {
-      legend: { labels: { color: '#fff', font: {weight:'bold'} } },
-      title: { display: false },
-      tooltip: {
-        enabled: true,
-        backgroundColor: '#23284d',
-        titleColor: '#fff',
-        bodyColor: '#fff',
-        borderColor: '#fff',
-        borderWidth: 1,
-        callbacks: {
-          label: function(context) {
-            return `${context.dataset.label}: R$ ${context.parsed.y?.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
-          }
-        }
-      }
-    },
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      x: { ticks: { color: '#fff' }, grid: { display: false } },
-      y: { ticks: { color: '#fff' }, grid: { color: '#2c3559' } }
+      scales:{
+        x:{ ticks:{ color:tickColor }, grid:{ display:false } },
+        y:{ ticks:{ color:tickColor }, grid:{ color:gridColor } }
+      },
+      maintainAspectRatio:false
     }
-  }
-});
-// Gráfico de Pizza Despesas por Categoria (dados reais)
-const pieCat = document.getElementById('pieDespesasCategoria').getContext('2d');
-new Chart(pieCat, {
-  type: 'doughnut',
-  data: {
-    labels: {{ categorias|tojson|safe }},
-    datasets: [{
-      data: {{ valores_cat|tojson|safe }},
-      backgroundColor: [
-        '#ff6384', '#36a2eb', '#ffce56', '#8e44ad', '#2ecc71', '#f39c12', '#00b894', '#e17055', '#6c5ce7', '#00cec9'
-      ],
-      borderWidth: 2,
-      borderColor: '#181c2f'
-    }]
-  },
-  options: {
-    plugins: {
-      legend: { position: 'bottom', labels: { color: '#fff' } },
-      title: { display: false },
-      tooltip: {
-        enabled: true,
-        backgroundColor: '#23284d',
-        titleColor: '#fff',
-        bodyColor: '#fff',
-        borderColor: '#fff',
-        borderWidth: 1,
-        callbacks: {
-          label: function(context) {
-            return `${context.label}: R$ ${context.parsed?.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
-          }
-        }
-      }
+  });
+
+  // Pizza por categoria
+  new Chart(document.getElementById('pieDespesasCategoria'), {
+    type:'doughnut',
+    data:{
+      labels: JSON.parse('{{ categorias|tojson|safe }}'),
+      datasets:[{
+        data: JSON.parse('{{ valores_cat|tojson|safe }}'),
+        backgroundColor: ['#56d4ff','#29b6ff','#ffb547','#ff9f1a','#2ecc71','#8e44ad','#36a2eb','#00b894','#e17055','#6c5ce7'],
+        borderWidth:2, borderColor:'#181c2f'
+      }]
     },
-    cutout: '65%',
-    responsive: true,
-    maintainAspectRatio: false
-  }
-});
+    options:{
+      plugins:{
+        legend:{ position:'bottom', labels:{ color:tickColor } },
+        tooltip:{
+          backgroundColor:'#0f1f36', titleColor:'#fff', bodyColor:'#fff', borderColor:'#fff', borderWidth:1,
+          callbacks:{ label:(ctx)=>`${ctx.label}: R$ ${ctx.parsed?.toLocaleString('pt-BR',{minimumFractionDigits:2})}` }
+        }
+      },
+      cutout:'64%', maintainAspectRatio:false
+    }
+  });
 </script>
 {% endblock %}

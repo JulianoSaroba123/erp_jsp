@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Visualizar Orçamento{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow p-4">
+        <h4 class="mb-4 text-orange">
+            <i class="bi bi-file-earmark-text-fill"></i> Orçamento Nº: {{ orcamento.codigo }}
+        </h4>
+        <ul class="list-group mb-3">
+            <li class="list-group-item"><b>Cliente:</b> {{ orcamento.cliente.nome }}</li>
+            <li class="list-group-item"><b>Data:</b> {{ orcamento.data.strftime('%d/%m/%Y') }}</li>
+            <li class="list-group-item"><b>Validade:</b> {{ orcamento.validade }} dias</li>
+            <li class="list-group-item"><b>Condição de Pagamento:</b> {{ orcamento.condicao_pagamento.descricao }}</li>
+            <li class="list-group-item"><b>Valor Total:</b> R$ {{ '%.2f'|format(orcamento.valor_total) }}</li>
+            <li class="list-group-item"><b>Status:</b> {{ orcamento.status }}</li>
+        </ul>
+        <a href="{{ url_for('orcamento.listar_orcamentos') }}" class="btn btn-secondary">Voltar</a>
+    </div>
+</div>
+{% endblock %}

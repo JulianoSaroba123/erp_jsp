@@ -18,13 +18,27 @@ def gerar_codigo_cliente():
 # Listagem com busca e paginação
 @cliente_bp.route('/')
 def listar_clientes():
-    page = request.args.get('page', 1, type=int)
-    search = request.args.get('q', '', type=str)
+    q = request.args.get('q', '').strip()
+    page = request.args.get('pagina', type=int, default=1)
+    per_page = 20
+    
     query = Cliente.query
-    if search:
-        query = query.filter(or_(Cliente.nome.ilike(f'%{search}%'), Cliente.cpf_cnpj.ilike(f'%{search}%')))
-    clientes = query.order_by(Cliente.nome).paginate(page=page, per_page=10)
-    return render_template('cliente/lista.html', clientes=clientes, search=search)
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            or_(Cliente.nome.ilike(like),
+                Cliente.email.ilike(like),
+                Cliente.cpf_cnpj.ilike(like))
+        )
+    
+    pag = query.order_by(Cliente.nome.asc()).paginate(page=page, per_page=per_page, error_out=False)
+    
+    return render_template(
+        'cliente/lista.html',
+        clientes=pag.items,   # só a lista!
+        paginacao=pag,        # o objeto de paginação
+        q=q
+    )
 
 # Cadastro
 @cliente_bp.route('/cadastrar', methods=['GET', 'POST'])
@@ -175,6 +189,12 @@ def excluir_cliente(id):
         db.session.rollback()
         flash(f'Erro ao excluir cliente: {e}', 'danger')
     return redirect(url_for('cliente.listar_clientes'))
+
+# Detalhamento
+@cliente_bp.route('/detalhar/<int:id>')
+def detalhar_cliente(id):
+    cliente = Cliente.query.get_or_404(id)
+    return render_template('cliente/detalhar.html', cliente=cliente)
 
 # API para busca/autocomplete
 @cliente_bp.route('/api/busca', methods=['GET'])

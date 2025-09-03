@@ -36,6 +36,13 @@ def set_sqlalchemy_url_from_flask():
         uri = flask_app.config.get("SQLALCHEMY_DATABASE_URI")
         if not uri:
             raise RuntimeError("SQLALCHEMY_DATABASE_URI não configurada no Flask app.")
+        
+        # Correção SSL/TLS para Render PostgreSQL
+        if uri.startswith("postgres://"):
+            uri = uri.replace("postgres://", "postgresql://", 1)
+        if uri and "sslmode" not in uri:
+            uri += ("&sslmode=require" if "?" in uri else "?sslmode=require")
+            
         config.set_main_option("sqlalchemy.url", uri)
 
 

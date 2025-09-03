@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ 'Editar' if condicao else 'Nova' }} Condição de Pagamento - JSP ERP{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- HEADER / TOOLBAR no padrão azul -->
+    <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+        <div class="d-flex align-items-center gap-2">
+            <span class="icon-tile"><i class="fas fa-credit-card"></i></span>
+            <h2 class="m-0 fw-semibold text-brand">{{ 'Editar' if condicao else 'Nova' }} Condição de Pagamento</h2>
+        </div>
+        <div class="ms-auto">
+            <a href="{{ url_for('configuracoes_condicoes_pagamento.listar_condicoes_pagamento') }}" class="btn btn-outline-gradient">
+                <i class="fas fa-arrow-left"></i> Voltar para lista
+            </a>
+        </div>
+    </div>
+
+    <!-- CARD FORM  -->
+    <div class="card-glass p-3 p-md-4">
+        <form method="POST" class="row g-3" autocomplete="off">
+            <!-- CÓDIGO (somente visual na edição) -->
+            {% if condicao %}
+            <div class="col-12 col-md-3">
+                <label class="form-label">Código</label>
+                <input type="text" class="form-control form-control-dark" value="CPG{{ '%04d'|format(condicao.id) }}" disabled>
+            </div>
+            {% endif %}
+
+            <div class="col-12 col-md-6">
+                <label for="descricao" class="form-label">Descrição *</label>
+                <input type="text" id="descricao" name="descricao" class="form-control form-control-dark" placeholder="Ex.: À vista / 30 dias / 3x sem juros" value="{{ condicao.descricao if condicao else '' }}" required>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label for="tipo" class="form-label">Tipo *</label>
+                <select id="tipo" name="tipo" class="form-select form-control-dark" required>
+                    <option value="">Selecione</option>
+                    <option value="À Vista" {{ 'selected' if condicao and condicao.tipo == 'À Vista' else '' }}>À Vista</option>
+                    <option value="Parcelado" {{ 'selected' if condicao and condicao.tipo == 'Parcelado' else '' }}>Parcelado</option>
+                    <option value="Faturado" {{ 'selected' if condicao and condicao.tipo == 'Faturado' else '' }}>Faturado</option>
+                </select>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label for="parcelas" class="form-label">Parcelas</label>
+                <input type="number" id="parcelas" name="parcelas" class="form-control form-control-dark" min="1" step="1" value="{{ condicao.parcelas if condicao else 1 }}">
+                <div class="form-text text-muted-aux">Se "À Vista", manterá 1 parcela automaticamente.</div>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label for="desconto" class="form-label">Desconto (%)</label>
+                <input type="number" id="desconto" name="desconto" class="form-control form-control-dark" step="0.01" inputmode="decimal" placeholder="0,00" value="{{ condicao.desconto if condicao else 0.0 }}">
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label for="juros" class="form-label">Juros (%)</label>
+                <input type="number" id="juros" name="juros" class="form-control form-control-dark" step="0.01" inputmode="decimal" placeholder="0,00" value="{{ condicao.juros if condicao else 0.0 }}">
+            </div>
+
+            <div class="col-12">
+                <label for="observacoes" class="form-label">Observações</label>
+                <textarea id="observacoes" name="observacoes" rows="3" class="form-control form-control-dark" placeholder="Ex.: Condição válida apenas para clientes com limite de crédito.">{{ condicao.observacoes if condicao else '' }}</textarea>
+            </div>
+
+            <div class="col-12 d-flex justify-content-end gap-2 mt-2">
+                <a href="{{ url_for('configuracoes_condicoes_pagamento.listar_condicoes_pagamento') }}" class="btn btn-outline-gradient">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-gradient fw-semibold">
+                    <i class="fas fa-save"></i> {{ 'Atualizar' if condicao else 'Salvar' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- STYLES alinhados ao tema -->
+<style>
+    :root{
+        --brand-1:#00c6ff; --brand-2:#005bea; --ink:#dbe7ff; --border:#21a0ff33;
+        --panel:#0b1f38; --panel-2:#0f2747; --hint:#9fcbff;
+    }
+    .text-brand{color:#cfe8ff}
+    .icon-tile{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--brand-1),var(--brand-2));color:#fff;box-shadow:0 6px 18px #0090ff55}
+    .btn-gradient{background:linear-gradient(135deg,var(--brand-1),var(--brand-2));border:none;color:#fff;border-radius:10px;padding:.6rem 1rem}
+    .btn-outline-gradient{border:1px solid var(--border);color:#cfe8ff;background:transparent;border-radius:10px;padding:.55rem .9rem}
+    .btn-outline-gradient:hover{background:linear-gradient(135deg,#0a2a4a88,#0a2a4a55)}
+
+    .card-glass{background:rgba(11,31,56,.6);border:1px solid var(--border);border-radius:16px;box-shadow:0 10px 30px #00142a55}
+    .form-control-dark, .form-select.form-control-dark{background:#0a2342;color:#cfe8ff;border:1px solid #123463}
+    .form-control-dark:focus, .form-select.form-control-dark:focus{border-color:#2b9fff;box-shadow:0 0 0 .2rem #2b9fff22}
+    .form-text.text-muted-aux{color:#86b9ff}
+</style>
+
+<!-- BEHAVIOUR: regras de UI para tipo/parcelas/percentuais -->
+<script>
+(function(){
+    const tipo = document.getElementById('tipo');
+    const parcelas = document.getElementById('parcelas');
+    const desconto = document.getElementById('desconto');
+    const juros = document.getElementById('juros');
+    if(!tipo) return;
+
+    function syncParcelas(){
+        const v = (tipo.value || '').toLowerCase();
+        if(['à vista','a vista','avista'].includes(v)){
+            parcelas.value = 1; parcelas.readOnly = true; parcelas.classList.add('readonly');
+        } else { parcelas.readOnly = false; parcelas.classList.remove('readonly'); }
+    }
+    function clampNumbers(){
+        if(desconto){
+            let d = parseFloat(desconto.value.replace(',', '.')); if(isNaN(d)) d = 0; d = Math.max(0, Math.min(100, d)); desconto.value = d.toFixed(2);
+        }
+        if(juros){
+            let j = parseFloat(juros.value.replace(',', '.')); if(isNaN(j)) j = 0; j = Math.max(0, j); juros.value = j.toFixed(2);
+        }
+    }
+    tipo.addEventListener('change', syncParcelas);
+    [desconto, juros].forEach(el => el && el.addEventListener('blur', clampNumbers));
+    // init
+    syncParcelas();
+})();
+</script>
+{% endblock %}

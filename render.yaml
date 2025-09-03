@@ -1,0 +1,22 @@
+databases:
+  - name: jsp-erp-db
+    databaseName: jsp_erp
+    user: jsp_user
+
+services:
+  - type: web
+    name: jsp-erp-system
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "python run.py"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: jsp-erp-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: FLASK_ENV
+        value: "production"

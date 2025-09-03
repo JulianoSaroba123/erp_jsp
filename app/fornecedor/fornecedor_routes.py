@@ -62,3 +62,8 @@ def excluir_fornecedor(id):
     db.session.delete(fornecedor)
     db.session.commit()
     return redirect(url_for('fornecedor.listar_fornecedores'))
+
+@fornecedor_bp.route('/detalhar/<int:id>', methods=['GET'])
+def detalhar_fornecedor(id):
+    fornecedor = Fornecedor.query.get_or_404(id)
+    return render_template('fornecedor/detalhar.html', fornecedor=fornecedor)

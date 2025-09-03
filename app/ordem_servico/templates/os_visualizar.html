@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}Ordem de Serviço {{ os.codigo }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Cabeçalho -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-eye"></i> Visualizar Ordem de Serviço</h2>
+                    <p class="text-muted mb-0">{{ os.codigo }} - {{ os.cliente.nome if os.cliente else 'Cliente não informado' }}</p>
+                </div>
+                <div class="btn-group" role="group" aria-label="Ações">
+                    <a href="{{ url_for('os.listar_os') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </a>
+                    <a href="{{ url_for('os.editar_os', id=os.id) }}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <a href="{{ url_for('os.relatorio_os', os_id=os.id) }}" class="btn btn-info" target="_blank">
+                        <i class="fas fa-eye"></i> Visualizar Relatório
+                    </a>
+                    <a href="{{ url_for('os.gerar_pdf', os_id=os.id) }}" class="btn btn-danger" target="_blank">
+                        <i class="fas fa-file-pdf"></i> Gerar PDF
+                    </a>
+                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações Gerais -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> Informações Gerais</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Código:</strong><br>
+                            <span class="badge bg-primary fs-6">{{ os.codigo }}</span>
+                        </div>
+                        <div class="col-6">
+                            <strong>Status:</strong><br>
+                            {% if os.status == 'Aberta' %}
+                                <span class="badge bg-warning text-dark fs-6">{{ os.status }}</span>
+                            {% elif os.status == 'Em Andamento' %}
+                                <span class="badge bg-info fs-6">{{ os.status }}</span>
+                            {% elif os.status == 'Concluída' %}
+                                <span class="badge bg-success fs-6">{{ os.status }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary fs-6">{{ os.status }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Data Emissão:</strong><br>
+                            {{ os.data_emissao.strftime('%d/%m/%Y') if os.data_emissao else 'N/A' }}
+                        </div>
+                        <div class="col-6">
+                            <strong>Data Conclusão:</strong><br>
+                            {{ os.data_conclusao.strftime('%d/%m/%Y') if os.data_conclusao else 'Não concluída' }}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <strong>Descrição:</strong><br>
+                            {{ os.descricao if os.descricao else 'Sem descrição' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-user"></i> Dados do Cliente</h5>
+                </div>
+                <div class="card-body">
+                    {% if os.cliente %}
+                    <div class="row">
+                        <div class="col-12">
+                            <strong>Nome:</strong><br>
+                            {{ os.cliente.nome }}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>CPF/CNPJ:</strong><br>
+                            {{ os.cpf if os.cpf else 'N/A' }}
+                        </div>
+                        <div class="col-6">
+                            <strong>Telefone:</strong><br>
+                            {{ os.telefone if os.telefone else 'N/A' }}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Email:</strong><br>
+                            {{ os.email if os.email else 'N/A' }}
+                        </div>
+                        <div class="col-6">
+                            <strong>Endereço:</strong><br>
+                            {{ os.endereco if os.endereco else 'N/A' }}
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">Cliente não informado</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Horários e Deslocamento -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clock"></i> Horários</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <strong>Início:</strong><br>
+                            {{ os.hora_inicio if os.hora_inicio else 'N/A' }}
+                        </div>
+                        <div class="col-4">
+                            <strong>Término:</strong><br>
+                            {{ os.hora_termino if os.hora_termino else 'N/A' }}
+                        </div>
+                        <div class="col-4">
+                            <strong>Total:</strong><br>
+                            {{ os.total_horas if os.total_horas else 'N/A' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-route"></i> Deslocamento</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <strong>KM Inicial:</strong><br>
+                            {{ os.km_inicial if os.km_inicial else 'N/A' }}
+                        </div>
+                        <div class="col-4">
+                            <strong>KM Final:</strong><br>
+                            {{ os.km_final if os.km_final else 'N/A' }}
+                        </div>
+                        <div class="col-4">
+                            <strong>KM Total:</strong><br>
+                            {{ os.km_total if os.km_total else 'N/A' }}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <strong>Valor Deslocamento:</strong><br>
+                            <span class="text-success fs-5">R$ {{ "%.2f"|format(os.valor_deslocamento or 0) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Serviços -->
+    {% if servicos_dados %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-tools"></i> Serviços</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Serviço</th>
+                                    <th>Quantidade (h)</th>
+                                    <th>Valor Unitário</th>
+                                    <th>Valor Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for servico in servicos_dados %}
+                                <tr>
+                                    <td>{{ servico.nome }}</td>
+                                    <td>{{ "%.2f"|format(servico.quantidade or 0) }}</td>
+                                    <td>R$ {{ "%.2f"|format(servico.valor_unitario or 0) }}</td>
+                                    <td>R$ {{ "%.2f"|format(servico.valor_total or 0) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Produtos -->
+    {% if produtos_dados %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-box"></i> Produtos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Quantidade</th>
+                                    <th>Valor Unitário</th>
+                                    <th>Valor Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for produto in produtos_dados %}
+                                <tr>
+                                    <td>{{ produto.nome }}</td>
+                                    <td>{{ "%.2f"|format(produto.quantidade or 0) }}</td>
+                                    <td>R$ {{ "%.2f"|format(produto.valor_unitario or 0) }}</td>
+                                    <td>R$ {{ "%.2f"|format(produto.valor_total or 0) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Totais -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-calculator"></i> Resumo Financeiro</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h6>Valor Serviços</h6>
+                                <h4 class="text-info">R$ {{ "%.2f"|format(os.valor_servicos or 0) }}</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h6>Valor Produtos</h6>
+                                <h4 class="text-warning">R$ {{ "%.2f"|format(os.valor_produtos or 0) }}</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h6>Valor Deslocamento</h6>
+                                <h4 class="text-secondary">R$ {{ "%.2f"|format(os.valor_deslocamento or 0) }}</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h6>Valor Total</h6>
+                                <h3 class="text-success">R$ {{ "%.2f"|format(os.valor_total or 0) }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle"></i> Confirmar Exclusão
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Atenção!</strong> Você está prestes a excluir a seguinte ordem de serviço:</p>
+                <div class="card">
+                    <div class="card-body">
+                        <h6><strong>Código:</strong> {{ os.codigo }}</h6>
+                        <p><strong>Cliente:</strong> {{ os.cliente.nome if os.cliente else 'N/A' }}</p>
+                        <p><strong>Data:</strong> {{ os.data_emissao.strftime('%d/%m/%Y') if os.data_emissao else 'N/A' }}</p>
+                        <p><strong>Valor:</strong> R$ {{ "%.2f"|format(os.valor_total or 0) }}</p>
+                    </div>
+                </div>
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Esta ação não pode ser desfeita!</strong> A ordem de serviço será marcada como inativa e todos os lançamentos financeiros relacionados serão cancelados.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <form method="POST" action="{{ url_for('os.deletar_os', id=os.id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Confirmar Exclusão
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

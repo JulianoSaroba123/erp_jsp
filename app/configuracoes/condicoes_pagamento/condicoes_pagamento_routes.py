@@ -1,17 +1,19 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.extensoes import db
-from app.condicoes_pagamento.condicoes_pagamento_model import CondicaoPagamento
+from app.configuracoes.condicoes_pagamento.condicoes_pagamento_model import CondicaoPagamento
 
-condicoes_pagamento_bp = Blueprint('condicoes_pagamento', __name__)
+condicoes_pagamento_bp = Blueprint('configuracoes_condicoes_pagamento', __name__, 
+                                   template_folder='templates',
+                                   url_prefix='/configuracoes/condicoes_pagamento')
 
 # Listar condições de pagamento
-@condicoes_pagamento_bp.route('/condicoes_pagamento/lista')
+@condicoes_pagamento_bp.route('/lista')
 def listar_condicoes_pagamento():
 	condicoes = CondicaoPagamento.query.order_by(CondicaoPagamento.id.desc()).all()
 	return render_template('condicoes_pagamento/lista.html', condicoes=condicoes)
 
 # Cadastrar nova condição
-@condicoes_pagamento_bp.route('/condicoes_pagamento/novo', methods=['GET', 'POST'])
+@condicoes_pagamento_bp.route('/novo', methods=['GET', 'POST'])
 def nova_condicao_pagamento():
 	if request.method == 'POST':
 		condicao = CondicaoPagamento(
@@ -25,11 +27,11 @@ def nova_condicao_pagamento():
 		db.session.add(condicao)
 		db.session.commit()
 		flash('Condição de pagamento cadastrada com sucesso!', 'success')
-		return redirect(url_for('condicoes_pagamento.listar_condicoes_pagamento'))
+		return redirect(url_for('configuracoes_condicoes_pagamento.listar_condicoes_pagamento'))
 	return render_template('condicoes_pagamento/cadastro.html')
 
 # Editar condição
-@condicoes_pagamento_bp.route('/condicoes_pagamento/editar/<int:id>', methods=['GET', 'POST'])
+@condicoes_pagamento_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
 def editar_condicao_pagamento(id):
 	condicao = CondicaoPagamento.query.get_or_404(id)
 	if request.method == 'POST':
@@ -41,14 +43,14 @@ def editar_condicao_pagamento(id):
 		condicao.observacoes = request.form.get('observacoes', '')
 		db.session.commit()
 		flash('Condição de pagamento atualizada!', 'success')
-		return redirect(url_for('condicoes_pagamento.listar_condicoes_pagamento'))
+		return redirect(url_for('configuracoes_condicoes_pagamento.listar_condicoes_pagamento'))
 	return render_template('condicoes_pagamento/cadastro.html', condicao=condicao)
 
 # Excluir condição
-@condicoes_pagamento_bp.route('/condicoes_pagamento/excluir/<int:id>', methods=['POST'])
+@condicoes_pagamento_bp.route('/excluir/<int:id>', methods=['POST'])
 def excluir_condicao_pagamento(id):
 	condicao = CondicaoPagamento.query.get_or_404(id)
 	db.session.delete(condicao)
 	db.session.commit()
 	flash('Condição de pagamento excluída!', 'success')
-	return redirect(url_for('condicoes_pagamento.listar_condicoes_pagamento'))
+	return redirect(url_for('configuracoes_condicoes_pagamento.listar_condicoes_pagamento'))

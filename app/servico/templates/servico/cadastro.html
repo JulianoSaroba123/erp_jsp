@@ -1,224 +1,181 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ 'Editar Serviço' if servico else 'Cadastro de Serviço' }} - JSP ERP</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        body {
-            background: radial-gradient(circle at 60% 40%, #4669b3 0%, #19335A 100%) !important;
-            min-height: 100vh;
-        }
-        
-        form .form-control, form .form-select {
-            border: 2px solid #dc3545;
-            border-radius: 6px;
-            box-shadow: none;
-            transition: all 0.3s ease-in-out;
-        }
-        
-        form .form-control:focus, form .form-select:focus {
-            border-color: #c82333;
-            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
-        }
-        
-        .card {
-            border: 2px solid #dc3545;
-            border-radius: 8px;
-        }
-        
-        label {
-            font-weight: 600;
-        }
-        
-        .calculadora-markup {
-            background: linear-gradient(135deg, #ffe6e6, #fff0f0);
-            border: 2px solid #dc3545;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        
-        .secao-formulario {
-            background: linear-gradient(135deg, #ffe6e6, #fff0f0);
-            border: 2px solid #dc3545;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        
-        .resultado-calculo {
-            font-size: 1.1em;
-            font-weight: bold;
-        }
-        
-        .valor-calculado {
-            color: #dc3545;
-            font-size: 1.3em;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-dark bg-dark">
-        <div class="container">
-            <span class="navbar-brand"><i class="fas fa-bolt text-warning"></i> JSP ERP</span>
-            <a href="/" class="btn btn-outline-light btn-sm me-2">Dashboard</a>
-            <a href="{{ url_for('servico.listar_servicos') }}" class="btn btn-outline-light btn-sm">Lista de Serviços</a>
-        </div>
-    </nav>
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar Serviço' if servico else 'Novo Serviço' }} — JSP ERP{% endblock %}
 
-    <div class="container mt-4">
-        <div class="card shadow p-4">
-            <h4 class="mb-4 text-danger">
-                <i class="fas fa-concierge-bell"></i> 
-                {{ 'Editar Serviço' if servico else 'Cadastro de Serviço' }}
-            </h4>
-            
-            <form method="POST">
-                <!-- Informações Básicas -->
-                <div class="secao-formulario">
-                    <h5 class="text-danger mb-3"><i class="fas fa-info-circle"></i> Informações Básicas</h5>
-                
-                <div class="row">
-                    <div class="col-md-8 mb-3">
-                        <label for="nome">Nome do Serviço *</label>
-                        <input type="text" id="nome" name="nome" class="form-control" value="{{ servico.nome if servico else '' }}" required>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="unidade">Unidade</label>
-                        <select id="unidade" name="unidade" class="form-select">
-                            <option value="UN" {{ 'selected' if servico and servico.unidade == 'UN' else '' }}>Unidade (UN)</option>
-                            <option value="H" {{ 'selected' if servico and servico.unidade == 'H' else '' }}>Hora (H)</option>
-                            <option value="M2" {{ 'selected' if servico and servico.unidade == 'M2' else '' }}>Metro Quadrado (M2)</option>
-                            <option value="KM" {{ 'selected' if servico and servico.unidade == 'KM' else '' }}>Quilômetro (KM)</option>
-                            <option value="DIA" {{ 'selected' if servico and servico.unidade == 'DIA' else '' }}>Dia (DIA)</option>
-                        </select>
-                    </div>
-                </div>
+{% block content %}
+<div class="page-title">
+  <div class="ico"><i class="fas fa-concierge-bell"></i></div>
+  <h3 style="margin:0;">{{ 'Editar Serviço' if servico else 'Cadastro de Serviço' }}</h3>
+</div>
 
-                <div class="row">
-                    <div class="col-12 mb-3">
-                        <label for="descricao">Descrição</label>
-                        <textarea id="descricao" name="descricao" class="form-control" rows="3">{{ servico.descricao if servico else '' }}</textarea>
-                    </div>
-                </div>
-                </div>
-
-                <!-- Calculadora de Preços -->
-                <div class="calculadora-markup">
-                    <h5 class="text-danger mb-3"><i class="fas fa-calculator"></i> Calculadora de Preços</h5>
-                    
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label for="preco_custo">Preço de Custo (R$) *</label>
-                            <input type="number" id="preco_custo" name="preco_custo" class="form-control" step="0.01" value="{{ servico.preco_custo if servico else '0' }}" required>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="markup_percentual">Markup (%)</label>
-                            <input type="number" id="markup_percentual" name="markup_percentual" class="form-control" step="0.01" value="0">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label>Preço de Venda (R$)</label>
-                            <input type="text" id="preco_venda_display" class="form-control valor-calculado" readonly placeholder="R$ 0,00">
-                            <input type="hidden" id="preco_venda" name="preco_venda" value="{{ servico.preco_venda if servico else '0' }}">
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h6>Markup em R$</h6>
-                                    <div class="resultado-calculo" id="markup_valor">R$ 0,00</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h6>Margem de Lucro</h6>
-                                    <div class="resultado-calculo" id="margem_lucro">0,0%</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="text-end mt-3">
-                    <button type="submit" class="btn btn-danger btn-lg">
-                        <i class="fas fa-save"></i>
-                        {{ 'Atualizar Serviço' if servico else 'Salvar Serviço' }}
-                    </button>
-                    <a href="{{ url_for('servico.listar_servicos') }}" class="btn btn-secondary btn-lg ms-2">
-                        <i class="fas fa-arrow-left"></i> Voltar
-                    </a>
-                </div>
-            </form>
-        </div>
+<div class="card card-jsp mb-3">
+  <div class="card-header d-flex flex-wrap gap-2 align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-2">
+      <i class="fas fa-tools"></i>
+      <strong>{{ 'Edição de Serviço' if servico else 'Novo Serviço' }}</strong>
+      {% if servico and servico.codigo %}
+        <code>{{ servico.codigo }}</code>
+      {% endif %}
     </div>
-    <!-- jQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        $(document).ready(function () {
-            // Função para calcular markup em tempo real
-            function calcularMarkup() {
-                const precoCusto = parseFloat($('#preco_custo').val()) || 0;
-                const markupPercentual = parseFloat($('#markup_percentual').val()) || 0;
-                
-                if (precoCusto > 0) {
-                    const markupValor = precoCusto * (markupPercentual / 100);
-                    const precoVenda = precoCusto + markupValor;
-                    const margemLucro = precoVenda > 0 ? ((precoVenda - precoCusto) / precoVenda) * 100 : 0;
-                    
-                    // Atualiza os campos
-                    $('#preco_venda_display').val('R$ ' + precoVenda.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                    $('#preco_venda').val(precoVenda.toFixed(2));
-                    $('#markup_valor').text('R$ ' + markupValor.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                    $('#margem_lucro').text(margemLucro.toFixed(1) + '%');
-                } else {
-                    // Limpa os campos se não há preço de custo
-                    $('#preco_venda_display').val('R$ 0,00');
-                    $('#preco_venda').val('0');
-                    $('#markup_valor').text('R$ 0,00');
-                    $('#margem_lucro').text('0,0%');
-                }
-            }
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-light btn-sm" style="border-color:rgba(255,255,255,.25)"
+         href="{{ url_for('servico.listar_servicos') }}">
+        <i class="fas fa-arrow-left me-1"></i> Voltar
+      </a>
+    </div>
+  </div>
 
-            // Eventos para recalcular quando os valores mudarem
-            $('#preco_custo, #markup_percentual').on('input change', function() {
-                calcularMarkup();
-            });
+  <div class="card-body">
+    <form method="POST">
+      <!-- Informações Básicas -->
+      <div class="card card-jsp mb-4">
+        <div class="card-header">
+          <i class="fas fa-info-circle me-2"></i>Informações Básicas
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12 col-lg-8">
+              <label for="nome" class="form-label">Nome do Serviço *</label>
+              <input type="text" id="nome" name="nome" class="form-control"
+                     value="{{ servico.nome if servico else '' }}" required>
+            </div>
+            <div class="col-6 col-lg-2">
+              <label for="unidade" class="form-label">Unidade</label>
+              <select id="unidade" name="unidade" class="form-select">
+                <option value="UN" {{ 'selected' if servico and servico.unidade=='UN' else '' }}>UN</option>
+                <option value="H"  {{ 'selected' if servico and servico.unidade=='H'  else '' }}>H</option>
+                <option value="M2" {{ 'selected' if servico and servico.unidade=='M2' else '' }}>M2</option>
+                <option value="KM" {{ 'selected' if servico and servico.unidade=='KM' else '' }}>KM</option>
+                <option value="DIA"{{ 'selected' if servico and servico.unidade=='DIA' else '' }}>DIA</option>
+              </select>
+            </div>
+            <div class="col-6 col-lg-2 d-flex align-items-end">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="ativo" name="ativo"
+                       {% if not servico or servico.ativo %}checked{% endif %}>
+                <label class="form-check-label" for="ativo">Ativo</label>
+              </div>
+            </div>
 
-            // Calcula markup inicial se há valores
-            calcularMarkup();
+            <div class="col-12">
+              <label for="descricao" class="form-label">Descrição</label>
+              <textarea id="descricao" name="descricao" class="form-control" rows="3">{{ servico.descricao if servico else '' }}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            // Validação de formulário
-            $('form').on('submit', function(e) {
-                const nome = $('#nome').val().trim();
-                const precoCusto = parseFloat($('#preco_custo').val()) || 0;
+      <!-- Calculadora de Preços -->
+      <div class="card card-jsp mb-4">
+        <div class="card-header">
+          <i class="fas fa-calculator me-2"></i>Calculadora de Preços
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12 col-md-4">
+              <label for="preco_custo" class="form-label">Preço de Custo (R$) *</label>
+              <input type="number" id="preco_custo" name="preco_custo" class="form-control" step="0.01"
+                     value="{{ '%.2f'|format(servico.preco_custo) if servico and servico.preco_custo is not none else '0' }}"
+                     required>
+            </div>
+            <div class="col-12 col-md-4">
+              <label for="markup_percentual" class="form-label">Markup (%)</label>
+              {# campo “transitório” para cálculo; não precisa existir no model #}
+              {% set mk_auto = (
+                   ((servico.preco_venda|default(0)) - (servico.preco_custo|default(0))) /
+                   (servico.preco_custo if servico and servico.preco_custo and servico.preco_custo>0 else 1) * 100
+                 ) if servico else 0 %}
+              <input type="number" id="markup_percentual" name="markup_percentual" class="form-control" step="0.01"
+                     value="{{ '%.2f'|format(mk_auto) if servico else '0' }}">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">Preço de Venda (R$)</label>
+              <input type="text" id="preco_venda_display" class="form-control" readonly placeholder="R$ 0,00">
+              <input type="hidden" id="preco_venda" name="preco_venda"
+                     value="{{ '%.2f'|format(servico.preco_venda) if servico and servico.preco_venda is not none else '0' }}">
+            </div>
 
-                if (!nome) {
-                    alert('Nome do serviço é obrigatório!');
-                    $('#nome').focus();
-                    e.preventDefault();
-                    return false;
-                }
+            <div class="col-12 col-md-6">
+              <div class="card card-jsp">
+                <div class="card-body text-center">
+                  <div class="small text-muted">Markup em R$</div>
+                  <div class="fs-5 fw-bold" id="markup_valor">R$ 0,00</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="card card-jsp">
+                <div class="card-body text-center">
+                  <div class="small text-muted">Margem de Lucro</div>
+                  <div class="fs-5 fw-bold" id="margem_lucro">0,0%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-                if (precoCusto <= 0) {
-                    alert('Preço de custo deve ser maior que zero!');
-                    $('#preco_custo').focus();
-                    e.preventDefault();
-                    return false;
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+      <!-- Ações -->
+      <div class="text-end">
+        <button type="submit" class="btn btn-brand">
+          <i class="fas fa-save me-1"></i>{{ 'Atualizar Serviço' if servico else 'Salvar Serviço' }}
+        </button>
+        <a href="{{ url_for('servico.listar_servicos') }}" class="btn btn-outline-light ms-2" style="border-color:rgba(255,255,255,.25)">
+          <i class="fas fa-arrow-left me-1"></i> Voltar
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+  /* inputs dark/glass iguais às outras telas */
+  .card-jsp .form-control, .card-jsp .form-select{
+    color:#eaf6ff; background: rgba(15,31,54,.55);
+    border:1px solid rgba(255,255,255,.12);
+  }
+  .card-jsp .form-control::placeholder{ color:#9fb3d6; opacity:.9 }
+</style>
+
+<script>
+  (function () {
+    function toBR(value){
+      return value.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+    function calcular(){
+      const pc = parseFloat(document.getElementById('preco_custo').value) || 0;
+      const mk = parseFloat(document.getElementById('markup_percentual').value) || 0;
+
+      if(pc > 0){
+        const mkR$ = pc * (mk/100);
+        const pv   = pc + mkR$;
+        const margem = pv > 0 ? ((pv - pc) / pv) * 100 : 0;
+
+        document.getElementById('preco_venda_display').value = 'R$ ' + toBR(pv);
+        document.getElementById('preco_venda').value = pv.toFixed(2);
+        document.getElementById('markup_valor').textContent = 'R$ ' + toBR(mkR$);
+        document.getElementById('margem_lucro').textContent = margem.toFixed(1) + '%';
+      } else {
+        document.getElementById('preco_venda_display').value = 'R$ 0,00';
+        document.getElementById('preco_venda').value = '0';
+        document.getElementById('markup_valor').textContent = 'R$ 0,00';
+        document.getElementById('margem_lucro').textContent = '0,0%';
+      }
+    }
+
+    // inicia com valores existentes
+    calcular();
+    document.getElementById('preco_custo').addEventListener('input', calcular);
+    document.getElementById('markup_percentual').addEventListener('input', calcular);
+
+    // validação simples no submit
+    document.querySelector('form').addEventListener('submit', function(e){
+      const nome = (document.getElementById('nome').value || '').trim();
+      const pc   = parseFloat(document.getElementById('preco_custo').value) || 0;
+      if(!nome){ alert('Nome do serviço é obrigatório!'); e.preventDefault(); }
+      else if(pc <= 0){ alert('Preço de custo deve ser maior que zero!'); e.preventDefault(); }
+    });
+  })();
+</script>
+{% endblock %}

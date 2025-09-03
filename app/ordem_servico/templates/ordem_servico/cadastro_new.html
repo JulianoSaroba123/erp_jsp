@@ -1,0 +1,721 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar Ordem de Serviço' if ordem_servico else 'Nova Ordem de Serviço' }} — JSP ERP{% endblock %}
+
+{% block content %}
+
+<div class="page-title">
+  <div class="ico"><i class="fas fa-tools"></i></div>
+  <h3 style="margin:0;">{{ 'Editar Ordem de Serviço' if ordem_servico else 'Nova Ordem de Serviço' }}</h3>
+  {% if ordem_servico and ordem_servico.codigo %}
+    <span class="badge rounded-pill text-bg-dark ms-2">Nº {{ ordem_servico.codigo }}</span>
+  {% endif %}
+</div>
+
+<div class="card card-jsp">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-2">
+      <i class="fas fa-file-alt"></i>
+      <strong>{{ 'Edição' if ordem_servico else 'Cadastro' }} da OS</strong>
+      {% if ordem_servico and ordem_servico.codigo %}<code>{{ ordem_servico.codigo }}</code>{% endif %}
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a href="{{ url_for('os.listar_os') }}" class="btn btn-outline-light btn-sm" style="border-color:rgba(255,255,255,.25)"><i class="fas fa-arrow-left me-1"></i> Voltar</a>
+      {% if ordem_servico %}
+        <a class="btn btn-brand btn-sm" target="_blank" href="{{ url_for('os.gerar_pdf', os_id=ordem_servico.id) }}"><i class="fas fa-file-pdf me-1"></i> PDF</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card-body">
+    <form id="form-os"
+          method="POST"
+          action="{% if ordem_servico %}{{ url_for('os.atualizar_os', id=ordem_servico.id) }}{% else %}{{ url_for('os.nova_os') }}{% endif %}"
+          onsubmit="return validarClienteSelecionado();">
+
+      <!-- 1) Cliente -->
+      <div class="card card-jsp mb-3">
+        <div class="card-header"><i class="fas fa-user me-2"></i>Dados do Cliente</div>
+        <div class="card-body">
+          <div class="row g-3 align-items-start">
+            <div class="col-lg-6">
+              <label class="form-label">Cliente *</label>
+              <div class="position-relative">
+                <input id="cliente_input" name="cliente_input" class="form-control" autocomplete="off"
+                       placeholder="Digite para buscar..."
+                       value="{% if ordem_servico and ordem_servico.cliente %}{{ ordem_servico.cliente.nome }} ({{ ordem_servico.cliente.cpf_cnpj }}){% endif %}">
+                <div id="cliente_dropdown" class="dropdown-menu w-100 p-0" style="display:none; max-height:260px; overflow:auto;"></div>
+              </div>
+              <input type="hidden" id="cliente_id" name="cliente_id" value="{{ ordem_servico.cliente_id if ordem_servico else '' }}">
+              <div class="form-text">Digite 2+ letras para buscar e clique no resultado.</div>
+            </div>
+            <div class="col-lg-3">
+              <label class="form-label">Solicitante</label>
+              <input id="solicitante" name="solicitante" class="form-control"
+                     value="{{ ordem_servico.solicitante if ordem_servico else '' }}">
+            </div>
+            <div class="col-lg-3">
+              <label class="form-label">Contato</label>
+              <input id="contato" name="contato" class="form-control" maxlength="15"
+                     value="{{ ordem_servico.contato if ordem_servico else '' }}">
+            </div>
+          </div>
+
+          <div class="row g-3 mt-1">
+            <div class="col-md-3">
+              <label class="form-label">CPF/CNPJ</label>
+              <input id="cpf" class="form-control" readonly value="{{ ordem_servico.cliente.cpf_cnpj if ordem_servico and ordem_servico.cliente else '' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Telefone</label>
+              <input id="telefone" class="form-control" readonly value="{{ ordem_servico.cliente.telefone if ordem_servico and ordem_servico.cliente else '' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">E-mail</label>
+              <input id="email" class="form-control" readonly value="{{ ordem_servico.cliente.email if ordem_servico and ordem_servico.cliente else '' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Endereço</label>
+              <input id="endereco" class="form-control" readonly value="{{ ordem_servico.cliente.endereco if ordem_servico and ordem_servico.cliente else '' }}">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2) Detalhes -->
+      <div class="card card-jsp mb-3">
+        <div class="card-header"><i class="fas fa-clipboard-list me-2"></i>Detalhes da OS</div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">Código</label>
+              <input id="codigo" name="codigo" class="form-control" readonly
+                     value="{{ ordem_servico.codigo if ordem_servico else codigo_gerado }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Data de Emissão</label>
+              <input type="date" id="data_emissao" name="data_emissao" class="form-control"
+                     value="{{ ordem_servico.data_emissao.strftime('%Y-%m-%d') if ordem_servico and ordem_servico.data_emissao else '' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Previsão de Conclusão</label>
+              <input type="date" id="previsao_conclusao" name="previsao_conclusao" class="form-control"
+                     value="{{ ordem_servico.previsao_conclusao.strftime('%Y-%m-%d') if ordem_servico and ordem_servico.previsao_conclusao else '' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Prioridade</label>
+              <select id="prioridade" name="prioridade" class="form-select">
+                {% set pr = ordem_servico.prioridade if ordem_servico else 'Média' %}
+                <option value="Baixa"  {{ 'selected' if pr=='Baixa'  else '' }}>Baixa</option>
+                <option value="Média"  {{ 'selected' if pr=='Média'  else '' }}>Média</option>
+                <option value="Alta"   {{ 'selected' if pr=='Alta'   else '' }}>Alta</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Status</label>
+              <select id="status" name="status" class="form-select">
+                {% set st = ordem_servico.status if ordem_servico else 'Aberta' %}
+                <option value="Aberta"        {{ 'selected' if st=='Aberta'        else '' }}>Aberta</option>
+                <option value="Em Andamento"  {{ 'selected' if st=='Em Andamento'  else '' }}>Em Andamento</option>
+                <option value="Concluída"     {{ 'selected' if st=='Concluída'     else '' }}>Concluída</option>
+                <option value="Cancelada"     {{ 'selected' if st=='Cancelada'     else '' }}>Cancelada</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3) Equipamento -->
+      <div class="card card-jsp mb-3">
+        <div class="card-header"><i class="fas fa-cogs me-2"></i>Dados do Equipamento</div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-lg-6">
+              <label class="form-label">Nome do Equipamento</label>
+              <input id="equipamento_nome" name="equipamento_nome" class="form-control" value="{{ ordem_servico.equipamento_nome if ordem_servico else '' }}">
+            </div>
+            <div class="col-lg-3">
+              <label class="form-label">Marca</label>
+              <input id="equipamento_marca" name="equipamento_marca" class="form-control" value="{{ ordem_servico.equipamento_marca if ordem_servico else '' }}">
+            </div>
+            <div class="col-lg-3">
+              <label class="form-label">Modelo</label>
+              <input id="equipamento_modelo" name="equipamento_modelo" class="form-control" value="{{ ordem_servico.equipamento_modelo if ordem_servico else '' }}">
+            </div>
+            <div class="col-lg-6">
+              <label class="form-label">Número de Série</label>
+              <input id="equipamento_numero_serie" name="equipamento_numero_serie" class="form-control" value="{{ ordem_servico.equipamento_numero_serie if ordem_servico else '' }}">
+            </div>
+            <div class="col-lg-6">
+              <label class="form-label">Acessórios</label>
+              <input id="equipamento_acessorios" name="equipamento_acessorios" class="form-control" value="{{ ordem_servico.equipamento_acessorios if ordem_servico else '' }}">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4) Problema/Solução -->
+      <div class="card card-jsp mb-3">
+        <div class="card-header"><i class="fas fa-exclamation-triangle me-2"></i>Problema e Solução</div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Problema descrito</label>
+            <textarea id="problema_descrito" name="problema_descrito" rows="3" class="form-control">{{ ordem_servico.problema_descrito if ordem_servico else '' }}</textarea>
+          </div>
+          <div>
+            <label class="form-label">Serviço realizado</label>
+            <textarea id="descricao_servico_realizado" name="descricao_servico_realizado" rows="3" class="form-control">{{ ordem_servico.descricao_servico_realizado if ordem_servico else '' }}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5) Responsável / Horários -->
+      <div class="card card-jsp mb-3">
+        <div class="card-header"><i class="fas fa-user-tie me-2"></i>Responsável e Horários</div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-lg-6">
+              <label class="form-label">Técnico responsável</label>
+              <input id="tecnico_responsavel" name="tecnico_responsavel" class="form-control" value="{{ ordem_servico.tecnico_responsavel if ordem_servico else '' }}">
+            </div>
+            <div class="col-lg-2">
+              <label class="form-label">Hora início</label>
+              <input type="time" id="hora_inicio" name="hora_inicio" class="form-control"
+                     value="{{ ordem_servico.hora_inicio.strftime('%H:%M') if ordem_servico and ordem_servico.hora_inicio else '' }}">
+            </div>
+            <div class="col-lg-2">
+              <label class="form-label">Hora término</label>
+              <input type="time" id="hora_termino" name="hora_termino" class="form-control"
+                     value="{{ ordem_servico.hora_termino.strftime('%H:%M') if ordem_servico and ordem_servico.hora_termino else '' }}">
+            </div>
+            <div class="col-lg-2">
+              <label class="form-label">Total horas</label>
+              <input id="total_horas" class="form-control" readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6) Deslocamento -->
+      <div class="card card-jsp mb-3">
+        <div class="card-header"><i class="fas fa-route me-2"></i>Deslocamento (cobra se &gt; 50 km)</div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">KM inicial</label>
+              <input type="number" step="0.1" id="km_inicial" name="km_inicial" class="form-control"
+                     value="{{ ordem_servico.km_inicial if ordem_servico else '' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">KM final</label>
+              <input type="number" step="0.1" id="km_final" name="km_final" class="form-control"
+                     value="{{ ordem_servico.km_final if ordem_servico else '' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">KM total</label>
+              <input id="km_total" class="form-control" readonly
+                     value="{{ ordem_servico.km_total ~ ' km' if ordem_servico and ordem_servico.km_total else '' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Valor deslocamento</label>
+              <input id="valor_deslocamento_display" class="form-control" readonly
+                     value="{{ 'R$ %.2f'|format(ordem_servico.valor_deslocamento|float) if ordem_servico and ordem_servico.valor_deslocamento else '' }}">
+              <input type="hidden" id="valor_deslocamento" name="valor_deslocamento" value="{{ ordem_servico.valor_deslocamento if ordem_servico else '0' }}">
+              <div class="form-text">Tabela: R$ 1,15 / km quando ultrapassar 50 km.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7) Serviços -->
+      <div class="card card-jsp mb-3">
+        <div class="card-header"><i class="fas fa-wrench me-2"></i>Serviços (Valor = Horas × Valor/Hora)</div>
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-lg-5">
+              <label class="form-label">Adicionar serviço</label>
+              <select id="servico_select" class="form-select">
+                <option value="">Selecione...</option>
+                {% for s in servicos %}
+                  <option value="{{ s.id }}" data-valor="{{ s.preco_venda or s.valor or 0 }}" data-nome="{{ s.nome }}">
+                    {{ s.nome }} — R$ {{ '%.2f'|format((s.preco_venda or s.valor or 0)|float) }}/h
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-lg-2">
+              <label class="form-label">Qtd (horas)</label>
+              <input id="servico_quantidade" class="form-control" type="number" min="0.1" step="0.1" value="1">
+            </div>
+            <div class="col-lg-3">
+              <div class="text-muted small">Use “Hora início / término” para calcular as horas automaticamente.</div>
+            </div>
+            <div class="col-lg-2 text-end">
+              <button type="button" class="btn btn-brand w-100" onclick="adicionarServico()"><i class="fas fa-plus"></i></button>
+            </div>
+          </div>
+          <div id="lista-servicos" class="mt-3"></div>
+          <input type="hidden" id="servicos_json" name="servicos_json" value="{{ servicos_salvos|tojson if servicos_salvos else '[]' }}">
+        </div>
+      </div>
+
+      <!-- 8) Produtos -->
+      <div class="card card-jsp mb-3">
+        <div class="card-header"><i class="fas fa-box me-2"></i>Produtos</div>
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-lg-5">
+              <label class="form-label">Adicionar produto</label>
+              <select id="produto_select" class="form-select">
+                <option value="">Selecione...</option>
+                {% for p in produtos %}
+                  <option value="{{ p.id }}" data-valor="{{ p.preco_venda }}" data-nome="{{ p.nome }}">{{ p.nome }} — R$ {{ '%.2f'|format(p.preco_venda|float) }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-lg-2">
+              <label class="form-label">Qtd</label>
+              <input id="produto_quantidade" class="form-control" type="number" min="1" step="1" value="1">
+            </div>
+            <div class="col-lg-3">
+              <label class="form-label">Valor unitário</label>
+              <input id="produto_valor" class="form-control" type="number" step="0.01">
+            </div>
+            <div class="col-lg-2 text-end">
+              <button type="button" class="btn btn-brand w-100" onclick="adicionarProduto()"><i class="fas fa-plus"></i></button>
+            </div>
+          </div>
+          <div id="lista-produtos" class="mt-3"></div>
+          <input type="hidden" id="produtos_json" name="produtos_json" value="{{ produtos_salvos|tojson if produtos_salvos else '[]' }}">
+        </div>
+      </div>
+
+      <!-- 9) Totais -->
+      <div class="card card-jsp mb-3">
+        <div class="card-header"><i class="fas fa-calculator me-2"></i>Totais</div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">Total horas</label>
+              <input id="total_horas_display" class="form-control" value="{{ ordem_servico.total_horas ~ 'h' if ordem_servico and ordem_servico.total_horas else '' }}" readonly>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Valor serviços</label>
+              <input id="valor_servicos_display" class="form-control" readonly
+                     value="{{ 'R$ %.2f'|format(ordem_servico.valor_servicos|float) if ordem_servico and ordem_servico.valor_servicos else '' }}">
+              <input type="hidden" id="valor_servicos" name="valor_servicos" value="{{ ordem_servico.valor_servicos if ordem_servico else '0' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Valor produtos</label>
+              <input id="valor_produtos_display" class="form-control" readonly
+                     value="{{ 'R$ %.2f'|format(ordem_servico.valor_produtos|float) if ordem_servico and ordem_servico.valor_produtos else '' }}">
+              <input type="hidden" id="valor_produtos" name="valor_produtos" value="{{ ordem_servico.valor_produtos if ordem_servico else '0' }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Valor total</label>
+              <input id="valor_total_display" class="form-control" style="font-weight:700" readonly
+                     value="{{ 'R$ %.2f'|format(ordem_servico.valor_total|float) if ordem_servico and ordem_servico.valor_total else '' }}">
+              <input type="hidden" id="valor_total" name="valor_total" value="{{ ordem_servico.valor_total if ordem_servico else '0' }}">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10) Pagamento -->
+      <div class="card card-jsp mb-3">
+        <div class="card-header"><i class="fas fa-credit-card me-2"></i>Condições de Pagamento</div>
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-lg-4">
+              <label class="form-label">Condição</label>
+              {% set cp = ordem_servico.condicoes_pagamento if ordem_servico else 'À vista' %}
+              <select id="condicoes_pagamento" name="condicoes_pagamento" class="form-select">
+                <option value="À vista"  {{ 'selected' if cp=='À vista'  else '' }}>À vista</option>
+                <option value="Parcelado"{{ 'selected' if cp=='Parcelado' else '' }}>Parcelado</option>
+              </select>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-label">Forma</label>
+              {% set fp = ordem_servico.forma_pagamento if ordem_servico else 'A receber' %}
+              <select id="forma_pagamento" name="forma_pagamento" class="form-select">
+                {% for f in ['A receber','Pago','À vista','Dinheiro','PIX','Cartão','Cheque','Transferência'] %}
+                  <option value="{{ f }}" {{ 'selected' if fp==f else '' }}>{{ f }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-lg-2">
+              <label class="form-label">Parcelas</label>
+              <input id="num_parcelas" class="form-control" type="number" min="1" max="12" value="1">
+              <div class="form-text">1 = à vista</div>
+            </div>
+            <div class="col-lg-2">
+              <button type="button" class="btn btn-brand w-100" onclick="gerarParcelas()"><i class="fas fa-calendar-alt me-1"></i>Gerar</button>
+            </div>
+          </div>
+          <div id="lista-parcelas" class="mt-3"></div>
+          <input type="hidden" id="parcelas_json" name="parcelas_json" value="{{ parcelas_salvas|tojson if parcelas_salvas else '[]' }}">
+        </div>
+      </div>
+
+      <!-- 11) Observações -->
+      <div class="card card-jsp mb-3">
+        <div class="card-header"><i class="fas fa-sticky-note me-2"></i>Observações</div>
+        <div class="card-body">
+          <textarea id="outras_informacoes" name="outras_informacoes" rows="3" class="form-control">{{ ordem_servico.outras_informacoes if ordem_servico else '' }}</textarea>
+        </div>
+      </div>
+
+      <!-- Ações -->
+      <div class="text-end">
+        <a href="{{ url_for('os.listar_os') }}" class="btn btn-outline-light btn-lg" style="border-color:rgba(255,255,255,.25)"><i class="fas fa-arrow-left me-1"></i>Voltar</a>
+        <button type="submit" class="btn btn-brand btn-lg ms-2">
+          <i class="fas fa-save me-1"></i>{{ 'Atualizar' if ordem_servico else 'Criar' }} OS
+        </button>
+        {% if ordem_servico %}
+        <a class="btn btn-outline-light btn-lg ms-2" style="border-color:rgba(255,255,255,.25)" target="_blank" href="{{ url_for('os.gerar_pdf', os_id=ordem_servico.id) }}">
+          <i class="fas fa-file-pdf me-1"></i>PDF
+        </a>
+        {% endif %}
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+  /* contraste/inputs no padrão do Fornecedor */
+  .card-jsp label, .card-jsp .form-label { color:#ffffff!important; }
+  .card-jsp .form-control, .card-jsp .form-select, .card-jsp textarea{
+    color:#ffffff; background:rgba(15,31,54,.55); border:1px solid rgba(255,255,255,.12);
+  }
+  .card-jsp .form-control:focus, .card-jsp .form-select:focus, .card-jsp textarea:focus{
+    border-color:rgba(86,212,255,.65); box-shadow:0 0 0 .2rem rgba(86,212,255,.12);
+  }
+  .dropdown-menu .dropdown-item{ color:#0d223d; }
+  .valor-calculado{ font-weight:700; }
+  .table-mini thead th{ 
+    background:rgba(41,182,255,.16); 
+    color:#ffffff !important; 
+    border-bottom:1px solid rgba(255,255,255,.12); 
+    font-weight: 600;
+  }
+  .table-mini td{ 
+    color:#ffffff !important; 
+    background:rgba(15,31,54,.3);
+    border-color:rgba(255,255,255,.12);
+  }
+  .table-mini tbody tr:hover td {
+    background:rgba(41,182,255,.1);
+  }
+</style>
+
+<script>
+/* ===================== Estado ===================== */
+let servicos   = {{ servicos_salvos|tojson|safe if servicos_salvos is defined else '[]' }};
+let produtos   = {{ produtos_salvos|tojson|safe if produtos_salvos is defined else '[]' }};
+let parcelas   = {{ parcelas_salvas|tojson|safe if parcelas_salvas is defined else '[]' }};
+
+/* ===================== Util ===================== */
+const fmt = n => 'R$ ' + (Number(n||0)).toFixed(2);
+
+/* ===================== Cliente (autocomplete simples) ===================== */
+(function(){
+  const input = document.getElementById('cliente_input');
+  const dd    = document.getElementById('cliente_dropdown');
+  if(!input || !dd) return;
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim();
+    if(q.length < 2){ dd.style.display='none'; return; }
+    fetch('/clientes/api/busca?q='+encodeURIComponent(q))
+      .then(r => r.json())
+      .then(arr => {
+        dd.innerHTML = '';
+        if(!arr || !arr.length){ dd.style.display='none'; return; }
+        arr.forEach(c => {
+          const a = document.createElement('a');
+          a.href='#'; a.className='dropdown-item';
+          a.textContent = `${c.nome} (${c.cpf_cnpj || '—'})`;
+          a.onclick = (e)=>{ e.preventDefault();
+            input.value = a.textContent;
+            document.getElementById('cliente_id').value = c.id;
+            ['cpf','telefone','email','endereco'].forEach((k)=>{
+              const el = document.getElementById(k); if(el) el.value = c[k] || '';
+            });
+            dd.style.display='none';
+          };
+          dd.appendChild(a);
+        });
+        dd.style.display='block';
+      })
+      .catch(()=>{ dd.style.display='none'; });
+  });
+
+  document.addEventListener('click', (e)=>{
+    if(!dd.contains(e.target) && e.target!==input) dd.style.display='none';
+  });
+})();
+
+function validarClienteSelecionado(){
+  if(!document.getElementById('cliente_id').value){
+    alert('Selecione um cliente válido da lista.'); 
+    document.getElementById('cliente_input').focus(); 
+    return false;
+  }
+  // embutir arrays
+  document.getElementById('servicos_json').value = JSON.stringify(servicos||[]);
+  document.getElementById('produtos_json').value = JSON.stringify(produtos||[]);
+  document.getElementById('parcelas_json').value = JSON.stringify(parcelas||[]);
+  return true;
+}
+
+/* ===================== Horas / Deslocamento / Totais (API) ===================== */
+async function calcularHoras(){
+  const ini = document.getElementById('hora_inicio')?.value;
+  const fim = document.getElementById('hora_termino')?.value;
+  const out = document.getElementById('total_horas');
+  const outDisp = document.getElementById('total_horas_display');
+  if(!ini || !fim){ if(out) out.value=''; if(outDisp) outDisp.value=''; return; }
+  try{
+    const r = await fetch('/os/api/calcular-horas',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({hora_inicio:ini, hora_termino:fim})});
+    const j = await r.json();
+    const h = j.sucesso ? Number(j.total_horas||0) : 0;
+    if(out) out.value = h.toFixed(2)+'h';
+    if(outDisp) outDisp.value = h.toFixed(2)+'h';
+    calcularTotais();
+    return h;
+  }catch(e){ if(out) out.value=''; if(outDisp) outDisp.value=''; return 0; }
+}
+
+async function calcularDeslocamento(){
+  const ki = parseFloat(document.getElementById('km_inicial')?.value || 0);
+  const kf = parseFloat(document.getElementById('km_final')?.value   || 0);
+  try{
+    const r = await fetch('/os/api/calcular-deslocamento',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({km_inicial:ki, km_final:kf})});
+    const j = await r.json();
+    if(j.sucesso){
+      document.getElementById('km_total').value = j.km_total.toFixed(1)+' km';
+      document.getElementById('valor_deslocamento_display').value = j.valor_formatado;
+      document.getElementById('valor_deslocamento').value = j.valor_deslocamento.toFixed(2);
+    }else{
+      document.getElementById('km_total').value = '';
+      document.getElementById('valor_deslocamento_display').value = 'R$ 0,00';
+      document.getElementById('valor_deslocamento').value = '0';
+    }
+    calcularTotais();
+  }catch(e){}
+}
+
+async function calcularTotais(){
+  try {
+    // Calcula totais localmente
+    let totalServicos = 0;
+    let totalProdutos = 0;
+    let totalHoras = 0;
+    
+    // Soma serviços
+    if(servicos && servicos.length > 0) {
+      servicos.forEach(s => {
+        totalServicos += parseFloat(s.valor_total || 0);
+        totalHoras += parseFloat(s.quantidade || 0);
+      });
+    }
+    
+    // Soma produtos
+    if(produtos && produtos.length > 0) {
+      produtos.forEach(p => {
+        totalProdutos += parseFloat(p.valor_total || 0);
+      });
+    }
+    
+    const valorTotal = totalServicos + totalProdutos;
+    
+    // Atualiza campos de exibição
+    const valorServicosDisplay = document.getElementById('valor_servicos_display');
+    const valorProdutosDisplay = document.getElementById('valor_produtos_display');
+    const valorTotalDisplay = document.getElementById('valor_total_display');
+    const totalHorasDisplay = document.getElementById('total_horas_display');
+    
+    if(valorServicosDisplay) {
+      valorServicosDisplay.value = fmt(totalServicos);
+    }
+    if(valorProdutosDisplay) {
+      valorProdutosDisplay.value = fmt(totalProdutos);
+    }
+    if(valorTotalDisplay) {
+      valorTotalDisplay.value = fmt(valorTotal);
+    }
+    if(totalHorasDisplay) {
+      totalHorasDisplay.value = totalHoras.toFixed(2) + 'h';
+    }
+    
+    // Atualiza campos hidden
+    const valorServicosHidden = document.getElementById('valor_servicos');
+    const valorProdutosHidden = document.getElementById('valor_produtos');
+    const valorTotalHidden = document.getElementById('valor_total');
+    
+    if(valorServicosHidden) valorServicosHidden.value = totalServicos.toFixed(2);
+    if(valorProdutosHidden) valorProdutosHidden.value = totalProdutos.toFixed(2);
+    if(valorTotalHidden) valorTotalHidden.value = valorTotal.toFixed(2);
+    
+  } catch (error) {
+    console.error('Error in calcularTotais:', error);
+  }
+}
+
+/* ===================== Serviços ===================== */
+async function adicionarServico(){
+  const sel = document.getElementById('servico_select');
+  const id  = sel.value;
+  if(!id){ alert('Selecione um serviço.'); return; }
+
+  // se horas não preenchidas, usa quantidade informada
+  let horas = parseFloat((document.getElementById('total_horas')?.value||'').replace('h','')) || 0;
+  const qtdCampo = parseFloat(document.getElementById('servico_quantidade')?.value||0);
+  if(horas<=0) horas = qtdCampo>0 ? qtdCampo : 1;
+
+  // tenta buscar preço atualizado
+  let valorHora = parseFloat(sel.options[sel.selectedIndex].dataset.valor||0);
+  try{
+    const r = await fetch(`/servicos/api/servico/${id}`);
+    if(r.ok){ const j = await r.json(); valorHora = parseFloat(j.preco_venda || j.valor_hora || j.valor || valorHora || 0); }
+  }catch(e){}
+
+  const nome = sel.options[sel.selectedIndex].dataset.nome || sel.options[sel.selectedIndex].text;
+  const existente = servicos.find(s => s.id == id);
+  if(existente){
+    existente.quantidade = horas;
+    existente.valor_unitario = valorHora;
+    existente.valor_total = valorHora * horas;
+  }else{
+    servicos.push({ id, nome, quantidade: horas, valor_unitario: valorHora, valor_total: valorHora*horas });
+  }
+  sel.value=''; document.getElementById('servico_quantidade').value='1';
+  renderServicos(); calcularTotais();
+}
+function removerServico(i){ servicos.splice(i,1); renderServicos(); calcularTotais(); }
+function renderServicos(){
+  const box = document.getElementById('lista-servicos');
+  if(!servicos.length){ box.innerHTML=''; return; }
+  let html = `<div class="table-responsive"><table class="table table-mini align-middle mb-0">
+    <thead><tr><th>Serviço</th><th style="width:120px;">Horas</th><th style="width:160px;">Vlr/h</th><th style="width:160px;">Total</th><th style="width:80px;"></th></tr></thead><tbody>`;
+  servicos.forEach((s,i)=>{
+    html += `<tr>
+      <td>${s.nome||''}</td>
+      <td>${(Number(s.quantidade)||0).toFixed(2)}</td>
+      <td>${fmt(s.valor_unitario)}</td>
+      <td>${fmt(s.valor_total)}</td>
+      <td class="text-end"><button type="button" class="btn btn-outline-light btn-sm" style="border-color:rgba(255,255,255,.25)" onclick="removerServico(${i})"><i class="fas fa-trash"></i></button></td>
+    </tr>`;
+  });
+  html += `</tbody></table></div>`;
+  box.innerHTML = html;
+}
+
+/* ===================== Produtos ===================== */
+function preencherValorProduto(){
+  const sel = document.getElementById('produto_select');
+  const v = sel.value ? sel.options[sel.selectedIndex].dataset.valor : '';
+  document.getElementById('produto_valor').value = v || '';
+}
+function adicionarProduto(){
+  const sel = document.getElementById('produto_select');
+  if(!sel.value){ alert('Selecione um produto.'); return; }
+  const id   = sel.value;
+  const nome = sel.options[sel.selectedIndex].dataset.nome || sel.options[sel.selectedIndex].text;
+  const qtd  = Math.max(1, parseFloat(document.getElementById('produto_quantidade').value||1));
+  const vu   = parseFloat(document.getElementById('produto_valor').value||0);
+  if(vu<=0){ alert('Informe o valor unitário.'); return; }
+  const ex = produtos.find(p=>p.id==id);
+  if(ex){ ex.quantidade += qtd; ex.valor_total = ex.quantidade * ex.valor_unitario; }
+  else { produtos.push({id, nome, quantidade:qtd, valor_unitario:vu, valor_total: vu*qtd}); }
+  sel.value=''; document.getElementById('produto_quantidade').value='1'; document.getElementById('produto_valor').value='';
+  renderProdutos(); calcularTotais();
+}
+function removerProduto(i){ produtos.splice(i,1); renderProdutos(); calcularTotais(); }
+function renderProdutos(){
+  const box = document.getElementById('lista-produtos');
+  if(!produtos.length){ box.innerHTML=''; return; }
+  let html = `<div class="table-responsive"><table class="table table-mini align-middle mb-0">
+    <thead><tr><th>Produto</th><th style="width:100px;">Qtd</th><th style="width:160px;">Unitário</th><th style="width:160px;">Total</th><th style="width:80px;"></th></tr></thead><tbody>`;
+  produtos.forEach((p,i)=>{
+    html += `<tr>
+      <td>${p.nome||''}</td>
+      <td>${Number(p.quantidade||0)}</td>
+      <td>${fmt(p.valor_unitario)}</td>
+      <td>${fmt(p.valor_total)}</td>
+      <td class="text-end"><button type="button" class="btn btn-outline-light btn-sm" style="border-color:rgba(255,255,255,.25)" onclick="removerProduto(${i})"><i class="fas fa-trash"></i></button></td>
+    </tr>`;
+  });
+  html += `</tbody></table></div>`;
+  box.innerHTML = html;
+}
+
+/* ===================== Parcelas ===================== */
+function gerarParcelas(){
+  const np = Math.min(12, Math.max(1, parseInt(document.getElementById('num_parcelas').value||1)));
+  const total = parseFloat(document.getElementById('valor_total').value||0);
+  if(total<=0){ alert('Calcule o valor total primeiro.'); return; }
+  parcelas = [];
+  const v = total/np, base = new Date();
+  for(let i=0;i<np;i++){
+    const d = new Date(base); d.setMonth(d.getMonth() + i + 1);
+    parcelas.push({numero:i+1, valor:v, data_vencimento:d.toISOString().slice(0,10), status:'Pendente'});
+  }
+  renderParcelas();
+}
+function updParData(i,v){ if(parcelas[i]) parcelas[i].data_vencimento=v; }
+function updParStatus(i,v){ if(parcelas[i]) parcelas[i].status=v; }
+function delPar(i){ parcelas.splice(i,1); parcelas.forEach((p,ix)=>p.numero=ix+1); renderParcelas(); }
+function renderParcelas(){
+  const box = document.getElementById('lista-parcelas');
+  if(!parcelas.length){ box.innerHTML=''; return; }
+  let html = `<div class="table-responsive"><table class="table table-mini align-middle mb-0">
+    <thead><tr><th>Parcela</th><th>Valor</th><th>Vencimento</th><th>Status</th><th style="width:80px;"></th></tr></thead><tbody>`;
+  parcelas.forEach((p,i)=>{
+    html += `<tr>
+      <td>${p.numero}/${parcelas.length}</td>
+      <td>${fmt(p.valor)}</td>
+      <td><input type="date" class="form-control form-control-sm" value="${p.data_vencimento}" onchange="updParData(${i},this.value)"></td>
+      <td>
+        <select class="form-select form-select-sm" onchange="updParStatus(${i},this.value)">
+          ${['Pendente','Paga','Vencida'].map(s=>`<option value="${s}" ${p.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </td>
+      <td class="text-end"><button type="button" class="btn btn-outline-light btn-sm" style="border-color:rgba(255,255,255,.25)" onclick="delPar(${i})"><i class="fas fa-trash"></i></button></td>
+    </tr>`;
+  });
+  html += `</tbody></table></div>`;
+  box.innerHTML = html;
+}
+
+/* ===================== Eventos / Boot ===================== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  // preencher valor ao trocar produto
+  const ps = document.getElementById('produto_select');
+  if(ps){ ps.addEventListener('change', preencherValorProduto); }
+
+  // listeners de cálculos
+  ['hora_inicio','hora_termino'].forEach(id=>{ const el=document.getElementById(id); el && ['change','input','blur'].forEach(ev=>el.addEventListener(ev,calcularHoras)); });
+  ['km_inicial','km_final'].forEach(id=>{ const el=document.getElementById(id); el && el.addEventListener('input',calcularDeslocamento); });
+
+  // carregar listas salvas
+  renderServicos(); renderProdutos(); renderParcelas();
+
+  // se já há dados, recalc
+  calcularHoras(); calcularDeslocamento(); calcularTotais();
+  
+  // Forçar atualização dos valores se existirem dados salvos
+  setTimeout(() => {
+    if(servicos && servicos.length > 0) {
+      renderServicos();
+    }
+    if(produtos && produtos.length > 0) {
+      renderProdutos();
+    }
+    calcularTotais();
+  }, 100);
+});
+</script>
+{% endblock %}

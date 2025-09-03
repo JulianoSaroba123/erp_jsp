@@ -1,349 +1,303 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ 'Editar Produto' if produto else 'Cadastro de Produto' }} - JSP ERP</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        form .form-control, form .form-select {
-            border: 2px solid #28a745;
-            border-radius: 6px;
-            box-shadow: none;
-            transition: all 0.3s ease-in-out;
-        }
-        
-        form .form-control:focus, form .form-select:focus {
-            border-color: #1e7e34;
-            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.15);
-        }
-        
-        .card {
-            border: 2px solid #28a745;
-            border-radius: 8px;
-        }
-        
-        label {
-            font-weight: 600;
-        }
-        
-        .calculadora-markup {
-            background: linear-gradient(135deg, #e8f5e8, #f0f9f0);
-            border: 2px solid #28a745;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        
-        .secao-formulario {
-            background: linear-gradient(135deg, #e8f5e8, #f0f9f0);
-            border: 2px solid #28a745;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        
-        .resultado-calculo {
-            font-size: 1.1em;
-            font-weight: bold;
-        }
-        
-        .valor-calculado {
-            color: #28a745;
-            font-size: 1.3em;
-            font-weight: bold;
-        }
-        
-        .badge-categoria {
-            background-color: #6c757d;
-            color: white;
-            padding: 0.5em;
-            border-radius: 5px;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-dark bg-dark">
-        <div class="container">
-            <span class="navbar-brand"><i class="fas fa-bolt text-warning"></i> JSP ERP</span>
-            <a href="/" class="btn btn-outline-light btn-sm me-2">Dashboard</a>
-            <a href="{{ url_for('produto.listar_produtos') }}" class="btn btn-outline-light btn-sm">Lista de Produtos</a>
-        </div>
-    </nav>
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar Produto' if produto else 'Cadastro de Produto' }} — JSP ERP{% endblock %}
+{% block content %}
 
-    <div class="container mt-4">
-        <div class="card shadow p-4">
-            <h4 class="mb-4 text-success">
-                <i class="fas fa-boxes"></i> 
-                {{ 'Editar Produto' if produto else 'Cadastro de Produto' }}
-            </h4>
-            
-            <form method="POST">
-  <!-- Informações Básicas -->
-    <div class="secao-formulario">
-        <h5 class="text-success mb-3"><i class="fas fa-info-circle"></i> Informações Básicas</h5>
+<div class="page-title">
+  <div class="ico"><i class="fas fa-boxes"></i></div>
+  <h3 style="margin:0;">{{ 'Editar Produto' if produto else 'Cadastro de Produto' }}</h3>
+</div>
 
-    <div class="row g-3">
-        <div class="col-12 col-lg-6">
-            <label for="nome" class="form-label">Nome do Produto *</label>
-            <input type="text" id="nome" name="nome" class="form-control" value="{{ produto.nome if produto else '' }}" required>
-        </div>
-
-    <div class="col-12 col-md-6 col-lg-3">
-        <label for="categoria" class="form-label">Categoria</label>
-        <select id="categoria" name="categoria" class="form-select">
-          <option value="">Selecione...</option>
-          <option value="Fios e Cabos" {{ 'selected' if produto and produto.categoria=='Fios e Cabos' else '' }}>Fios e Cabos</option>
-          <option value="Disjuntores" {{ 'selected' if produto and produto.categoria=='Disjuntores' else '' }}>Disjuntores</option>
-          <option value="Tomadas e Interruptores" {{ 'selected' if produto and produto.categoria=='Tomadas e Interruptores' else '' }}>Tomadas e Interruptores</option>
-          <option value="Eletrodutos" {{ 'selected' if produto and produto.categoria=='Eletrodutos' else '' }}>Eletrodutos</option>
-          <option value="Painéis Solares" {{ 'selected' if produto and produto.categoria=='Painéis Solares' else '' }}>Painéis Solares</option>
-          <option value="Inversores" {{ 'selected' if produto and produto.categoria=='Inversores' else '' }}>Inversores</option>
-          <option value="Ferramentas" {{ 'selected' if produto and produto.categoria=='Ferramentas' else '' }}>Ferramentas</option>
-          <option value="Acessórios" {{ 'selected' if produto and produto.categoria=='Acessórios' else '' }}>Acessórios</option>
-          <option value="Outros" {{ 'selected' if produto and produto.categoria=='Outros' else '' }}>Outros</option>
-        </select>
+<div class="card card-jsp mb-3">
+  <div class="card-header d-flex flex-wrap gap-2 align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-2">
+      <i class="fas fa-box-open"></i>
+      <strong>{{ 'Edição de Produto' if produto else 'Novo Produto' }}</strong>
+      {% if produto and produto.codigo %}
+        <code>{{ produto.codigo }}</code>
+      {% endif %}
     </div>
-
-    <div class="col-12 col-md-6 col-lg-3">
-        <label for="unidade" class="form-label">Unidade</label>
-        <select id="unidade" name="unidade" class="form-select">
-          <option value="UN" {{ 'selected' if produto and produto.unidade=='UN' else '' }}>Unidade (UN)</option>
-          <option value="M"  {{ 'selected' if produto and produto.unidade=='M'  else '' }}>Metro (M)</option>
-          <option value="KG" {{ 'selected' if produto and produto.unidade=='KG' else '' }}>Quilograma (KG)</option>
-          <option value="PC" {{ 'selected' if produto and produto.unidade=='PC' else '' }}>Peça (PC)</option>
-          <option value="CX" {{ 'selected' if produto and produto.unidade=='CX' else '' }}>Caixa (CX)</option>
-          <option value="RL" {{ 'selected' if produto and produto.unidade=='RL' else '' }}>Rolo (RL)</option>
-        </select>
-    </div>
-
-    <div class="col-12 col-lg-8">
-        <label for="fornecedor_id" class="form-label">Fornecedor</label>
-        <div class="input-group">
-        <select class="form-control" id="fornecedor_id" name="fornecedor_id">
-            <option value="">Selecione um fornecedor</option>
-                {% for fornecedor in fornecedores %}
-            <option value="{{ fornecedor.id }}" 
-            {% if produto and produto.fornecedor_id == fornecedor.id %}selected{% endif %}>
-                {{ fornecedor.nome }}
-            </option>
-                {% endfor %}
-        </select>
-
-          <a href="{{ url_for('fornecedor.novo_fornecedor') }}" class="btn btn-outline-success">+ Novo</a>
-        </div>
-    </div>
-
-    <div class="col-12 col-lg-4">
-        <label for="marca" class="form-label">Marca</label>
-        <input type="text" id="marca" name="marca" class="form-control" value="{{ produto.marca if produto else '' }}">
-    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-light btn-sm" style="border-color:rgba(255,255,255,.25)"
+         href="{{ url_for('produto.listar_produtos') }}">
+        <i class="fas fa-arrow-left me-1"></i> Voltar
+      </a>
     </div>
   </div>
 
-  <!-- Identificação Técnica -->
-  <div class="secao-formulario">
-    <h5 class="text-success mb-3"><i class="fas fa-microchip"></i> Identificação Técnica</h5>
-
-    <div class="row g-3">
-      <div class="col-12 col-md-6">
-        <label for="modelo" class="form-label">Modelo</label>
-        <input type="text" class="form-control" id="modelo" name="modelo"
-               value="{{ produto.modelo if produto else '' }}" placeholder="Digite o modelo">
-      </div>
-
-      <div class="col-12 col-md-6">
-        <label for="numero_serie" class="form-label">Número de Série</label>
-        <input type="text" class="form-control" id="numero_serie" name="numero_serie"
-               value="{{ produto.numero_serie if produto else '' }}" placeholder="Digite o número de série">
-      </div>
-
-      <div class="col-12 col-md-6 col-lg-4">
-        <label for="codigo_barras" class="form-label">Código de Barras</label>
-        <input type="text" id="codigo_barras" name="codigo_barras" class="form-control"
-               value="{{ produto.codigo_barras if produto else '' }}" placeholder="EAN/GTIN">
-      </div>
-
-      <div class="col-12 col-md-6 col-lg-2">
-        <label for="ncm" class="form-label">NCM</label>
-        <input type="text" id="ncm" name="ncm" class="form-control"
-               value="{{ produto.ncm if produto else '' }}" placeholder="0000.00.00" maxlength="10">
-      </div>
-
-      <div class="col-12">
-        <label for="descricao" class="form-label">Descrição</label>
-        <textarea id="descricao" name="descricao" class="form-control" rows="3">{{ produto.descricao if produto else '' }}</textarea>
-      </div>
-    </div>
-  </div>
-
-  <!-- Controle de Estoque -->
-  <div class="secao-formulario">
-    <h5 class="text-success mb-3"><i class="fas fa-warehouse"></i> Controle de Estoque</h5>
-
-    <div class="row g-3">
-      <div class="col-12 col-md-4">
-        <label for="estoque_atual" class="form-label">Estoque Atual *</label>
-        <input type="number" id="estoque_atual" name="estoque_atual" class="form-control" step="0.01"
-               value="{{ produto.estoque_atual if produto else '0' }}" required>
-      </div>
-      <div class="col-12 col-md-4">
-        <label for="estoque_minimo" class="form-label">Estoque Mínimo</label>
-        <input type="number" id="estoque_minimo" name="estoque_minimo" class="form-control" step="0.01"
-               value="{{ produto.estoque_minimo if produto else '0' }}">
-      </div>
-      <div class="col-12 col-md-4">
-        <label for="peso" class="form-label">Peso (Kg)</label>
-        <input type="number" id="peso" name="peso" class="form-control" step="0.001"
-               value="{{ produto.peso if produto else '' }}">
-      </div>
-    </div>
-  </div>
-
-                <!-- Calculadora de Markup -->
-                <div class="calculadora-markup">
-                    <h5 class="text-success mb-3"><i class="fas fa-calculator"></i> Calculadora de Preços e Markup</h5>
-                    
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label for="preco_custo">Preço de Custo (R$) *</label>
-                            <input type="number" id="preco_custo" name="preco_custo" class="form-control" step="0.01" value="{{ produto.preco_custo if produto else '0' }}" required>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="markup_percentual">Markup (%)</label>
-                            <input type="number" id="markup_percentual" name="markup_percentual" class="form-control" step="0.01" value="{{ produto.markup_percentual if produto else '0' }}">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label>Preço de Venda (R$)</label>
-                            <input type="text" id="preco_venda_display" class="form-control valor-calculado" readonly placeholder="R$ 0,00">
-                            <input type="hidden" id="preco_venda" name="preco_venda" value="{{ produto.preco_venda if produto else '0' }}">
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h6>Markup em R$</h6>
-                                    <div class="resultado-calculo" id="markup_valor">R$ 0,00</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h6>Margem de Lucro</h6>
-                                    <div class="resultado-calculo" id="margem_lucro">0,0%</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <h6>Valor Total</h6>
-                                    <div class="resultado-calculo valor-calculado" id="valor_total">R$ 0,00</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="text-end mt-3">
-                    <button type="submit" class="btn btn-success btn-lg">
-                        <i class="fas fa-save"></i>
-                        {{ 'Atualizar Produto' if produto else 'Salvar Produto' }}
-                    </button>
-                    <a href="{{ url_for('produto.listar_produtos') }}" class="btn btn-secondary btn-lg ms-2">
-                        <i class="fas fa-arrow-left"></i> Voltar
-                    </a>
-                </div>
-            </form>
+  <div class="card-body">
+    <form method="POST">
+      <!-- Informações Básicas -->
+      <div class="card card-jsp mb-4">
+        <div class="card-header">
+          <i class="fas fa-info-circle me-2"></i>Informações Básicas
         </div>
-    </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12 col-lg-6">
+              <label for="nome" class="form-label">Nome do Produto *</label>
+              <input type="text" id="nome" name="nome" class="form-control"
+                     value="{{ produto.nome if produto else '' }}" required>
+            </div>
 
-    <!-- jQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        $(document).ready(function () {
-            // Função para calcular markup em tempo real
-            function calcularMarkup() {
-                const precoCusto = parseFloat($('#preco_custo').val()) || 0;
-                const markupPercentual = parseFloat($('#markup_percentual').val()) || 0;
-                
-                if (precoCusto > 0) {
-                    const markupValor = precoCusto * (markupPercentual / 100);
-                    const precoVenda = precoCusto + markupValor;
-                    const margemLucro = precoVenda > 0 ? ((precoVenda - precoCusto) / precoVenda) * 100 : 0;
-                    
-                    // Atualiza os campos
-                    $('#preco_venda_display').val('R$ ' + precoVenda.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                    $('#preco_venda').val(precoVenda.toFixed(2));
-                    $('#markup_valor').text('R$ ' + markupValor.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                    $('#margem_lucro').text(margemLucro.toFixed(1) + '%');
-                    $('#valor_total').text('R$ ' + precoVenda.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-                } else {
-                    // Limpa os campos se não há preço de custo
-                    $('#preco_venda_display').val('R$ 0,00');
-                    $('#preco_venda').val('0');
-                    $('#markup_valor').text('R$ 0,00');
-                    $('#margem_lucro').text('0,0%');
-                    $('#valor_total').text('R$ 0,00');
-                }
-            }
+            <div class="col-12 col-md-6 col-lg-3">
+              <label for="categoria" class="form-label">Categoria</label>
+              <select id="categoria" name="categoria" class="form-select">
+                <option value="">Selecione...</option>
+                <option value="Fios e Cabos" {{ 'selected' if produto and produto.categoria=='Fios e Cabos' else '' }}>Fios e Cabos</option>
+                <option value="Disjuntores" {{ 'selected' if produto and produto.categoria=='Disjuntores' else '' }}>Disjuntores</option>
+                <option value="Tomadas e Interruptores" {{ 'selected' if produto and produto.categoria=='Tomadas e Interruptores' else '' }}>Tomadas e Interruptores</option>
+                <option value="Eletrodutos" {{ 'selected' if produto and produto.categoria=='Eletrodutos' else '' }}>Eletrodutos</option>
+                <option value="Painéis Solares" {{ 'selected' if produto and produto.categoria=='Painéis Solares' else '' }}>Painéis Solares</option>
+                <option value="Inversores" {{ 'selected' if produto and produto.categoria=='Inversores' else '' }}>Inversores</option>
+                <option value="Ferramentas" {{ 'selected' if produto and produto.categoria=='Ferramentas' else '' }}>Ferramentas</option>
+                <option value="Acessórios" {{ 'selected' if produto and produto.categoria=='Acessórios' else '' }}>Acessórios</option>
+                <option value="Outros" {{ 'selected' if produto and produto.categoria=='Outros' else '' }}>Outros</option>
+              </select>
+            </div>
 
-            // Eventos para recalcular quando os valores mudarem
-            $('#preco_custo, #markup_percentual').on('input change', function() {
-                calcularMarkup();
-            });
+            <div class="col-12 col-md-6 col-lg-3">
+              <label for="unidade" class="form-label">Unidade</label>
+              <select id="unidade" name="unidade" class="form-select">
+                <option value="UN" {{ 'selected' if produto and produto.unidade=='UN' else '' }}>Unidade (UN)</option>
+                <option value="M"  {{ 'selected' if produto and produto.unidade=='M'  else '' }}>Metro (M)</option>
+                <option value="KG" {{ 'selected' if produto and produto.unidade=='KG' else '' }}>Quilograma (KG)</option>
+                <option value="PC" {{ 'selected' if produto and produto.unidade=='PC' else '' }}>Peça (PC)</option>
+                <option value="CX" {{ 'selected' if produto and produto.unidade=='CX' else '' }}>Caixa (CX)</option>
+                <option value="RL" {{ 'selected' if produto and produto.unidade=='RL' else '' }}>Rolo (RL)</option>
+              </select>
+            </div>
 
-            // Máscara para NCM
-            $('#ncm').on('input', function() {
-                let value = $(this).val().replace(/\D/g, '');
-                if (value.length >= 4) {
-                    value = value.substring(0, 4) + '.' + value.substring(4);
-                }
-                if (value.length >= 7) {
-                    value = value.substring(0, 7) + '.' + value.substring(7, 9);
-                }
-                $(this).val(value);
-            });
+            <div class="col-12 col-lg-8">
+              <label for="fornecedor_id" class="form-label">Fornecedor</label>
+              <div class="input-group">
+                <select class="form-select" id="fornecedor_id" name="fornecedor_id">
+                  <option value="">Selecione um fornecedor</option>
+                  {% for f in fornecedores %}
+                    <option value="{{ f.id }}" {% if produto and produto.fornecedor_id == f.id %}selected{% endif %}>
+                      {{ f.nome }}
+                    </option>
+                  {% endfor %}
+                </select>
+                <a href="{{ url_for('fornecedor.novo_fornecedor') }}" class="btn btn-outline-light"
+                   style="border-color:rgba(255,255,255,.25)">+ Novo</a>
+              </div>
+            </div>
 
-            // Calcula markup inicial se há valores
-            calcularMarkup();
+            <div class="col-12 col-lg-4">
+              <label for="marca" class="form-label">Marca</label>
+              <input type="text" id="marca" name="marca" class="form-control"
+                     value="{{ produto.marca if produto else '' }}">
+            </div>
+          </div>
+        </div>
+      </div>
 
-            // Validação de formulário
-            $('form').on('submit', function(e) {
-                const nome = $('#nome').val().trim();
-                const precoCusto = parseFloat($('#preco_custo').val()) || 0;
-                const estoqueAtual = parseFloat($('#estoque_atual').val()) || 0;
+      <!-- Identificação Técnica -->
+      <div class="card card-jsp mb-4">
+        <div class="card-header">
+          <i class="fas fa-microchip me-2"></i>Identificação Técnica
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label for="modelo" class="form-label">Modelo</label>
+              <input type="text" class="form-control" id="modelo" name="modelo"
+                     value="{{ produto.modelo if produto else '' }}" placeholder="Digite o modelo">
+            </div>
+            <div class="col-12 col-md-6">
+              <label for="numero_serie" class="form-label">Número de Série</label>
+              <input type="text" class="form-control" id="numero_serie" name="numero_serie"
+                     value="{{ produto.numero_serie if produto else '' }}" placeholder="Digite o número de série">
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+              <label for="codigo_barras" class="form-label">Código de Barras</label>
+              <input type="text" id="codigo_barras" name="codigo_barras" class="form-control"
+                     value="{{ produto.codigo_barras if produto else '' }}" placeholder="EAN/GTIN">
+            </div>
+            <div class="col-12 col-md-6 col-lg-2">
+              <label for="ncm" class="form-label">NCM</label>
+              <input type="text" id="ncm" name="ncm" class="form-control"
+                     value="{{ produto.ncm if produto else '' }}" placeholder="0000.00.00" maxlength="10">
+            </div>
+            <div class="col-12">
+              <label for="descricao" class="form-label">Descrição</label>
+              <textarea id="descricao" name="descricao" class="form-control" rows="3">{{ produto.descricao if produto else '' }}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
 
-                if (!nome) {
-                    alert('Nome do produto é obrigatório!');
-                    $('#nome').focus();
-                    e.preventDefault();
-                    return false;
-                }
+      <!-- Controle de Estoque -->
+      <div class="card card-jsp mb-4">
+        <div class="card-header">
+          <i class="fas fa-warehouse me-2"></i>Controle de Estoque
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12 col-md-4">
+              <label for="estoque_atual" class="form-label">Estoque Atual *</label>
+              <input type="number" id="estoque_atual" name="estoque_atual" class="form-control" step="0.01"
+                     value="{{ produto.estoque_atual if produto else '0' }}" required>
+            </div>
+            <div class="col-12 col-md-4">
+              <label for="estoque_minimo" class="form-label">Estoque Mínimo</label>
+              <input type="number" id="estoque_minimo" name="estoque_minimo" class="form-control" step="0.01"
+                     value="{{ produto.estoque_minimo if produto else '0' }}">
+            </div>
+            <div class="col-12 col-md-4">
+              <label for="peso" class="form-label">Peso (Kg)</label>
+              <input type="number" id="peso" name="peso" class="form-control" step="0.001"
+                     value="{{ produto.peso if produto else '' }}">
+            </div>
+          </div>
+        </div>
+      </div>
 
-                if (precoCusto <= 0) {
-                    alert('Preço de custo deve ser maior que zero!');
-                    $('#preco_custo').focus();
-                    e.preventDefault();
-                    return false;
-                }
+      <!-- Calculadora de Preços e Markup -->
+      <div class="card card-jsp mb-3">
+        <div class="card-header">
+          <i class="fas fa-calculator me-2"></i>Calculadora de Preços e Markup
+        </div>
+        <div class="card-body">
+          <div class="row g-3 mb-2">
+            <div class="col-md-4">
+              <label for="preco_custo" class="form-label">Preço de Custo (R$) *</label>
+              <input type="number" id="preco_custo" name="preco_custo" class="form-control" step="0.01"
+                     value="{{ produto.preco_custo if produto else '0' }}" required>
+            </div>
+            <div class="col-md-4">
+              <label for="markup_percentual" class="form-label">Markup (%)</label>
+              <input type="number" id="markup_percentual" name="markup_percentual" class="form-control" step="0.01"
+                     value="{{ produto.markup_percentual if produto else '0' }}">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Preço de Venda (R$)</label>
+              <input type="text" id="preco_venda_display" class="form-control" readonly placeholder="R$ 0,00">
+              <input type="hidden" id="preco_venda" name="preco_venda"
+                     value="{{ produto.preco_venda if produto else '0' }}">
+            </div>
+          </div>
 
-                if (estoqueAtual < 0) {
-                    alert('Estoque atual não pode ser negativo!');
-                    $('#estoque_atual').focus();
-                    e.preventDefault();
-                    return false;
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="kpi text-center">
+                <div class="small text-muted">Markup em R$</div>
+                <div class="fs-5 fw-bold" id="markup_valor">R$ 0,00</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="kpi text-center">
+                <div class="small text-muted">Margem de Lucro</div>
+                <div class="fs-5 fw-bold" id="margem_lucro">0,0%</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="kpi text-center">
+                <div class="small text-muted">Valor Total</div>
+                <div class="fs-5 fw-bold" id="valor_total">R$ 0,00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-end">
+        <button type="submit" class="btn btn-brand">
+          <i class="fas fa-save"></i> {{ 'Atualizar Produto' if produto else 'Salvar Produto' }}
+        </button>
+        <a href="{{ url_for('produto.listar_produtos') }}" class="btn btn-outline-light ms-2"
+           style="border-color:rgba(255,255,255,.25)">
+          <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<style>
+  /* Ajustes de campo/placeholder no tema dark */
+  .card-jsp .form-control, .card-jsp .form-select{
+    color:#eaf6ff;
+    background: rgba(15,31,54,.55);
+    border:1px solid rgba(255,255,255,.12);
+  }
+  .card-jsp .form-control::placeholder{ color:#9fb3d6; opacity:.9; }
+</style>
+
+<script>
+  (function () {
+    function formatBR(n){ return n.toLocaleString('pt-BR',{minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+    function calc(){
+      const custo = parseFloat(document.getElementById('preco_custo').value) || 0;
+      let markup = parseFloat(document.getElementById('markup_percentual').value);
+      const precoVInput = document.getElementById('preco_venda');
+      const precoVDisp  = document.getElementById('preco_venda_display');
+
+      // Caso não tenha markup mas tenha preco_venda carregado (edição), recalcula markup
+      let precoVenda = parseFloat(precoVInput.value) || 0;
+      if ((isNaN(markup) || markup === 0) && custo > 0 && precoVenda > 0){
+        markup = ((precoVenda - custo) / custo) * 100;
+        document.getElementById('markup_percentual').value = markup.toFixed(2);
+      }
+
+      if (custo > 0){
+        const markupValor = custo * ((markup || 0) / 100);
+        precoVenda = custo + markupValor;
+        const margem = precoVenda > 0 ? ((precoVenda - custo)/precoVenda)*100 : 0;
+
+        precoVDisp.value = 'R$ ' + formatBR(precoVenda);
+        precoVInput.value = precoVenda.toFixed(2);
+        document.getElementById('markup_valor').textContent = 'R$ ' + formatBR(markupValor);
+        document.getElementById('margem_lucro').textContent = (margem).toFixed(1) + '%';
+        document.getElementById('valor_total').textContent = 'R$ ' + formatBR(precoVenda);
+      }else{
+        precoVDisp.value = 'R$ 0,00';
+        precoVInput.value = '0';
+        document.getElementById('markup_valor').textContent = 'R$ 0,00';
+        document.getElementById('margem_lucro').textContent = '0,0%';
+        document.getElementById('valor_total').textContent = 'R$ 0,00';
+      }
+    }
+
+    // Eventos
+    document.getElementById('preco_custo').addEventListener('input', calc);
+    document.getElementById('markup_percentual').addEventListener('input', calc);
+
+    // Máscara simples de NCM
+    const ncm = document.getElementById('ncm');
+    ncm.addEventListener('input', function(){
+      let v = this.value.replace(/\D/g,'').slice(0,8);
+      if (v.length >= 4) v = v.slice(0,4) + '.' + v.slice(4);
+      if (v.length >= 7) v = v.slice(0,7) + '.' + v.slice(7);
+      this.value = v;
+    });
+
+    // Inicial
+    calc();
+
+    // Validação
+    document.querySelector('form').addEventListener('submit', function(e){
+      const nome = (document.getElementById('nome').value || '').trim();
+      const custo = parseFloat(document.getElementById('preco_custo').value) || 0;
+      const est   = parseFloat(document.getElementById('estoque_atual').value) || 0;
+
+      if (!nome){
+        alert('Nome do produto é obrigatório!');
+        document.getElementById('nome').focus(); e.preventDefault(); return false;
+      }
+      if (custo <= 0){
+        alert('Preço de custo deve ser maior que zero!');
+        document.getElementById('preco_custo').focus(); e.preventDefault(); return false;
+      }
+      if (est < 0){
+        alert('Estoque atual não pode ser negativo!');
+        document.getElementById('estoque_atual').focus(); e.preventDefault(); return false;
+      }
+    });
+  })();
+</script>
+{% endblock %}

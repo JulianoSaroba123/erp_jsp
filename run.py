@@ -13,4 +13,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from app.app import app
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Configuração para produção (Render) e desenvolvimento
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('DEBUG', 'False').lower() == 'true'
+    app.run(host='0.0.0.0', port=port, debug=debug)

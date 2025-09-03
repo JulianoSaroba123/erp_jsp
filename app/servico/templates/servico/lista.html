@@ -1,108 +1,186 @@
-{% extends 'base.html' %}
-{% block titulo %}Lista de Serviços - JSP ERP{% endblock %}
-
+{% extends "base.html" %}
+{% block titulo %}Serviços — JSP ERP{% endblock %}
 {% block content %}
-<style>
-    .stats-card {
-        background: linear-gradient(135deg, #dc3545, #bd2130);
-        color: white;
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 12px #dc354533;
-        border: 1.5px solid #dc3545;
-    }
-    .table th {
-        background-color: #dc3545;
-        color: white;
-        border: none;
-    }
-    .table, .table td, .table tr {
-        border-color: #dc3545 !important;
-    }
-    .badge-unidade {
-        background-color: #6c757d;
-        color: white;
-        padding: 0.3em 0.6em;
-        border-radius: 0.25rem;
-        font-size: 0.8em;
-    }
-    .valor-destaque {
-        font-weight: bold;
-        color: #dc3545;
-        font-size: 1.1em;
-    }
-    .text-servico {
-        color: #fff!important;
-    }
-    .btn-servico {
-        background: linear-gradient(135deg, #dc3545, #b71c1c);
-        color: #fff;
-        border: none;
-        font-weight: 600;
-    }
-    .btn-servico:hover, .btn-servico:focus {
-        background: linear-gradient(135deg, #b71c1c, #dc3545);
-        color: #fff;
-    }
-    .table-servico th {
-        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-        border-color: #dc3545;
-        color: #b71c1c;
-        font-weight: 600;
-    }
-</style>
 
-<div class="container mt-4">
-    <!-- Estatísticas -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stats-card text-center">
-                <i class="fas fa-concierge-bell fa-2x mb-2"></i>
-                <h4>{{ total_servicos|default(servicos|length if servicos is defined else 0) }}</h4>
-                <p class="mb-0">Total de Serviços</p>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card text-center">
-                <i class="fas fa-money-bill-wave fa-2x mb-2"></i>
-                <h4>R$ {{ "%.2f"|format(servicos|sum(attribute='valor')) }}</h4>
-                <p class="mb-0">Valor Total</p>
-            </div>
-        </div>
+{# suporta lista simples e também um objeto Pagination #}
+{% set lista = servicos.items if servicos is defined and servicos.items is defined else servicos %}
+
+{# KPIs (tolerantes) #}
+{% set count_total  = lista|length if lista else 0 %}
+{% set precos       = (lista | map(attribute='preco_venda') | select('number') | list) if lista else [] %}
+{% set total_valor  = precos | sum %}
+{% set markups      = (lista | map(attribute='markup_percentual') | select('number') | list) if lista else [] %}
+{% set markup_medio = (markups | sum) / (markups|length if (markups|length) > 0 else 1) %}
+
+<div class="page-title">
+  <div class="ico"><i class="fas fa-concierge-bell"></i></div>
+  <h3 style="margin:0;">Serviços</h3>
+</div>
+
+<!-- KPIs -->
+<div class="row g-3 mb-3">
+  <div class="col-12 col-sm-6 col-lg-4">
+    <div class="kpi d-flex align-items-center justify-content-between">
+      <div>
+        <div class="small text-muted">Total de Serviços</div>
+        <div class="fs-4 fw-bold">{{ count_total }}</div>
+      </div>
+      <i class="fas fa-list-ul fa-lg"></i>
     </div>
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="text-danger">
-            <i class="fas fa-concierge-bell"></i> Lista de Serviços
-        </h3>
-        <a href="{{ url_for('servico.novo_servico') }}" class="btn btn-danger">Novo Serviço</a>
+  </div>
+  <div class="col-12 col-sm-6 col-lg-4">
+    <div class="kpi d-flex align-items-center justify-content-between">
+      <div>
+        <div class="small text-muted">Valor Total Tabela (PV)</div>
+        <div class="fs-4 fw-bold">R$ {{ '%.2f'|format(total_valor) }}</div>
+      </div>
+      <i class="fas fa-money-bill-wave fa-lg"></i>
     </div>
-    <table class="table table-striped">
+  </div>
+  <div class="col-12 col-sm-6 col-lg-4">
+    <div class="kpi d-flex align-items-center justify-content-between">
+      <div>
+        <div class="small text-muted">Markup Médio</div>
+        <div class="fs-4 fw-bold">{{ '%.1f'|format(markup_medio) }}%</div>
+      </div>
+      <i class="fas fa-percentage fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+<div class="card card-jsp mb-3">
+  <div class="card-header d-flex flex-wrap gap-2 align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-2">
+      <i class="fas fa-database"></i>
+      <strong>Lista de Serviços</strong>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <form class="d-flex" method="GET" action="{{ url_for('servico.listar_servicos') }}">
+        <input class="form-control form-control-sm" type="search" name="q"
+               placeholder="Buscar por nome, código ou descrição"
+               value="{{ request.args.get('q','') }}" style="min-width:260px">
+        <button class="btn btn-brand btn-sm ms-2" type="submit">
+          <i class="fas fa-search me-1"></i> Buscar
+        </button>
+      </form>
+      <a href="{{ url_for('servico.novo_servico') }}" class="btn btn-brand btn-sm">
+        <i class="fas fa-plus"></i> Novo Serviço
+      </a>
+    </div>
+  </div>
+
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-jsp table-striped align-middle mb-0">
         <thead>
-            <tr>
-                <th>Código</th>
-                <th>Nome</th>
-                <th>Valor</th>
-                <th>Unidade</th>
-                <th>Ações</th>
-            </tr>
+          <tr>
+            <th style="width:110px;">Código</th>
+            <th>Nome</th>
+            <th style="width:110px;">Unid.</th>
+            <th style="width:140px;" class="text-end">Preço Venda</th>
+            <th style="width:140px;" class="text-end">Preço Custo</th>
+            <th style="width:110px;" class="text-end">Markup</th>
+            <th style="width:110px;">Status</th>
+            <th style="width:160px;" class="text-end">Ações</th>
+          </tr>
         </thead>
         <tbody>
-            {% for servico in servicos %}
+          {% if lista and lista|length > 0 %}
+            {% for s in lista %}
+            {# markup exibido: usa s.markup_percentual se existir, senão calcula pelo custo/venda #}
+            {% set mk = (s.markup_percentual
+                         if s.markup_percentual is defined and s.markup_percentual is number
+                         else (( (s.preco_venda|default(0)) - (s.preco_custo|default(0)) ) / (s.preco_custo if (s.preco_custo|default(0))>0 else 1) * 100)) %}
             <tr>
-                <td>{{ servico.codigo }}</td>
-                <td>{{ servico.nome }}</td>
-                <td>R$ {{ "%.2f"|format(servico.valor) }}</td>
-                <td>{{ servico.unidade }}</td>
-                <td>
-                    <a href="{{ url_for('servico.editar_servico', id=servico.id) }}" class="btn btn-sm btn-warning">Editar</a>
-                    <form action="{{ url_for('servico.excluir_servico', id=servico.id) }}" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
-                    </form>
-                </td>
+              <td><code>{{ s.codigo or ('SRV%05d' % s.id) }}</code></td>
+              <td>
+                <a href="{{ url_for('servico.editar_servico', id=s.id) }}"><strong>{{ s.nome }}</strong></a>
+                {% if s.descricao %}<div class="text-muted small">{{ s.descricao[:80] }}{% if s.descricao|length > 80 %}…{% endif %}</div>{% endif %}
+              </td>
+              <td>{{ s.unidade or 'UN' }}</td>
+              <td class="text-end">R$ {{ '%.2f'|format(s.preco_venda or 0) }}</td>
+              <td class="text-end">R$ {{ '%.2f'|format(s.preco_custo or 0) }}</td>
+              <td class="text-end">{{ '%.1f'|format(mk|default(0)) }}%</td>
+              <td>
+                {% if s.ativo %}
+                  <span class="chip chip-done">Ativo</span>
+                {% else %}
+                  <span class="chip" style="background:#ffb3b3;color:#4a0c0c;border:1px solid #ff8080;">Inativo</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <a class="btn btn-brand" href="{{ url_for('servico.editar_servico', id=s.id) }}"><i class="fas fa-pen"></i></a>
+                  <form method="POST" action="{{ url_for('servico.excluir_servico', id=s.id) }}"
+                        onsubmit="return confirm('Confirma excluir {{ s.nome }}?');">
+                    <button class="btn btn-outline-light" style="border-color:rgba(255,255,255,.25)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
             </tr>
             {% endfor %}
+          {% else %}
+            <tr><td colspan="8" class="text-center text-muted py-4">Nenhum serviço encontrado.</td></tr>
+          {% endif %}
         </tbody>
-    </table>
+      </table>
+    </div>
+  </div>
+
+  {# paginação resiliente: aceita paginacao separado ou servicos=Pagination #}
+  {% set pag = paginacao if paginacao is defined else (servicos if servicos is defined and servicos.pages is defined else None) %}
+  {% if pag %}
+  <div class="card-footer d-flex justify-content-between align-items-center">
+    <span class="text-muted small">
+      Página {{ pag.page }} de {{ pag.pages }} — {{ pag.total }} registros
+    </span>
+    <nav>
+      <ul class="pagination pagination-sm mb-0">
+        <li class="page-item {% if not pag.has_prev %}disabled{% endif %}">
+          <a class="page-link" href="{{ url_for('servico.listar_servicos', pagina=pag.prev_num, q=request.args.get('q')) }}">«</a>
+        </li>
+        {% set start = 1 if pag.page - 2 < 1 else pag.page - 2 %}
+        {% set end = pag.pages if pag.page + 2 > pag.pages else pag.page + 2 %}
+        {% for pnum in range(start, end + 1) %}
+          <li class="page-item {% if pnum == pag.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('servico.listar_servicos', pagina=pnum, q=request.args.get('q')) }}">{{ pnum }}</a>
+          </li>
+        {% endfor %}
+        <li class="page-item {% if not pag.has_next %}disabled{% endif %}">
+          <a class="page-link" href="{{ url_for('servico.listar_servicos', pagina=pag.next_num, q=request.args.get('q')) }}">»</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
 </div>
+
+
+{% endblock %}
+
+{% block scripts %}
+<style>
+  /* mesma correção de contraste aplicada nas outras listas */
+  .table-jsp thead th{
+    color:#eaf6ff !important;
+    background: rgba(41,182,255,.16);
+    border-bottom:1px solid rgba(255,255,255,.12);
+  }
+  .table-jsp tbody td{ color:#eaf6ff !important; }
+  .table-jsp tbody a{
+    color: var(--jsp-cyan) !important; font-weight:700; text-decoration:none;
+  }
+  .table-jsp tbody a:hover{ color:#a7eaff !important; text-decoration:underline; }
+  .table-jsp .text-muted, .table-jsp .small{ color: var(--jsp-muted) !important; opacity:1 !important; }
+  .table-jsp code{
+    color:#ff6ec7 !important; background:transparent; border:0; padding:0; font-weight:700;
+  }
+  .chip{ display:inline-block; padding:.25rem .55rem; border-radius:999px;
+    font-size:.78rem; font-weight:700; letter-spacing:.3px;
+    background:rgba(86,212,255,.12); color:#eaf6ff; border:1px solid rgba(86,212,255,.25);
+  }
+  .chip-done{ background:rgba(86,212,255,.18); border-color:rgba(86,212,255,.38); color:#eaf6ff; }
+</style>
 {% endblock %}

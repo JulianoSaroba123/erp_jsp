@@ -18,6 +18,7 @@ class Servico(db.Model):
     valor = db.Column(db.Float, nullable=False, default=0.0)
     preco_custo = db.Column(db.Float, nullable=False, default=0.0)
     preco_venda = db.Column(db.Float, nullable=False, default=0.0)
+    markup_percentual = db.Column(db.Float, nullable=False, default=0.0)
     
     # Controle
     ativo = db.Column(db.Boolean, default=True)

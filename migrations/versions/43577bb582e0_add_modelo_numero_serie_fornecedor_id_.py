@@ -18,16 +18,29 @@ depends_on = None
 def upgrade():
     # SQLite: use batch + dê NOME às constraints
     with op.batch_alter_table("produtos", schema=None) as batch:
-        batch.add_column(sa.Column("modelo", sa.String(length=120), nullable=True))
-        batch.add_column(sa.Column("numero_serie", sa.String(length=120), nullable=True))
-        batch.add_column(sa.Column("fornecedor_id", sa.Integer(), nullable=True))
+        # Verificar se as colunas já existem antes de adicionar
+        from sqlalchemy import inspect
+        conn = op.get_bind()
+        inspector = inspect(conn)
+        columns = [col['name'] for col in inspector.get_columns('produtos')]
+        
+        if 'modelo' not in columns:
+            batch.add_column(sa.Column("modelo", sa.String(length=120), nullable=True))
+        if 'numero_serie' not in columns:
+            batch.add_column(sa.Column("numero_serie", sa.String(length=120), nullable=True))
+        if 'fornecedor_id' not in columns:
+            batch.add_column(sa.Column("fornecedor_id", sa.Integer(), nullable=True))
 
-        # FK COM NOME EXPLÍCITO
-        batch.create_foreign_key(
-            "fk_produtos_fornecedor_id_fornecedores",  # <- nome obrigatório
-            referent_table="fornecedores",
-            local_cols=["fornecedor_id"],
-            remote_cols=["id"],
+        # FK COM NOME EXPLÍCITO - verificar se já existe
+        fks = inspector.get_foreign_keys('produtos')
+        fk_exists = any(fk['name'] == 'fk_produtos_fornecedor_id_fornecedores' for fk in fks)
+        
+        if not fk_exists and 'fornecedor_id' in columns or 'fornecedor_id' not in columns:
+            batch.create_foreign_key(
+                "fk_produtos_fornecedor_id_fornecedores",  # <- nome obrigatório
+                referent_table="fornecedores",
+                local_cols=["fornecedor_id"],
+                remote_cols=["id"],
             ondelete="SET NULL",
         )
 
