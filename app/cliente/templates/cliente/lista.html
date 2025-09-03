@@ -21,16 +21,46 @@
     max-width: 100%;
     margin: 0 auto;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   
   .page-title {
     text-align: left;
     margin-bottom: 1.5rem;
+    width: 100%;
+    max-width: 1400px;
   }
   
   .card-jsp {
     margin: 0 auto;
     width: 100%;
+    max-width: 1400px;
+  }
+  
+  /* Ajuste específico para o card da lista */
+  .card.card-jsp.mb-3 {
+    margin: 0 auto !important;
+    max-width: 1400px;
+    width: 100%;
+  }
+  
+  /* Centralização do conteúdo do card header */
+  .card-header {
+    width: 100%;
+    padding: 1rem 1.5rem;
+  }
+  
+  /* Centralização da tabela dentro do card */
+  .table-responsive {
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  .table {
+    width: 100%;
+    margin: 0 auto;
   }
   
   /* Ajuste para telas grandes */
@@ -44,6 +74,18 @@
   @media (min-width: 768px) and (max-width: 1199px) {
     .content-container {
       max-width: 98%;
+    }
+  }
+  
+  /* Mobile */
+  @media (max-width: 767px) {
+    .content-container {
+      max-width: 100%;
+      padding: 0 0.5rem;
+    }
+    
+    .card-jsp {
+      margin: 0 !important;
     }
   }
 </style>
