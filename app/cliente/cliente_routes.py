@@ -94,7 +94,8 @@ def novo_cliente():
                 endereco_partes.append(f"CEP: {cep}")
             
             cliente.endereco = ', '.join(endereco_partes) if endereco_partes else ''
-            cliente.ativo = 'ativo' in request.form
+            cliente.pais = request.form.get('pais', 'Brasil')  # Corrigido: país padrão Brasil
+            cliente.ativo = True  # Corrigido: sempre ativo por padrão
 
             db.session.add(cliente)
             db.session.commit()
@@ -159,7 +160,8 @@ def editar_cliente(id):
                 endereco_partes.append(f"CEP: {cep}")
             
             cliente.endereco = ', '.join(endereco_partes) if endereco_partes else ''
-            cliente.ativo = 'ativo' in request.form
+            cliente.pais = request.form.get('pais', cliente.pais or 'Brasil')  # Corrigido: mantém país existente ou Brasil
+            # Manter ativo como está (não alterar no edit)
             
             # Garante que o campo codigo exista
             if not hasattr(cliente, 'codigo') or not cliente.codigo:
