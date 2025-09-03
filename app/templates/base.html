@@ -226,26 +226,61 @@
 
     /* ===== Toggle (hamburger) ===== */
     .menu-toggle{
-      position:fixed; top:18px; left:290px; z-index:200;
-      width:48px; height:48px; border-radius:50%;
-      background: var(--btn-grad); color:#051328; border:none;
+      position: fixed; 
+      top: 18px; 
+      left: 20px; 
+      z-index: 1100;
+      width: 48px; 
+      height: 48px; 
+      border-radius: 50%;
+      background: var(--btn-grad); 
+      color: #051328; 
+      border: none;
       box-shadow: 0 10px 24px rgba(41,182,255,.35), inset 0 -1px 0 rgba(255,255,255,.25);
+      display: none; /* Oculto por padrão */
+      transition: all 0.3s ease;
+      cursor: pointer;
+      /* Garantir que seja tocável em mobile */
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
+    
+    /* Mobile: mostra o botão hamburger */
+    @media (max-width: 992px) {
+      .menu-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+    
+    /* Desktop: esconde o botão hamburger */
+    @media (min-width: 992px) {
+      .menu-toggle {
+        display: none !important;
+      }
+    }
+    
     .sidebar-hidden{ transform: translateX(-100%); }
-    .sidebar-hidden + .menu-toggle{ left:20px; }
+    .sidebar-hidden + .menu-toggle{ left: 20px; }
 
     /* ===== Main / Glass cards ===== */
-    .main-content{ margin-left:260px; padding:26px; position:relative; z-index:1 }
+    .main-content{ margin-left:260px; padding:26px; position:relative; z-index:1; max-width: calc(100vw - 260px); overflow-x: auto; }
     @media (max-width: 992px){
-      .main-content{ margin-left:0; padding:16px; }
+      .main-content{ margin-left:0; padding:16px; max-width: 100vw; }
       .sidebar{ position:fixed; transform: translateX(-100%); }
       .app-shell { grid-template-columns: 1fr; }
+    }
+    
+    /* Centralização e responsividade */
+    .main-content > * {
+      max-width: 100%;
     }
 
     .card-jsp{
       background: var(--glass); border:1px solid var(--glass-bd);
       border-radius:16px; box-shadow: 0 18px 38px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.05);
-      color:var(--jsp-text);
+      color:var(--jsp-text); width: 100%; margin: 0 auto;
     }
     .card-jsp .card-header{
       background: linear-gradient(135deg, rgba(41,182,255,.18), rgba(86,212,255,.10));
@@ -294,36 +329,6 @@
       box-shadow: 0 8px 18px rgba(41,182,255,.25);
     }
 
-    /* ======= HAMBURGER / MENU TOGGLE – posição e visibilidade ======= */
-    /* nomes comuns para o botão; mantive vários seletores pra garantir */
-    .app-burger,
-    .nav-burger,
-    .menu-toggle,
-    .sidebar-toggle,
-    .navbar-toggler,
-    .btn-menu,
-    .hamburger-fab {
-      /* fallback (mobile); o desktop a gente trata no @media abaixo */
-      position: fixed !important;
-      top: 12px !important;
-      left: 12px !important;
-      z-index: 1100 !important; /* acima do conteúdo, abaixo de modais */
-    }
-
-    /* Desktop: normalmente o menu lateral já está visível,
-       então escondemos o "hamburger" pra não cobrir o título/filtros */
-    @media (min-width: 992px) {
-      .app-burger,
-      .nav-burger,
-      .menu-toggle,
-      .sidebar-toggle,
-      .navbar-toggler,
-      .btn-menu,
-      .hamburger-fab {
-        display: none !important;
-      }
-    }
-
     /* Mobile: dá espaço pro botão não ficar sobre o título */
     @media (max-width: 991.98px) {
       .page-title h1,
@@ -348,6 +353,7 @@
       /* Cards menores em mobile */
       .card-jsp {
         margin-bottom: 1rem;
+        width: 100%;
       }
       
       .card-jsp .card-body {
@@ -367,6 +373,8 @@
       /* Tabelas responsivas */
       .table-responsive {
         font-size: 0.85rem;
+        width: 100%;
+        overflow-x: auto;
       }
       
       /* Inputs maiores para mobile */
@@ -384,6 +392,13 @@
       /* Margins menores */
       .main-content {
         padding: 1rem;
+        max-width: 100vw;
+      }
+      
+      /* Garantir centralização em mobile */
+      .content-container {
+        max-width: 100% !important;
+        padding: 0 !important;
       }
     }
     
@@ -533,16 +548,28 @@
   function toggleSidebar(){
     const sidebar = document.getElementById('sidebar');
     const btn = document.querySelector('.menu-toggle');
+    
+    if (!sidebar || !btn) {
+      console.error('Sidebar ou botão não encontrado');
+      return;
+    }
+    
     sidebar.classList.toggle('sidebar-hidden');
-    btn.style.left = sidebar.classList.contains('sidebar-hidden') ? '20px' : '290px';
+    
+    // Ajustar posição do botão baseado no estado da sidebar
+    if (sidebar.classList.contains('sidebar-hidden')) {
+      btn.style.left = '20px';
+    } else {
+      btn.style.left = '20px'; // Sempre na mesma posição em mobile
+    }
   }
 
-  // Esconde em telas pequenas por padrão
+  // Configuração inicial para mobile
   (function(){
     if (window.innerWidth <= 992) {
       const sidebar = document.getElementById('sidebar');
       const btn = document.querySelector('.menu-toggle');
-      if (sidebar && !sidebar.classList.contains('sidebar-hidden')){
+      if (sidebar && btn && !sidebar.classList.contains('sidebar-hidden')){
         sidebar.classList.add('sidebar-hidden');
         btn.style.left = '20px';
       }
@@ -554,6 +581,12 @@
     const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
     const sidebar = document.getElementById('sidebar');
     const btn = document.querySelector('.menu-toggle');
+    
+    // Verificar se os elementos existem
+    if (!sidebar || !btn) {
+      console.error('Elementos da sidebar não encontrados');
+      return;
+    }
     
     sidebarLinks.forEach(link => {
       link.addEventListener('click', function() {
@@ -572,13 +605,19 @@
         const sidebar = document.getElementById('sidebar');
         const btn = document.querySelector('.menu-toggle');
         
-        if (sidebar && !sidebar.classList.contains('sidebar-hidden') && 
+        if (sidebar && btn && !sidebar.classList.contains('sidebar-hidden') && 
             !sidebar.contains(e.target) && !btn.contains(e.target)) {
           sidebar.classList.add('sidebar-hidden');
           btn.style.left = '20px';
         }
       }
     });
+
+    // Debug: log do estado inicial
+    console.log('Menu mobile inicializado');
+    console.log('Sidebar:', !!sidebar);
+    console.log('Botão:', !!btn);
+    console.log('Largura da tela:', window.innerWidth);
   });
 </script>
 
