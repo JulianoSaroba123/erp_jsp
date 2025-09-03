@@ -29,13 +29,13 @@
       <strong>Base de Clientes</strong>
     </div>
     <div class="d-flex flex-wrap gap-2">
-      <form class="d-flex" method="GET" action="{{ url_for('cliente.listar_clientes') }}">
+      <form class="d-flex flex-grow-1" method="GET" action="{{ url_for('cliente.listar_clientes') }}">
         <input class="form-control form-control-sm" type="search" name="q" placeholder="Buscar por nome, documento ou e-mail"
-               value="{{ request.args.get('q','') }}" style="min-width:260px">
-        <button class="btn btn-brand btn-sm ms-2" type="submit"><i class="fas fa-search me-1"></i> Buscar</button>
+               value="{{ request.args.get('q','') }}" style="min-width:200px">
+        <button class="btn btn-brand btn-sm ms-2" type="submit"><i class="fas fa-search me-1"></i> <span class="d-none d-sm-inline">Buscar</span></button>
       </form>
       <a class="btn btn-brand btn-sm" href="{{ url_for('cliente.novo_cliente') }}">
-        <i class="fas fa-user-plus me-1"></i> Novo Cliente
+        <i class="fas fa-user-plus me-1"></i> <span class="d-none d-sm-inline">Novo Cliente</span>
       </a>
     </div>
   </div>
@@ -47,11 +47,11 @@
           <tr>
             <th style="width:110px;">Código</th>
             <th>Nome/Razão</th>
-            <th style="width:150px;">CPF/CNPJ</th>
-            <th style="width:140px;">Telefone</th>
-            <th style="width:220px;">E-mail</th>
-            <th style="width:160px;">Cidade/UF</th>
-            <th style="width:110px;">Status</th>
+            <th style="width:150px;" class="d-none d-md-table-cell">CPF/CNPJ</th>
+            <th style="width:140px;" class="d-none d-lg-table-cell">Telefone</th>
+            <th style="width:220px;" class="d-none d-xl-table-cell">E-mail</th>
+            <th style="width:160px;" class="d-none d-lg-table-cell">Cidade/UF</th>
+            <th style="width:110px;" class="d-none d-md-table-cell">Status</th>
             <th style="width:140px;" class="text-end">Ações</th>
           </tr>
         </thead>
@@ -59,20 +59,23 @@
         {% if clientes and clientes|length > 0 %}
           {% for c in clientes %}
           <tr>
-            <td><code>{{ c.codigo or ('CLI%05d' % c.id) }}</code></td>
+            <td><code class="d-none d-sm-inline">{{ c.codigo or ('CLI%05d' % c.id) }}</code></td>
             <td>
               <strong>{{ c.nome }}</strong>
               {% if c.apelido %}<div class="text-muted small">{{ c.apelido }}</div>{% endif %}
+              <div class="d-md-none small text-muted">
+                {{ c.cpf_cnpj or '-' }} | {{ c.telefone or '-' }}
+              </div>
             </td>
-            <td>{{ c.cpf_cnpj or '-' }}</td>
-            <td>{{ c.telefone or '-' }}</td>
-            <td><a href="mailto:{{ c.email }}">{{ c.email or '-' }}</a></td>
-            <td>
+            <td class="d-none d-md-table-cell">{{ c.cpf_cnpj or '-' }}</td>
+            <td class="d-none d-lg-table-cell">{{ c.telefone or '-' }}</td>
+            <td class="d-none d-xl-table-cell"><a href="mailto:{{ c.email }}">{{ c.email or '-' }}</a></td>
+            <td class="d-none d-lg-table-cell">
               {% set cid = c.cidade or '-' %}
               {% set uf  = c.uf or '' %}
               <span>{{ cid }}{% if uf %}/{{ uf }}{% endif %}</span>
             </td>
-            <td>
+            <td class="d-none d-md-table-cell">
               {% if c.ativo %}
                 <span class="chip chip-done">Ativo</span>
               {% else %}
@@ -80,17 +83,17 @@
               {% endif %}
             </td>
             <td class="text-end">
-              <div class="btn-group btn-group-sm">
-                <a class="btn btn-brand" href="{{ url_for('cliente.editar_cliente', id=c.id) if url_for else '#' }}">
+              <div class="btn-group btn-group-sm d-flex d-sm-inline-flex">
+                <a class="btn btn-brand btn-sm" href="{{ url_for('cliente.editar_cliente', id=c.id) if url_for else '#' }}" title="Editar">
                   <i class="fas fa-pen"></i>
                 </a>
-                <a class="btn btn-outline-light" style="border-color:rgba(255,255,255,.25)"
-                   href="{{ url_for('cliente.detalhar_cliente', id=c.id) if url_for else '#' }}">
+                <a class="btn btn-outline-light btn-sm" style="border-color:rgba(255,255,255,.25)"
+                   href="{{ url_for('cliente.detalhar_cliente', id=c.id) if url_for else '#' }}" title="Detalhar">
                   <i class="fas fa-eye"></i>
                 </a>
                 <form method="POST" action="{{ url_for('cliente.excluir_cliente', id=c.id) if url_for else '#' }}"
-                      onsubmit="return confirm('Confirma excluir {{ c.nome }}?');">
-                  <button class="btn btn-outline-light" style="border-color:rgba(255,255,255,.25)">
+                      onsubmit="return confirm('Confirma excluir {{ c.nome }}?');" class="d-inline">
+                  <button class="btn btn-outline-light btn-sm" style="border-color:rgba(255,255,255,.25)" title="Excluir">
                     <i class="fas fa-trash"></i>
                   </button>
                 </form>
