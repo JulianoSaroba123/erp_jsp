@@ -195,8 +195,12 @@ def excluir_cliente(id):
 # Detalhamento
 @cliente_bp.route('/detalhar/<int:id>')
 def detalhar_cliente(id):
-    cliente = Cliente.query.get_or_404(id)
-    return render_template('cliente/detalhar.html', cliente=cliente)
+    try:
+        cliente = Cliente.query.get_or_404(id)
+        return render_template('cliente/detalhar.html', cliente=cliente)
+    except Exception as e:
+        flash(f'Erro ao carregar detalhes do cliente: {str(e)}', 'danger')
+        return redirect(url_for('cliente.listar_clientes'))
 
 # API para busca/autocomplete
 @cliente_bp.route('/api/busca', methods=['GET'])
