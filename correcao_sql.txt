@@ -1,0 +1,46 @@
+"""
+Consulta SQL para corrigir o problema diretamente no banco de dados.
+Este arquivo contém comandos SQL que podem ser executados diretamente no PostgreSQL do Render.
+"""
+
+# ------------------------------------------------------
+# INSTRUÇÕES:
+# ------------------------------------------------------
+# 1. Acesse o console do Render ou a interface de administração do PostgreSQL
+# 2. Execute os comandos SQL abaixo um por um
+# 3. Verifique os resultados de cada comando antes de prosseguir
+# ------------------------------------------------------
+
+# Verificar o cliente
+"""
+SELECT id, nome, cpf_cnpj, ativo, codigo
+FROM clientes
+WHERE nome LIKE '%Sergio%Yoshio%' OR cpf_cnpj = '07714278838' OR codigo = 'CL10001';
+"""
+
+# Atualizar o status do cliente para ativo
+"""
+UPDATE clientes
+SET ativo = TRUE
+WHERE nome LIKE '%Sergio%Yoshio%' OR cpf_cnpj = '07714278838' OR codigo = 'CL10001';
+"""
+
+# Garantir que todos os clientes estão ativos
+"""
+UPDATE clientes
+SET ativo = TRUE
+WHERE ativo IS NULL OR ativo = FALSE;
+"""
+
+# Garantir que todos os clientes têm país definido
+"""
+UPDATE clientes
+SET pais = 'Brasil'
+WHERE pais IS NULL OR pais = '';
+"""
+
+# Verificar se as atualizações foram aplicadas
+"""
+SELECT id, nome, cpf_cnpj, ativo, codigo, pais
+FROM clientes;
+"""

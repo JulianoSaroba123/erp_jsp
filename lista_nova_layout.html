@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+{% block titulo %}Clientes — JSP ERP{% endblock %}
+{% block content %}
+
+<style>
+  /* 1) Libera a largura do conteúdo e do card em telas largas */
+  .content-container { max-width: none !important; width: 100% !important; }
+  .card-jsp { max-width: none !important; min-height: 70vh; display: flex; flex-direction: column; }
+  .card-jsp .card-body { flex: 1 1 auto; overflow: auto; } /* rolagem acontece dentro do card, não fora */
+
+  /* 2) Main também sem limite (evita "calc(100vw - 260px)" segurar o layout) */
+  .main-content { max-width: none !important; }
+
+  /* 3) Tabela: distribui melhor a largura e evita barra horizontal à toa */
+  .table-responsive { overflow-x: auto; }
+  .table-jsp { 
+    table-layout: fixed;            /* colunas com largura previsível */
+    --bs-table-bg: rgba(15,31,54,.45);
+    --bs-table-striped-bg: rgba(15,31,54,.64);
+    color:#eaf3ff;
+    border-radius:12px;
+    overflow:hidden;
+    font-size:.95rem;
+  }
+  .table-jsp th, .table-jsp td {
+    overflow: hidden; text-overflow: ellipsis;   /* corta com "..." quando faltar espaço */
+    vertical-align: middle;
+  }
+  /* libera quebra de linha nas células longas (nome/e-mail) para evitar scroll */
+  .table-jsp td:nth-child(2),
+  .table-jsp td:nth-child(5) { white-space: normal; word-break: break-word; }
+
+  .table-jsp thead th{
+    background: rgba(41,182,255,.16);
+    color:#eaf6ff;
+    border-bottom:1px solid rgba(255,255,255,.12);
+  }
+  .table-jsp tbody tr:hover{ background: rgba(255,255,255,.05) }
+  .table-jsp td a{ color: var(--jsp-cyan) }
+
+  /* 4) Sugerir percentuais para caber sem scroll em desktop (ajuste fino se quiser) */
+  .table-jsp thead th:nth-child(1) { width: 8rem; }   /* Código */
+  .table-jsp thead th:nth-child(2) { width: 26%; }    /* Nome/Razão */
+  .table-jsp thead th:nth-child(3) { width: 14%; }    /* CPF/CNPJ */
+  .table-jsp thead th:nth-child(4) { width: 12%; }    /* Telefone */
+  .table-jsp thead th:nth-child(5) { width: 22%; }    /* E-mail */
+  .table-jsp thead th:nth-child(6) { width: 12%; }    /* Cidade/UF */
+  .table-jsp thead th:nth-child(7) { width: 8rem; }   /* Status */
+  .table-jsp thead th:nth-child(8) { width: 8rem; }   /* Ações */
+
+  /* ------- Layout da página -------- */
+  .page-title{ display:flex; align-items:center; gap:.6rem; margin-bottom:1rem; }
+  .page-title .ico{
+    width:38px; height:38px; border-radius:10px;
+    background: var(--btn-grad); color:#051328; display:grid; place-items:center;
+    box-shadow: 0 8px 18px rgba(41,182,255,.25);
+  }
+  .card-jsp .card-header{ padding:1rem 1.25rem; }
+
+  /* 5) Mobile: mantém os "cartõezinhos" legíveis */
+  @media (max-width: 768px){
+    .table-jsp { table-layout: auto; }          /* solta no mobile */
+    .table-jsp thead { display: none; }
+    .table-jsp tbody tr {
+      display: block; margin-bottom: 1rem;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: .75rem; padding: .5rem;
+      background: rgba(0,0,0,.20);
+    }
+    .table-jsp tbody td {
+      display: flex; justify-content: space-between;
+      border: 0 !important; padding: .35rem .5rem;
+      white-space: normal; word-break: break-word;
+    }
+    .table-jsp tbody td::before {
+      content: attr(data-label);
+      font-weight: 600; color: #0dcaf0; margin-right: .75rem;
+    }
+    /* esconder colunas de apoio que ficam vazias em mobile */
+    .col-desktop-only{ display:none !important; }
+  }
+
+  /* 6) Limite elegante para ultrawide (opcional) */
+  @media (min-width: 1600px){
+    .content-container { max-width: 1800px; margin-inline: auto; }
+  }
+</style>
+
+<div class="content-container">
+  <div class="page-title">
+    <div class="ico"><i class="fas fa-users"></i></div>
+    <h3 class="m-0">Clientes</h3>
+  </div>
+
+  <div class="card card-jsp mb-3">
+    <div class="card-header d-flex flex-wrap gap-2 align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-2">
+        <i class="fas fa-database"></i>
+        <strong>Base de Clientes</strong>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <form class="d-flex flex-grow-1" method="GET" action="{{ url_for('cliente.listar_clientes') }}">
+          <input class="form-control form-control-sm" type="search" name="q"
+                 placeholder="Buscar por nome, documento ou e-mail"
+                 value="{{ request.args.get('q','') }}" style="min-width:200px">
+          <button class="btn btn-brand btn-sm ms-2" type="submit">
+            <i class="fas fa-search me-1"></i> <span class="d-none d-sm-inline">Buscar</span>
+          </button>
+        </form>
+        <a class="btn btn-brand btn-sm" href="{{ url_for('cliente.novo_cliente') }}">
+          <i class="fas fa-user-plus me-1"></i> <span class="d-none d-sm-inline">Novo Cliente</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-jsp table-striped align-middle mb-0">
+          <thead>
+            <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Nome/Razão Social</th>
+              <th scope="col">CPF/CNPJ</th>
+              <th scope="col">Telefone</th>
+              <th scope="col">E-mail</th>
+              <th scope="col">Cidade/UF</th>
+              <th scope="col">Status</th>
+              <th scope="col">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for cliente in paginacao.items %}
+            <tr>
+              <td data-label="Código">{{ cliente.id }}</td>
+              <td data-label="Nome/Razão Social">{{ cliente.nome or cliente.razao_social }}</td>
+              <td data-label="CPF/CNPJ">{{ cliente.cpf or cliente.cnpj }}</td>
+              <td data-label="Telefone">{{ cliente.telefone or '-' }}</td>
+              <td data-label="E-mail">{{ cliente.email or '-' }}</td>
+              <td data-label="Cidade/UF">
+                {% if cliente.cidade and cliente.estado %}
+                  {{ cliente.cidade }}/{{ cliente.estado }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+              <td data-label="Status">
+                {% if cliente.ativo %}
+                  <span class="badge rounded-pill text-bg-success">Ativo</span>
+                {% else %}
+                  <span class="badge rounded-pill text-bg-danger">Inativo</span>
+                {% endif %}
+              </td>
+              <td data-label="Ações">
+                <div class="btn-group-sm">
+                  <a href="{{ url_for('cliente.detalhar_cliente', id=cliente.id) }}" 
+                     class="btn btn-outline-light btn-sm" title="Visualizar">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <a href="{{ url_for('cliente.editar_cliente', id=cliente.id) }}" 
+                     class="btn btn-outline-warning btn-sm" title="Editar">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a href="{{ url_for('cliente.excluir_cliente', id=cliente.id) }}" 
+                     class="btn btn-outline-danger btn-sm" title="Excluir"
+                     onclick="return confirm('Deseja realmente excluir este cliente?')">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="8" class="text-center py-4">
+                <i class="fas fa-search fa-2x mb-2 opacity-50"></i>
+                <p class="mb-0">Nenhum cliente encontrado</p>
+                {% if request.args.get('q') %}
+                <small class="text-muted">Tente uma pesquisa diferente</small>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Paginação -->
+    {% if paginacao.pages > 1 %}
+    <div class="card-footer">
+      <nav aria-label="Paginação de clientes">
+        <ul class="pagination pagination-sm justify-content-center mb-0">
+          <!-- Primeira página -->
+          {% if paginacao.has_prev %}
+            <li class="page-item">
+              <a class="page-link" href="{{ url_for('cliente.listar_clientes', page=1, q=request.args.get('q','')) }}">
+                <i class="fas fa-angle-double-left"></i>
+              </a>
+            </li>
+          {% endif %}
+
+          <!-- Página anterior -->
+          {% if paginacao.has_prev %}
+            <li class="page-item">
+              <a class="page-link" href="{{ url_for('cliente.listar_clientes', page=paginacao.prev_num, q=request.args.get('q','')) }}">
+                <i class="fas fa-angle-left"></i>
+              </a>
+            </li>
+          {% endif %}
+
+          <!-- Páginas numeradas -->
+          {% for page_num in paginacao.iter_pages() %}
+            {% if page_num %}
+              {% if page_num != paginacao.page %}
+                <li class="page-item">
+                  <a class="page-link" href="{{ url_for('cliente.listar_clientes', page=page_num, q=request.args.get('q','')) }}">
+                    {{ page_num }}
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item active">
+                  <span class="page-link">{{ page_num }}</span>
+                </li>
+              {% endif %}
+            {% else %}
+              <li class="page-item disabled">
+                <span class="page-link">…</span>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          <!-- Próxima página -->
+          {% if paginacao.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="{{ url_for('cliente.listar_clientes', page=paginacao.next_num, q=request.args.get('q','')) }}">
+                <i class="fas fa-angle-right"></i>
+              </a>
+            </li>
+          {% endif %}
+
+          <!-- Última página -->
+          {% if paginacao.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="{{ url_for('cliente.listar_clientes', page=paginacao.pages, q=request.args.get('q','')) }}">
+                <i class="fas fa-angle-double-right"></i>
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+      <div class="text-center mt-2">
+        <small class="text-muted">
+          Mostrando {{ paginacao.per_page * (paginacao.page - 1) + 1 }} até 
+          {{ paginacao.per_page * paginacao.page if paginacao.per_page * paginacao.page < paginacao.total else paginacao.total }}
+          de {{ paginacao.total }} clientes
+        </small>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

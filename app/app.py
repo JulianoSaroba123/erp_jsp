@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from functools import wraps
 # from flask_migrate import Migrate  # Temporariamente desabilitado
 from app.extensoes import db
-from app.config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, SECRET_KEY
+from app.config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, SECRET_KEY, TEMPLATES_AUTO_RELOAD, SEND_FILE_MAX_AGE_DEFAULT
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -53,10 +53,16 @@ def logout():
     flash('Você saiu do sistema.', 'info')
     return redirect(url_for('login'))
 
-# Configurações do banco
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 app.config['SECRET_KEY'] = SECRET_KEY
+app.config['TEMPLATES_AUTO_RELOAD'] = TEMPLATES_AUTO_RELOAD
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = SEND_FILE_MAX_AGE_DEFAULT
+
+# Força recarregamento de templates em desenvolvimento
+if os.environ.get('DEBUG', 'True').lower() == 'true':
+    app.jinja_env.auto_reload = True
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 # Inicializa o banco
 db.init_app(app)
@@ -109,19 +115,19 @@ def login():
 
 # Rota para página inicial especial
 @app.route('/inicio')
-@login_required
 def inicio():
-    # Dados padrão para os gráficos
-    grafico_entradas = []
-    grafico_saidas = []
-    categorias = []
-    valores_cat = []
+    # Dados simulados para o dashboard
+    dados_dashboard = {
+        'saldo_total': '125.430,00',
+        'entradas_total': '180.250,00', 
+        'saidas_total': '54.820,00',
+        'grafico_entradas': [15000, 18000, 22000, 16000, 25000, 19000, 21000, 23000, 17000, 20000, 24000, 18000],
+        'grafico_saidas': [8000, 9500, 11000, 7500, 12000, 8800, 9200, 10500, 7800, 9000, 11500, 8200],
+        'categorias': ['Material Elétrico', 'Mão de Obra', 'Transporte', 'Ferramentas', 'Outros'],
+        'valores_cat': [25000, 15000, 8000, 4000, 2820]
+    }
     
-    return render_template('index.html', 
-                         grafico_entradas=grafico_entradas,
-                         grafico_saidas=grafico_saidas,
-                         categorias=categorias,
-                         valores_cat=valores_cat)
+    return render_template('index.html', **dados_dashboard)
 
 # Rota para dashboard
 @app.route('/dashboard')
@@ -132,7 +138,17 @@ def dashboard():
 @app.route('/')
 def home():
     if 'usuario' in session:
-        return redirect(url_for('cliente.listar_clientes'))
+        # Dados simulados para o dashboard
+        dados_dashboard = {
+            'saldo_total': '125.430,00',
+            'entradas_total': '180.250,00', 
+            'saidas_total': '54.820,00',
+            'grafico_entradas': [15000, 18000, 22000, 16000, 25000, 19000, 21000, 23000, 17000, 20000, 24000, 18000],
+            'grafico_saidas': [8000, 9500, 11000, 7500, 12000, 8800, 9200, 10500, 7800, 9000, 11500, 8200],
+            'categorias': ['Material Elétrico', 'Mão de Obra', 'Transporte', 'Ferramentas', 'Outros'],
+            'valores_cat': [25000, 15000, 8000, 4000, 2820]
+        }
+        return render_template('index.html', **dados_dashboard)
     return redirect(url_for('login'))
 
 # Rota específica para /cliente/novo

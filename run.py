@@ -15,5 +15,5 @@ from app.app import app
 if __name__ == '__main__':
     # Configuração para produção (Render) e desenvolvimento
     port = int(os.environ.get('PORT', 5000))
-    debug = os.environ.get('DEBUG', 'False').lower() == 'true'
+    debug = os.environ.get('DEBUG', 'True').lower() == 'true'  # Debug ativado por padrão
     app.run(host='0.0.0.0', port=port, debug=debug)

@@ -20,3 +20,7 @@ SQLALCHEMY_DATABASE_URI = DATABASE_URL
 
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SECRET_KEY = os.environ.get('SECRET_KEY') or 'chave_super_secreta'
+
+# Configurações para desenvolvimento
+TEMPLATES_AUTO_RELOAD = True
+SEND_FILE_MAX_AGE_DEFAULT = 0
