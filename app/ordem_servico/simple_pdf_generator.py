@@ -84,7 +84,8 @@ class SimplePDFGenerator:
                 # SEGUNDO: Tentar com WeasyPrint usando o template relatorio_cliente_print.html
                 print("🔍 Tentando fallback com WeasyPrint...")
                 context = self._prepare_context(os)
-                html_content = render_template('relatorio_cliente_print.html', **context)
+                html_content = render_template('ordem_servico/templates/pdf_os.html', **context)
+                print(f"✅ Template HTML gerado com tamanho: {len(html_content)}")
                 if self.use_weasyprint and HAS_WEASYPRINT:
                     return self._generate_with_weasyprint(html_content, output_path)
                 else:
