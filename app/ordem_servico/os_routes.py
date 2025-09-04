@@ -48,11 +48,13 @@ def nova_os():
             if ultima_os and ultima_os.codigo and ultima_os.codigo.startswith('OS'):
                 try:
                     proximo_num = int(ultima_os.codigo[2:]) + 1
-                    codigo = f'OS{proximo_num:04d}'
+                    if proximo_num < 351:
+                        proximo_num = 351
+                    codigo = f'OS{proximo_num:05d}'
                 except Exception:
-                    codigo = 'OS0001'
+                    codigo = 'OS00351'
             else:
-                codigo = 'OS0001'
+                codigo = 'OS00351'
 
             ordem = OrdemServico(
                 codigo=codigo,
