@@ -6,14 +6,36 @@ Muito mais fácil de manter e atualizar
 try:
     from weasyprint import HTML, CSS
     HAS_WEASYPRINT = True
-except ImportError:
+    print("✅ WeasyPrint disponível")
+except ImportError as e:
+    print(f"❌ WeasyPrint não disponível: {e}")
+    HAS_WEASYPRINT = False
+except Exception as e:
+    print(f"❌ Erro ao carregar WeasyPrint: {e}")
     HAS_WEASYPRINT = False
 
 try:
     import pdfkit
     HAS_PDFKIT = True
-except ImportError:
+    print("✅ PDFKit disponível")
+except ImportError as e:
+    print(f"❌ PDFKit não disponível: {e}")
     HAS_PDFKIT = False
+except Exception as e:
+    print(f"❌ Erro ao carregar PDFKit: {e}")
+    HAS_PDFKIT = False
+
+try:
+    from reportlab.lib.pagesizes import A4
+    from reportlab.pdfgen import canvas
+    HAS_REPORTLAB = True
+    print("✅ ReportLab disponível")
+except ImportError as e:
+    print(f"❌ ReportLab não disponível: {e}")
+    HAS_REPORTLAB = False
+except Exception as e:
+    print(f"❌ Erro ao carregar ReportLab: {e}")
+    HAS_REPORTLAB = False
 
 from flask import render_template
 import tempfile
@@ -45,6 +67,8 @@ class SimplePDFGenerator:
         Gera PDF usando template HTML
         Muito mais simples que a versão anterior!
         """
+        print(f"▶️ Iniciando geração de PDF para OS: {os.codigo}")
+        print(f"▶️ Status bibliotecas: WeasyPrint={HAS_WEASYPRINT}, ReportLab={HAS_REPORTLAB}, PDFKit={HAS_PDFKIT}")
         try:
             # Preparar dados para o template
             context = self._prepare_context(os)
