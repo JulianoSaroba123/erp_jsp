@@ -20,3 +20,5 @@ services:
         value: "False"
       - key: FLASK_ENV
         value: "production"
+      - key: PYTHONUNBUFFERED
+        value: "true"
