@@ -294,6 +294,103 @@
             </div>
         </div>
     </div>
+
+    <!-- Informações de Pagamento -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-credit-card"></i> Condições de Pagamento</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Forma de Pagamento:</strong><br>
+                            {{ os.forma_pagamento or 'Não definido' }}
+                        </div>
+                        <div class="col-6">
+                            <strong>Condição:</strong><br>
+                            {{ 'Parcelado' if os.condicao_pagamento == 'parcelado' else 'À Vista' }}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Status Pagamento:</strong><br>
+                            {% if os.status_pagamento == 'pago' %}
+                                <span class="badge bg-success">Pago</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Pendente</span>
+                            {% endif %}
+                        </div>
+                        {% if os.qtd_parcelas and os.qtd_parcelas > 1 %}
+                        <div class="col-6">
+                            <strong>Parcelas:</strong><br>
+                            {{ os.qtd_parcelas }}x
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if os.valor_entrada and os.valor_entrada > 0 %}
+                    <hr>
+                    <div class="row">
+                        <div class="col-12">
+                            <strong>Valor Entrada:</strong><br>
+                            <span class="text-primary">R$ {{ "%.2f"|format(os.valor_entrada) }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Lançamentos Financeiros</h5>
+                </div>
+                <div class="card-body">
+                    {% if os.lancamentos_financeiros %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Parcela</th>
+                                        <th>Vencimento</th>
+                                        <th>Valor</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for lancamento in os.lancamentos_financeiros %}
+                                    <tr>
+                                        <td>
+                                            {% if lancamento.parcela == 0 %}
+                                                Entrada
+                                            {% else %}
+                                                {{ lancamento.parcela }}/{{ lancamento.total_parcelas }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ lancamento.data_vencimento.strftime('%d/%m/%Y') }}</td>
+                                        <td>R$ {{ "%.2f"|format(lancamento.valor) }}</td>
+                                        <td>
+                                            {% if lancamento.status == 'Pago' %}
+                                                <span class="badge bg-success">Pago</span>
+                                            {% else %}
+                                                <span class="badge bg-warning text-dark">Pendente</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Nenhum lançamento financeiro encontrado.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal de Confirmação de Exclusão -->

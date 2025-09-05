@@ -65,9 +65,16 @@ class OrdemServico(db.Model):
     valor_total = db.Column(db.Float, default=0.0)
     
     # 10. Condições de Pagamento
-    forma_pagamento = db.Column(db.String(50))  # À vista, Parcelado, etc
+    forma_pagamento = db.Column(db.String(50))  # pix, dinheiro, boleto, cartao
     condicoes_pagamento = db.Column(db.String(200))
     data_vencimento = db.Column(db.Date)
+    
+    # 10.1 Novos campos para integração financeira
+    condicao_pagamento = db.Column(db.String(50))  # 'avista' ou 'parcelado'
+    qtd_parcelas = db.Column(db.Integer)  # Quantidade de parcelas
+    valor_entrada = db.Column(db.Numeric(10, 2))  # Valor de entrada
+    status_pagamento = db.Column(db.String(20))  # 'pendente', 'pago'
+    schedule_json = db.Column(db.Text)  # JSON de cronograma personalizado
 
     # 9.x. Blocos JSON persistidos (usados no template/rotas)
     servicos_dados = db.Column(db.Text)     # JSON de serviços

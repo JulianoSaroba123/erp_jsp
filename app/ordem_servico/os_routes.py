@@ -482,22 +482,45 @@ def atualizar_os(id):
         ordem.recalcular_valores()
         print(f"[APÓS RECÁLCULO] OS {ordem.codigo}: Serviços={ordem.valor_servicos}, Total={ordem.valor_total}")
 
-        # --- NOVO: Criar lançamentos financeiros se status for Concluída e forma_pagamento for de pagamento imediato ---
+        # --- Atualizar campos para integração com financeiro ---
+        # Campos de pagamento (novos)
+        ordem.condicao_pagamento = dados.get('condicao_pagamento', 'avista')
+        ordem.qtd_parcelas = int(dados.get('qtd_parcelas', 1) or 1)
+        ordem.valor_entrada = float(dados.get('valor_entrada', 0) or 0)
+        ordem.status_pagamento = dados.get('status_pagamento', 'pendente')
+        ordem.schedule_json = dados.get('schedule_json')
+
+        # --- Criar lançamentos financeiros se status for Concluída e pagamento estiver marcado como pago ---
         status_atual = ordem.status
-        forma_pag = (ordem.forma_pagamento or '').lower()
-        pode_lancar = status_atual == 'Concluída' and forma_pag in ['pago', 'à vista', 'a vista', 'dinheiro', 'pix', 'cartão', 'cartao']
-        if pode_lancar:
-            # from app.financeiro.financeiro_model import LancamentoFinanceiro  # Módulo financeiro não existe ainda
-            # lancamentos_existentes = LancamentoFinanceiro.query.filter(
-            #     LancamentoFinanceiro.descricao.like(f'%{ordem.codigo}%'),
-            #     ~LancamentoFinanceiro.status.in_(['Cancelado', 'Excluído'])
-            # ).count()
-            pass  # Desabilitado temporariamente até módulo financeiro ser criado
-            lancamentos_existentes = 0  # Temporariamente desabilitado
-            if lancamentos_existentes == 0:
-                try:
-                    # criar_lancamentos_financeiros(ordem)
-                    # Marcar novos lançamentos como pagos
+        status_pagamento = ordem.status_pagamento
+        
+        if status_atual == 'Concluída' and status_pagamento == 'pago':
+            from app.financeiro.lancamento_os_service import gerar_lancamentos_financeiro, parse_schedule_custom
+            from decimal import Decimal
+            
+            # Preparar dados para geração dos lançamentos
+            forma_pagamento = dados.get('forma_pagamento', 'Dinheiro')
+            valor_total = Decimal(str(ordem.valor_total))
+            parcelas = ordem.qtd_parcelas
+            entrada = Decimal(str(ordem.valor_entrada)) if ordem.valor_entrada else Decimal('0.00')
+            
+            # Parse cronograma personalizado se existir
+            schedule_custom = parse_schedule_custom(ordem.schedule_json)
+            
+            # Gerar lançamentos (função idempotente)
+            try:
+                gerar_lancamentos_financeiro(
+                    os=ordem,
+                    forma_pagamento=forma_pagamento,
+                    valor_total=valor_total,
+                    parcelas=parcelas,
+                    entrada=entrada,
+                    schedule_custom=schedule_custom
+                )
+                flash('Lançamentos financeiros atualizados com sucesso!', 'success')
+            except Exception as e:
+                print(f"Erro ao gerar lançamentos financeiros: {str(e)}")
+                flash(f'Erro ao gerar lançamentos financeiros: {str(e)}', 'error')
                     # novos_lancamentos = LancamentoFinanceiro.query.filter(
                     #     LancamentoFinanceiro.descricao.like(f'%{ordem.codigo}%'),
                     #     LancamentoFinanceiro.status == 'Pendente'
@@ -1519,20 +1542,46 @@ def finalizar_os(id):
 
         # Atualizar status da OS
         ordem.status = 'Finalizada'
-        db.session.commit()
-
-        # Lançar no financeiro
-        from app.financeiro.financeiro_model import LancamentoFinanceiro
-        lancamento = LancamentoFinanceiro(
-            descricao=f'Ordem de Serviço {ordem.codigo}',
-            valor=ordem.valor_total,
-            data=datetime.now(),
-            tipo='Receita',
-            categoria='Serviços',
-            origem='Ordem de Serviço',
-            referencia=ordem.codigo
-        )
-        db.session.add(lancamento)
+        
+        # Verificar se deve lançar no financeiro (se status_pagamento for 'pago')
+        if ordem.status_pagamento == 'pago':
+            # Importar serviço de lançamentos
+            from app.financeiro.lancamento_os_service import gerar_lancamentos_financeiro, parse_schedule_custom
+            from decimal import Decimal
+            
+            # Preparar dados para geração dos lançamentos
+            forma_pagamento = ordem.forma_pagamento or 'Dinheiro'
+            valor_total = Decimal(str(ordem.valor_total))
+            parcelas = ordem.qtd_parcelas or 1
+            entrada = Decimal(str(ordem.valor_entrada)) if ordem.valor_entrada else Decimal('0.00')
+            
+            # Parse cronograma personalizado se existir
+            schedule_custom = parse_schedule_custom(ordem.schedule_json)
+            
+            # Gerar lançamentos (função idempotente)
+            gerar_lancamentos_financeiro(
+                os=ordem,
+                forma_pagamento=forma_pagamento,
+                valor_total=valor_total,
+                parcelas=parcelas,
+                entrada=entrada,
+                schedule_custom=schedule_custom
+            )
+            
+            # Também criar um lançamento no módulo financeiro geral
+            from app.financeiro.financeiro_model import LancamentoFinanceiro
+            lancamento = LancamentoFinanceiro(
+                descricao=f'Ordem de Serviço {ordem.codigo}',
+                valor=ordem.valor_total,
+                data=datetime.now(),
+                tipo='Receita',
+                categoria='Serviços',
+                origem='Ordem de Serviço',
+                referencia=ordem.codigo
+            )
+            db.session.add(lancamento)
+            
+        # Salvar todas as alterações
         db.session.commit()
 
         flash('Ordem de serviço finalizada e lançada no financeiro com sucesso!', 'success')
