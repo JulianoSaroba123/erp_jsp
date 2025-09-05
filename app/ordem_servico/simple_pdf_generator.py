@@ -81,16 +81,28 @@ class SimplePDFGenerator:
             print(f"❌ Erro no reportlab: {e}")
             
             try:
-                # SEGUNDO: Tentar com WeasyPrint usando o template relatorio_cliente_print.html
+                # SEGUNDO: Tentar com WeasyPrint usando o template pdf_os.html
                 print("🔍 Tentando fallback com WeasyPrint...")
                 context = self._prepare_context(os)
-                html_content = render_template('ordem_servico/templates/pdf_os.html', **context)
-                print(f"✅ Template HTML gerado com tamanho: {len(html_content)}")
-                if self.use_weasyprint and HAS_WEASYPRINT:
+                # Caminho corrigido para o template
+                html_content = render_template('ordem_servico/pdf_os.html', **context)
+                
+                # DEBUG - Salvar HTML para verificar
+                import os
+                debug_path = os.path.join(os.path.dirname(__file__), 'debug_output.html')
+                with open(debug_path, 'w', encoding='utf-8') as f:
+                    f.write(html_content)
+                print(f"✅ Template HTML gerado com tamanho: {len(html_content)} e salvo em {debug_path}")
+                
+                # Verificar qual biblioteca está disponível
+                if HAS_REPORTLAB:
+                    print("⚠️ Forçando geração com ReportLab como teste")
+                    return self._generate_fallback_simple(os, output_path)
+                elif self.use_weasyprint and HAS_WEASYPRINT:
                     return self._generate_with_weasyprint(html_content, output_path)
                 else:
-                    print("WeasyPrint não disponível")
-                    raise Exception("WeasyPrint não disponível")
+                    print("❌ Nenhuma biblioteca disponível, usando fallback básico")
+                    return self._generate_fallback_simple(os, output_path)
                     
             except Exception as e2:
                 print(f"❌ Erro no WeasyPrint também: {e2}")
@@ -332,6 +344,7 @@ class SimplePDFGenerator:
     def _generate_fallback_simple(self, os, output_path):
         """Fallback super simples"""
         try:
+            print("⚠️ Usando gerador de PDF super simples com ReportLab")
             from reportlab.lib.pagesizes import A4
             from reportlab.pdfgen import canvas
             from io import BytesIO
@@ -339,15 +352,23 @@ class SimplePDFGenerator:
             buffer = BytesIO()
             p = canvas.Canvas(buffer, pagesize=A4)
             
+            # Conteúdo mínimo
             p.drawString(100, 750, f"JSP ELÉTRICA - OS {os.codigo}")
             p.drawString(100, 720, f"Cliente: {os.cliente.nome if os.cliente else 'N/A'}")
             p.drawString(100, 690, f"Data: {os.data_emissao.strftime('%d/%m/%Y') if os.data_emissao else 'N/A'}")
             p.drawString(100, 660, f"Total: R$ {os.valor_total or 0:.2f}")
             p.drawString(100, 600, f"PDF gerado em modo simplificado")
             
+            # Salvar
             p.save()
             pdf_bytes = buffer.getvalue()
             buffer.close()
+            
+            # Verificar se é PDF válido
+            if pdf_bytes.startswith(b'%PDF'):
+                print("✅ PDF válido (modo simples)!")
+            else:
+                print("❌ PDF inválido (modo simples)")
             
             if output_path:
                 with open(output_path, 'wb') as f:
