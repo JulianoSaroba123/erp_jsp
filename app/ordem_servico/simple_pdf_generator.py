@@ -49,8 +49,15 @@ class SimplePDFGenerator:
         self.use_weasyprint = HAS_WEASYPRINT
         
     def _generate_simple_html(self, os):
-        """Gera um HTML super simples e robusto para testes"""
-        return f"""<!DOCTYPE html>
+        """Gera HTML usando o template relatorio_cliente_print.html"""
+        try:
+            context = self._prepare_context(os)
+            # Usar template completo
+            return render_template('relatorio_cliente_print.html', **context)
+        except Exception as e:
+            print(f"❌ Erro ao renderizar template completo: {e}")
+            # Em caso de erro, usar HTML simples embutido como fallback
+            return f"""<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
