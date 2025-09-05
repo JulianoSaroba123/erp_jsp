@@ -115,9 +115,9 @@ def nova_os():
             proximo_num = int(ultima_os.codigo[2:]) + 1
             codigo_gerado = f'OS{proximo_num:04d}'
         except Exception:
-            codigo_gerado = 'OS0001'
+            codigo_gerado = 'OS0351'
     else:
-        codigo_gerado = 'OS0001'
+        codigo_gerado = 'OS0351'
     return render_template('ordem_servico/cadastro_new.html', servicos=servicos, produtos=produtos, clientes=clientes, codigo_gerado=codigo_gerado, ordem_servico=None)
 
 # === LISTAGEM DE ORDENS DE SERVIÇO (endpoint: os.listar_os) ===
@@ -1306,92 +1306,7 @@ def download_pdf(os_id):
         return redirect(url_for('os.listar_os'))
 
 
-@os_bp.route('/test-pdf-jsp')
-def test_pdf_jsp():
-    """Rota para testar o PDF com template JSP"""
-    try:
-        # Teste de imports primeiro
-        
-        # Criar mock da OS para teste
-        class MockCliente:
-            def __init__(self):
-                self.nome = "EMPRESA EXEMPLO LTDA"
-                self.cpf_cnpj = "29.256.846/0001-59"
-                self.telefone = "(11) 98765-4321"
-                self.email = "contato@empresa.com.br"
-                self.endereco = "RUA DAS FLORES, 123 - SÃO PAULO - SP"
 
-        class MockItem:
-            def __init__(self, descricao, quantidade, valor_unitario, valor_total, tipo_item):
-                self.descricao = descricao
-                self.quantidade = quantidade
-                self.valor_unitario = valor_unitario
-                self.valor_total = valor_total
-                self.tipo_item = tipo_item
-
-        class MockOS:
-            def __init__(self):
-                self.codigo = "OS-2024001"
-                self.numero = "2024001"
-                self.data_abertura = datetime.now()
-                # self.data_conclusao = datetime.now()  # Temporariamente comentado - coluna não existe
-                self.status = "Concluída"
-                
-                # Cliente
-                self.cliente = MockCliente()
-                
-                # Equipamento
-                self.equipamento_nome = "Calandra 01"
-                self.equipamento_marca = "Mirandópolis"
-                self.equipamento_modelo = "CC440"
-                self.equipamento_numero_serie = "123456789"
-                self.equipamento_acessorios = "Rolos extras, Suporte"
-                
-                # Técnico
-                self.responsavel_tecnico = "Carlos Santos - Técnico Eletrônico"
-                self.problema_relatado = "Equipamento apresentando ruído excessivo"
-                self.problema_encontrado = "Rolamentos desgastados"
-                self.solucao = "Substituição dos rolamentos"
-                self.observacoes = "Manutenção preventiva recomendada"
-                self.tipo_servico = "Manutenção Preventiva"
-                self.total_horas = 4.0
-                self.tecnico_responsavel = "Carlos Santos"
-                
-                # Valores
-                self.valor_servicos = 450.00
-                self.valor_produtos = 280.00
-                self.valor_mao_obra = 150.00
-                self.valor_deslocamento = 50.00
-                self.valor_descontos = 30.00
-                self.valor_total = 900.00
-                
-                # Listas
-                self.arquivos = []
-                self.servicos = [
-                    MockItem("Limpeza geral do equipamento", 1, 100.00, 100.00, "servico"),
-                    MockItem("Substituição de rolamentos", 1, 200.00, 200.00, "servico")
-                ]
-                self.itens = [
-                    MockItem("Rolamento SKF 6205", 2, 85.00, 170.00, "produto"),
-                    MockItem("Filtro de ar", 1, 45.00, 45.00, "produto")
-                ]
-
-        # Criar mock e gerar PDF
-        os_mock = MockOS()
-        pdf_generator = SimplePDFGenerator()
-        pdf_bytes = pdf_generator.generate_pdf(os_mock)
-        
-        # Retornar PDF
-        response = make_response(pdf_bytes)
-        response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = 'inline; filename=teste_jsp_template.pdf'
-        
-        return response
-        
-    except Exception as e:
-        import traceback
-        error_details = traceback.format_exc()
-        return f"Erro ao gerar PDF de teste:<br><pre>{error_details}</pre>", 500
 
 @os_bp.route('/teste-reativacao-lancamentos')
 def teste_reativacao_lancamentos():
