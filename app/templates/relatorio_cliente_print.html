@@ -2,8 +2,25 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OS {{ os.codigo }} • RELATÓRIO</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">/* ===== LAYOUT FINANCEIRO ===== */
+.finance-header {
+  width: 50%;
+}
+.finance-box {
+  margin-bottom: 12px;
+}
+.finance-table {
+  max-width: 300px;
+}
+
+/* ===== DESCRIÇÕES ===== */
+.description-block {
+  margin: 8px 0;
+}
+.description-text {
+  margin-top: 4px;
+  white-space: pre-line;
+}S {{ os.codigo }} • RELATÓRIO</title>
 
 <style>
 /* ===== VARS / PALETA ===== */
@@ -139,19 +156,14 @@ tr:nth-child(even) td{ background:#f5f9ff; }
 .sign .lane{height:24px; border-bottom:1px dashed #4a6b97;}
 
 /* ===== LAYOUT FINANCEIRO ===== */
-.finance-section {
-  display: flex;
-  gap: 20px;
-}
-.finance-col {
-  width: 50%;
-}
-.finance-table {
-  width: 100%;
-  max-width: 300px;
-}
 .finance-header {
   width: 50%;
+}
+.finance-box {
+  margin-bottom: 12px;
+}
+.finance-table {
+  max-width: 300px;
 }
 
 /* ===== RESPONSIVO IMPRESSÃO ===== */
@@ -292,13 +304,13 @@ tr:nth-child(even) td{ background:#f5f9ff; }
   <h2>[05] TÉCNICO & DIAGNÓSTICO</h2>
   <div class="box">
     <p><span class="chip">TÉCNICO</span> {{ os.tecnico_responsavel or '—' }}</p>
-    <div style="margin: 8px 0;">
+    <div class="description-block">
       <span class="chip">PROBLEMA</span>
-      <div style="margin-top: 4px; white-space: pre-line;">{{ os.problema_descrito or '-' }}</div>
+      <div class="description-text">{{ os.problema_descrito or '-' }}</div>
     </div>
-    <div style="margin: 8px 0;">
+    <div class="description-block">
       <span class="chip">SERVIÇO</span>
-      <div style="margin-top: 4px; white-space: pre-line;">{{ os.descricao_servico_realizado or '-' }}</div>
+      <div class="description-text">{{ os.descricao_servico_realizado or '-' }}</div>
     </div>
   </div>
 </div>
@@ -306,36 +318,30 @@ tr:nth-child(even) td{ background:#f5f9ff; }
 <!-- ===== FINANCEIRO ===== -->
 <div class="section">
   <h2>[06] RESUMO FINANCEIRO</h2>
-  <div class="finance-section">
-    <div class="finance-col">
-      <div class="box">
-        <table class="finance-table">
-          <tr><th class="finance-header">TOTAL SERVIÇOS</th><td class="t-right">R$ {{ '%.2f'|format(total_servicos|default(0)|float) }}</td></tr>
-          <tr><th class="finance-header">TOTAL PRODUTOS</th><td class="t-right">R$ {{ '%.2f'|format(total_produtos|default(0)|float) }}</td></tr>
-          {% if os.valor_deslocamento %}
-          <tr><th class="finance-header">DESLOCAMENTO</th><td class="t-right">R$ {{ '%.2f'|format(os.valor_deslocamento|float) }}</td></tr>
-          {% endif %}
-          <tr>
-            <th class="finance-header">VALOR TOTAL</th>
-            <td class="t-right">R$ {{ '%.2f'|format(valor_total|default(0)|float) }}</td>
-          </tr>
-        </table>
-      </div>
-    </div>
-
-    <div class="finance-col">
-      <div class="box">
-        <table>
-          <tr><th colspan="2">DADOS PARA TRANSFERÊNCIA</th></tr>
-          <tr><td>INSTITUIÇÃO</td><td>403 – CORA SCFI</td></tr>
-          <tr><td>AGÊNCIA</td><td>0001</td></tr>
-          <tr><td>CONTA</td><td>4633457-0</td></tr>
-          <tr><td>TITULAR</td><td>Saroba Solar</td></tr>
-          <tr><td>CNPJ</td><td>41.280.764/0001-65</td></tr>
-          <tr><td>PIX</td><td>41.280.764/0001-65</td></tr>
-        </table>
-      </div>
-    </div>
+  <div class="box finance-box">
+    <table class="finance-table">
+      <tr><th class="finance-header">TOTAL SERVIÇOS</th><td class="t-right">R$ {{ '%.2f'|format(total_servicos|default(0)|float) }}</td></tr>
+      <tr><th class="finance-header">TOTAL PRODUTOS</th><td class="t-right">R$ {{ '%.2f'|format(total_produtos|default(0)|float) }}</td></tr>
+      {% if os.valor_deslocamento %}
+      <tr><th class="finance-header">DESLOCAMENTO</th><td class="t-right">R$ {{ '%.2f'|format(os.valor_deslocamento|float) }}</td></tr>
+      {% endif %}
+      <tr>
+        <th class="finance-header">VALOR TOTAL</th>
+        <td class="t-right">R$ {{ '%.2f'|format(valor_total|default(0)|float) }}</td>
+      </tr>
+    </table>
+  </div>
+  
+  <div class="box">
+    <table>
+      <tr><th colspan="2">DADOS PARA TRANSFERÊNCIA</th></tr>
+      <tr><td>INSTITUIÇÃO</td><td>403 – CORA SCFI</td></tr>
+      <tr><td>AGÊNCIA</td><td>0001</td></tr>
+      <tr><td>CONTA</td><td>4633457-0</td></tr>
+      <tr><td>TITULAR</td><td>Saroba Solar</td></tr>
+      <tr><td>CNPJ</td><td>41.280.764/0001-65</td></tr>
+      <tr><td>PIX</td><td>41.280.764/0001-65</td></tr>
+    </table>
   </div>
 </div>
 
