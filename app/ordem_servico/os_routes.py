@@ -521,16 +521,7 @@ def atualizar_os(id):
             except Exception as e:
                 print(f"Erro ao gerar lançamentos financeiros: {str(e)}")
                 flash(f'Erro ao gerar lançamentos financeiros: {str(e)}', 'error')
-                    # novos_lancamentos = LancamentoFinanceiro.query.filter(
-                    #     LancamentoFinanceiro.descricao.like(f'%{ordem.codigo}%'),
-                    #     LancamentoFinanceiro.status == 'Pendente'
-                    # ).all()
-                    # for lancamento in novos_lancamentos:
-                    #     lancamento.status = 'Pago'
-                    print("DEBUG: Lançamentos financeiros desabilitados temporariamente")
-                except Exception as e:
-                    print(f"DEBUG: Erro ao criar lançamentos financeiros em atualizar_os: {str(e)}")
-                    flash(f'Erro ao criar lançamentos financeiros: {str(e)}', 'error')
+
         db.session.commit()
         flash(f'Ordem de Serviço {ordem.codigo} atualizada com sucesso!', 'success')
         return redirect(url_for('os.editar_os', id=ordem.id))
