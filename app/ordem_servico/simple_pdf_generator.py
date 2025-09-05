@@ -48,6 +48,41 @@ class SimplePDFGenerator:
     def __init__(self):
         self.use_weasyprint = HAS_WEASYPRINT
         
+    def _generate_simple_html(self, os):
+        """Gera um HTML super simples e robusto para testes"""
+        return f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>OS {os.codigo} - JSP ELÉTRICA</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 20px; }}
+        h1 {{ color: #003366; }}
+        .header {{ border-bottom: 1px solid #003366; padding-bottom: 10px; }}
+        .content {{ margin-top: 20px; }}
+        .footer {{ margin-top: 30px; font-size: 12px; text-align: center; }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>JSP ELÉTRICA</h1>
+        <h2>Ordem de Serviço: {os.codigo}</h2>
+    </div>
+    
+    <div class="content">
+        <p><strong>Cliente:</strong> {os.cliente.nome if os.cliente else "N/A"}</p>
+        <p><strong>Data:</strong> {os.data_emissao.strftime('%d/%m/%Y') if os.data_emissao else "N/A"}</p>
+        <p><strong>Total:</strong> R$ {os.valor_total or 0:.2f}</p>
+        <p><strong>Forma de Pagamento:</strong> {os.forma_pagamento or "N/A"}</p>
+    </div>
+    
+    <div class="footer">
+        <p>JSP ELÉTRICA - Juliano Saroba Pereira</p>
+    </div>
+</body>
+</html>
+"""
+        
         if HAS_PDFKIT and not HAS_WEASYPRINT:
             # Configurações do wkhtmltopdf como fallback
             self.options = {
@@ -69,40 +104,90 @@ class SimplePDFGenerator:
         """
         print(f"▶️ Iniciando geração de PDF para OS: {os.codigo}")
         print(f"▶️ Status bibliotecas: WeasyPrint={HAS_WEASYPRINT}, ReportLab={HAS_REPORTLAB}, PDFKit={HAS_PDFKIT}")
+        
+        # ESTRATÉGIA: Tentar várias abordagens em sequência para garantir que uma funcione
+        
+        # 1. Tentar com WeasyPrint e HTML simples
+        if HAS_WEASYPRINT:
+            try:
+                print("🔍 Tentando com WeasyPrint e HTML simples...")
+                html_content = self._generate_simple_html(os)
+                return self._generate_with_weasyprint(html_content, output_path)
+            except Exception as e1:
+                print(f"❌ Erro com WeasyPrint e HTML simples: {e1}")
+        
+        # 2. Tentar com ReportLab (sem depender de HTML)
+        if HAS_REPORTLAB:
+            try:
+                print("🔍 Tentando com ReportLab...")
+                return self._generate_with_reportlab(os, output_path)
+            except Exception as e2:
+                print(f"❌ Erro com ReportLab: {e2}")
+        
+        # 3. Tentativa final: PDF ultra simples
         try:
-            # Preparar dados para o template
-            context = self._prepare_context(os)
+            print("🔍 Tentando gerar PDF ultra simples...")
+            return self._generate_fallback_simple(os, output_path)
+        except Exception as e3:
+            print(f"❌ Erro no fallback simples: {e3}")
             
-            # PRIMEIRO: Tentar com reportlab (mais confiável)
-            print("🔍 Tentando gerar PDF com reportlab...")
-            return self._generate_with_reportlab(os, output_path)
+            # 4. Desistir e retornar mensagem de erro
+            error_message = b"Erro ao gerar PDF - Contate o administrador do sistema"
+            print("❌ Todos os métodos falharam. Retornando mensagem de erro.")
+            
+            if output_path:
+                with open(output_path, 'wb') as f:
+                    f.write(error_message)
+                return output_path
+            else:
+                return error_message
             
         except Exception as e:
             print(f"❌ Erro no reportlab: {e}")
             
             try:
-                # SEGUNDO: Tentar com WeasyPrint usando o template pdf_os.html
-                print("🔍 Tentando fallback com WeasyPrint...")
-                context = self._prepare_context(os)
-                # Caminho corrigido para o template
-                html_content = render_template('ordem_servico/pdf_os.html', **context)
+                # SEGUNDO: Testar com HTML estático simples
+                print("🔍 Tentando fallback com HTML simples...")
                 
-                # DEBUG - Salvar HTML para verificar
-                import os
-                debug_path = os.path.join(os.path.dirname(__file__), 'debug_output.html')
-                with open(debug_path, 'w', encoding='utf-8') as f:
-                    f.write(html_content)
-                print(f"✅ Template HTML gerado com tamanho: {len(html_content)} e salvo em {debug_path}")
-                
-                # Verificar qual biblioteca está disponível
-                if HAS_REPORTLAB:
-                    print("⚠️ Forçando geração com ReportLab como teste")
-                    return self._generate_fallback_simple(os, output_path)
-                elif self.use_weasyprint and HAS_WEASYPRINT:
+                # HTML simples para teste
+                html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>OS {os.codigo} - JSP ELÉTRICA</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 20px; }}
+        h1 {{ color: #003366; }}
+        .header {{ border-bottom: 1px solid #003366; padding-bottom: 10px; }}
+        .content {{ margin-top: 20px; }}
+        .footer {{ margin-top: 30px; font-size: 12px; text-align: center; }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>JSP ELÉTRICA</h1>
+        <h2>Ordem de Serviço: {os.codigo}</h2>
+    </div>
+    
+    <div class="content">
+        <p><strong>Cliente:</strong> {os.cliente.nome if os.cliente else "N/A"}</p>
+        <p><strong>Data:</strong> {os.data_emissao.strftime('%d/%m/%Y') if os.data_emissao else "N/A"}</p>
+        <p><strong>Total:</strong> R$ {os.valor_total or 0:.2f}</p>
+        <p><strong>Forma de Pagamento:</strong> {os.forma_pagamento or "N/A"}</p>
+    </div>
+    
+    <div class="footer">
+        <p>JSP ELÉTRICA - Juliano Saroba Pereira</p>
+    </div>
+</body>
+</html>
+"""
+                print(f"✅ Template HTML estático gerado com tamanho: {len(html_content)}")
+                if self.use_weasyprint and HAS_WEASYPRINT:
                     return self._generate_with_weasyprint(html_content, output_path)
                 else:
-                    print("❌ Nenhuma biblioteca disponível, usando fallback básico")
-                    return self._generate_fallback_simple(os, output_path)
+                    print("WeasyPrint não disponível")
+                    raise Exception("WeasyPrint não disponível")
                     
             except Exception as e2:
                 print(f"❌ Erro no WeasyPrint também: {e2}")
@@ -112,24 +197,39 @@ class SimplePDFGenerator:
         """Gera PDF usando WeasyPrint (recomendado)"""
         try:
             print("🔍 Tentando gerar PDF com WeasyPrint...")
-            html_doc = HTML(string=html_content)
             
+            # Verificar se o HTML está vazio
+            if not html_content or len(html_content) < 50:
+                print(f"⚠️ HTML muito curto ({len(html_content) if html_content else 0} bytes)")
+                raise Exception("HTML muito curto ou vazio")
+                
+            try:
+                html_doc = HTML(string=html_content)
+                print("✅ HTML carregado com sucesso")
+            except Exception as html_error:
+                print(f"❌ Erro ao carregar HTML: {html_error}")
+                raise
+                
+            # Tentativa de gerar o PDF
             if output_path:
+                print(f"📄 Gerando PDF no arquivo: {output_path}")
                 html_doc.write_pdf(output_path)
                 print(f"✅ PDF salvo em: {output_path}")
                 return output_path
             else:
+                print("📄 Gerando PDF em memória...")
                 pdf_bytes = html_doc.write_pdf()
                 print(f"✅ PDF gerado: {len(pdf_bytes)} bytes")
                 
                 # Verificar se é PDF válido
                 if pdf_bytes.startswith(b'%PDF'):
-                    print("✅ PDF válido!")
+                    print(f"✅ PDF válido! Primeiros bytes: {pdf_bytes[:20]}")
                 else:
-                    print(f"❌ PDF inválido - primeiros bytes: {pdf_bytes[:20]}")
+                    print(f"❌ PDF inválido - primeiros bytes: {pdf_bytes[:50]}")
                     raise Exception("PDF gerado é inválido")
                     
                 return pdf_bytes
+                
         except Exception as e:
             print(f"❌ Erro no WeasyPrint: {e}")
             raise
@@ -344,7 +444,6 @@ class SimplePDFGenerator:
     def _generate_fallback_simple(self, os, output_path):
         """Fallback super simples"""
         try:
-            print("⚠️ Usando gerador de PDF super simples com ReportLab")
             from reportlab.lib.pagesizes import A4
             from reportlab.pdfgen import canvas
             from io import BytesIO
@@ -352,23 +451,15 @@ class SimplePDFGenerator:
             buffer = BytesIO()
             p = canvas.Canvas(buffer, pagesize=A4)
             
-            # Conteúdo mínimo
             p.drawString(100, 750, f"JSP ELÉTRICA - OS {os.codigo}")
             p.drawString(100, 720, f"Cliente: {os.cliente.nome if os.cliente else 'N/A'}")
             p.drawString(100, 690, f"Data: {os.data_emissao.strftime('%d/%m/%Y') if os.data_emissao else 'N/A'}")
             p.drawString(100, 660, f"Total: R$ {os.valor_total or 0:.2f}")
             p.drawString(100, 600, f"PDF gerado em modo simplificado")
             
-            # Salvar
             p.save()
             pdf_bytes = buffer.getvalue()
             buffer.close()
-            
-            # Verificar se é PDF válido
-            if pdf_bytes.startswith(b'%PDF'):
-                print("✅ PDF válido (modo simples)!")
-            else:
-                print("❌ PDF inválido (modo simples)")
             
             if output_path:
                 with open(output_path, 'wb') as f:
