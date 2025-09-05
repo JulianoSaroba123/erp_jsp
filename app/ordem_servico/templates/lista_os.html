@@ -150,11 +150,11 @@
             </tr>
 
             {# Modal de exclusão #}
-            <div class="modal fade" id="deleteModal{{ os.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal fade" id="deleteModal{{ os.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ os.id }}" aria-hidden="true">
               <div class="modal-dialog">
                 <div class="modal-content card-jsp" style="background:var(--glass);">
                   <div class="modal-header" style="border-bottom:1px solid rgba(255,255,255,.12)">
-                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Confirmar Exclusão</h5>
+                    <h5 class="modal-title" id="deleteModalLabel{{ os.id }}"><i class="fas fa-exclamation-triangle me-2"></i>Confirmar Exclusão</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body">
@@ -167,7 +167,7 @@
                     </div>
                   </div>
                   <div class="modal-footer" style="border-top:1px solid rgba(255,255,255,.12)">
-                    <button type="button" class="btn btn-outline-light" style="border-color:rgba(255,255,255,.25)" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-outline-light fechar-modal" style="border-color:rgba(255,255,255,.25)" data-bs-dismiss="modal" onclick="closeModal('deleteModal{{ os.id }}')">
                       <i class="fas fa-times me-1"></i> Cancelar
                     </button>
                     <form method="POST" action="{{ url_for('os.deletar_os', id=os.id) }}">
@@ -235,4 +235,92 @@
   .table-jsp .text-muted, .table-jsp .small{ color: var(--jsp-muted) !important; opacity:1 !important; }
   .table-jsp code{ color:#ff6ec7 !important; font-weight:700; background:transparent; border:0; padding:0; }
 </style>
+<script>
+  // Função para fechar um modal específico pelo ID
+  function closeModal(modalId) {
+    var modalElement = document.getElementById(modalId);
+    if (modalElement) {
+      // Tenta usar a API Bootstrap se disponível
+      try {
+        var modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) {
+          modalInstance.hide();
+          return;
+        }
+      } catch (e) {
+        console.log('Fallback para fechamento manual do modal');
+      }
+      
+      // Fallback manual se o bootstrap.Modal não estiver disponível
+      modalElement.classList.remove('show');
+      modalElement.style.display = 'none';
+      document.body.classList.remove('modal-open');
+      
+      // Remove o backdrop
+      var backdrop = document.querySelector('.modal-backdrop');
+      if (backdrop) {
+        backdrop.parentNode.removeChild(backdrop);
+      }
+    }
+  }
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    // Função para fechar qualquer modal que esteja aberto
+    function fecharModais() {
+      var modais = document.querySelectorAll('.modal.show');
+      modais.forEach(function(modal) {
+        try {
+          var modalInstance = bootstrap.Modal.getInstance(modal);
+          if (modalInstance) {
+            modalInstance.hide();
+          } else {
+            // Fallback manual
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+            var backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) backdrop.parentNode.removeChild(backdrop);
+          }
+        } catch (e) {
+          // Fallback manual se o bootstrap não estiver disponível
+          modal.classList.remove('show');
+          modal.style.display = 'none';
+          document.body.classList.remove('modal-open');
+          var backdrop = document.querySelector('.modal-backdrop');
+          if (backdrop) backdrop.parentNode.removeChild(backdrop);
+        }
+      });
+    }
+
+    // Adiciona listeners para botões de fechar nos modais
+    document.querySelectorAll('.btn-close, [data-bs-dismiss="modal"]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        fecharModais();
+      });
+    });
+
+    // Adiciona listeners para botões de classe fechar-modal
+    document.querySelectorAll('.fechar-modal').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        fecharModais();
+      });
+    });
+
+    // Adiciona escape key para fechar modais
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        fecharModais();
+      }
+    });
+
+    // Adiciona evento de click fora do modal para fechar
+    document.querySelectorAll('.modal').forEach(function(modal) {
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          fecharModais();
+        }
+      });
+    });
+  });
+</script>
 {% endblock %}
